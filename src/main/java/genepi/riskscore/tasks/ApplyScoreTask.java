@@ -97,8 +97,6 @@ public class ApplyScoreTask {
 					countVariantsSwitched++;
 				}
 
-				// TODO: compare alleles and switch sign
-
 				for (int i = 0; i < countSamples; i++) {
 					Genotype genotype = variant.getGenotype(i);
 					float dosage = Float.parseFloat(genotype.getExtendedAttribute(DOSAGE_FORMAT).toString());

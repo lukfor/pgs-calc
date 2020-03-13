@@ -38,7 +38,39 @@ public class ApplyScoreTaskTest {
 		assertEquals(0, task.getCountVariantsMultiAllelic());
 		assertEquals(1, task.getCountVariantsAlleleMissmatch());
 		assertEquals(EXPECTED_SAMPLES, task.getCountSamples());
+		assertEquals(EXPECTED_SAMPLES, task.getRiskScores().length);
+	}
+	
+	@Test
+	public void testScore() throws Exception {
 
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.run("20", "test-data/single.vcf", "test-data/chr20.scores.csv");
+
+		assertEquals(5, task.getCountVariants());
+		assertEquals(3, task.getCountVariantsUsed());
+		assertEquals(1, task.getCountVariantsSwitched());
+		assertEquals(1, task.getCountVariantsNotUsed());
+		assertEquals(0, task.getCountVariantsMultiAllelic());
+		assertEquals(1, task.getCountVariantsAlleleMissmatch());
+		assertEquals(1, task.getCountSamples());
+		assertEquals(1, task.getRiskScores().length);		
+		assertEquals("LF001", task.getRiskScores()[0].getSample());
+		assertEquals(0.4, task.getRiskScores()[0].getScore(), 0.00001);
+		
+		task = new ApplyScoreTask();
+		task.run("20", "test-data/single.vcf", "test-data/chr20.scores.2.csv");
+
+		assertEquals(5, task.getCountVariants());
+		assertEquals(3, task.getCountVariantsUsed());
+		assertEquals(0, task.getCountVariantsSwitched());
+		assertEquals(1, task.getCountVariantsNotUsed());
+		assertEquals(0, task.getCountVariantsMultiAllelic());
+		assertEquals(1, task.getCountVariantsAlleleMissmatch());
+		assertEquals(1, task.getCountSamples());
+		assertEquals(1, task.getRiskScores().length);
+		assertEquals("LF001", task.getRiskScores()[0].getSample());
+		assertEquals(0.6, task.getRiskScores()[0].getScore(), 0.00001);
 	}
 
 	
