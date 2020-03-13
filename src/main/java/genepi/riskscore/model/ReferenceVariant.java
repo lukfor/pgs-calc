@@ -37,4 +37,8 @@ public class ReferenceVariant {
 		return (effectAllele == allele);
 	}
 
+	public boolean hasAllele(char allele) {
+		return ((alleleA == allele) || (alleleB == allele));
+	}
+
 }

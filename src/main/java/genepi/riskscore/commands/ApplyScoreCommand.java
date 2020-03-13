@@ -31,7 +31,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("  ref: " + ref);
 		System.out.println("  out: " + out);
 		System.out.println();
-		
+
 		ApplyScoreTask task = new ApplyScoreTask();
 		task.run(chr, vcf, ref);
 
@@ -40,6 +40,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("  Variants: " + task.getCountVariantsUsed());
 		System.out.println("  Switched: " + task.getCountVariantsSwitched());
 		System.out.println("  Multi Allelic: " + task.getCountVariantsMultiAllelic());
+		System.out.println("  Allele Mismatch: " + task.getCountVariantsAlleleMissmatch());
 		System.out.println();
 
 		ITableWriter writer = new CsvTableWriter(out, ',');

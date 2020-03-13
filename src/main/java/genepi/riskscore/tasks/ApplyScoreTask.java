@@ -22,8 +22,10 @@ public class ApplyScoreTask {
 	private int countVariantsSwitched;
 
 	private int countVariantsMultiAllelic;
-	
+
 	private int countVariantsNotUsed;
+
+	private int countVariantsAlleleMissmatch;
 
 	public static final String DOSAGE_FORMAT = "DS";
 
@@ -53,8 +55,12 @@ public class ApplyScoreTask {
 
 		countVariantsMultiAllelic = 0;
 
+		countVariantsAlleleMissmatch = 0;
+
 		for (VariantContext variant : vcfReader) {
 
+			countVariants++;
+			
 			// TODO: add filter based on snp position (include, exclude) or imputation
 			// quality (R2)
 
@@ -78,8 +84,15 @@ public class ApplyScoreTask {
 
 				float effectWeight = referenceVariant.getEffectWeight();
 
-				char refernceAllele = variant.getReference().getBaseString().charAt(0);
-				if (!referenceVariant.isEffectAllele(refernceAllele)) {
+				char referenceAllele = variant.getReference().getBaseString().charAt(0);
+				char alternateAllele = variant.getAlternateAllele(0).getBaseString().charAt(0);
+
+				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
+					countVariantsAlleleMissmatch++;
+					continue;
+				}
+
+				if (!referenceVariant.isEffectAllele(referenceAllele)) {
 					effectWeight = -effectWeight;
 					countVariantsSwitched++;
 				}
@@ -95,7 +108,6 @@ public class ApplyScoreTask {
 				countVariantsUsed++;
 			}
 
-			countVariants++;
 
 		}
 
@@ -104,7 +116,7 @@ public class ApplyScoreTask {
 		System.out.println("Loaded " + getRiskScores().length + " samples and " + getCountVariants() + " variants.");
 
 		countVariantsNotUsed = riskscore.getCountVariants() - countVariantsUsed;
-		
+
 	}
 
 	public int getCountSamples() {
@@ -130,8 +142,13 @@ public class ApplyScoreTask {
 	public int getCountVariantsMultiAllelic() {
 		return countVariantsMultiAllelic;
 	}
-	
+
 	public int getCountVariantsNotUsed() {
 		return countVariantsNotUsed;
 	}
+
+	public int getCountVariantsAlleleMissmatch() {
+		return countVariantsAlleleMissmatch;
+	}
+
 }
