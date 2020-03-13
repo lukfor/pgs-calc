@@ -15,6 +15,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCall() {
 
+		/*String[] args = { "--chr", "20", "--vcf", "test-data/chr20.dose.vcf.gz", "--ref", "/Users/lukas/Downloads/Khera.et.al_GPS_BMI_Cell_2019.txt",
+				"--out", "output.csv" };*/
 		String[] args = { "--chr", "20", "--vcf", "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv",
 				"--out", "output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);

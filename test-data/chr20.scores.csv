@@ -1,5 +1,5 @@
-chr,position,weight
-20,222,1
-20,61795,1
-20,63231,0
-20,63244,0
+chr	position_hg19	effect_weight	A1	A2	effect_allele
+20	222	1	G	T	G
+20	61795	1	G	T	T
+20	63231	0	T	G	T
+20	63244	0	A	C	A

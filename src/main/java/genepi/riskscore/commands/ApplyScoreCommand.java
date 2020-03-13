@@ -24,14 +24,23 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	public Integer call() throws Exception {
 
-		System.out.println("Input:\n  " + vcf);
-
+		System.out.println();
+		System.out.println("Input:");
+		System.out.println("  chr: " + chr);
+		System.out.println("  vcf: " + vcf);
+		System.out.println("  ref: " + ref);
+		System.out.println("  out: " + out);
+		System.out.println();
+		
 		ApplyScoreTask task = new ApplyScoreTask();
 		task.run(chr, vcf, ref);
 
-		System.out.println("Samples: " + task.getRiskScores().length);
-		System.out.println("Variants Total: " + task.getCountVariants());
-		System.out.println("Variants Used: " + task.getCountVariantsUsed());
+		System.out.println();
+		System.out.println("Risk Score calculation:");
+		System.out.println("  Variants: " + task.getCountVariantsUsed());
+		System.out.println("  Switched: " + task.getCountVariantsSwitched());
+		System.out.println("  Multi Allelic: " + task.getCountVariantsMultiAllelic());
+		System.out.println();
 
 		ITableWriter writer = new CsvTableWriter(out, ',');
 		writer.setColumns(new String[] { "chr", "sample", "score" });

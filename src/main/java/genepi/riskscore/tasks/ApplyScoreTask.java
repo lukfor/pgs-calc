@@ -3,6 +3,7 @@ package genepi.riskscore.tasks;
 import java.io.File;
 
 import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
 import htsjdk.variant.variantcontext.Genotype;
 import htsjdk.variant.variantcontext.VariantContext;
@@ -18,6 +19,12 @@ public class ApplyScoreTask {
 
 	private int countVariantsUsed;
 
+	private int countVariantsSwitched;
+
+	private int countVariantsMultiAllelic;
+	
+	private int countVariantsNotUsed;
+
 	public static final String DOSAGE_FORMAT = "DS";
 
 	public void run(String chromosome, String vcfFilename, String riskScoreFilename) throws Exception {
@@ -27,7 +34,6 @@ public class ApplyScoreTask {
 		riskscore.buildIndex(chromosome);
 		System.out.println("Loaded " + riskscore.getCountVariants() + " weights for chromosome " + chromosome);
 
-		
 		System.out.println("Loading file " + vcfFilename + "...");
 
 		VCFFileReader vcfReader = new VCFFileReader(new File(vcfFilename), false);
@@ -43,6 +49,10 @@ public class ApplyScoreTask {
 
 		countVariantsUsed = 0;
 
+		countVariantsSwitched = 0;
+
+		countVariantsMultiAllelic = 0;
+
 		for (VariantContext variant : vcfReader) {
 
 			// TODO: add filter based on snp position (include, exclude) or imputation
@@ -53,18 +63,33 @@ public class ApplyScoreTask {
 				throw new Exception("Different chromosomes found in file.");
 			}
 
-			boolean hasWeight = riskscore.contains(variant.getStart());
+			int position = variant.getStart();
 
-			if (hasWeight) {
+			boolean isPartOfRiskScore = riskscore.contains(position);
 
-				float variantWeight = riskscore.getWeight(variant.getStart());
+			if (isPartOfRiskScore) {
+
+				ReferenceVariant referenceVariant = riskscore.getVariant(position);
+
+				if (variant.getAlleles().size() > 2) {
+					countVariantsMultiAllelic++;
+					continue;
+				}
+
+				float effectWeight = referenceVariant.getEffectWeight();
+
+				char refernceAllele = variant.getReference().getBaseString().charAt(0);
+				if (!referenceVariant.isEffectAllele(refernceAllele)) {
+					effectWeight = -effectWeight;
+					countVariantsSwitched++;
+				}
 
 				// TODO: compare alleles and switch sign
 
 				for (int i = 0; i < countSamples; i++) {
 					Genotype genotype = variant.getGenotype(i);
 					float dosage = Float.parseFloat(genotype.getExtendedAttribute(DOSAGE_FORMAT).toString());
-					float score = riskScores[i].getScore() + (dosage * variantWeight);
+					float score = riskScores[i].getScore() + (dosage * effectWeight);
 					riskScores[i].setScore(score);
 				}
 				countVariantsUsed++;
@@ -76,6 +101,10 @@ public class ApplyScoreTask {
 
 		vcfReader.close();
 
+		System.out.println("Loaded " + getRiskScores().length + " samples and " + getCountVariants() + " variants.");
+
+		countVariantsNotUsed = riskscore.getCountVariants() - countVariantsUsed;
+		
 	}
 
 	public int getCountSamples() {
@@ -92,5 +121,17 @@ public class ApplyScoreTask {
 
 	public int getCountVariantsUsed() {
 		return countVariantsUsed;
+	}
+
+	public int getCountVariantsSwitched() {
+		return countVariantsSwitched;
+	}
+
+	public int getCountVariantsMultiAllelic() {
+		return countVariantsMultiAllelic;
+	}
+	
+	public int getCountVariantsNotUsed() {
+		return countVariantsNotUsed;
 	}
 }
