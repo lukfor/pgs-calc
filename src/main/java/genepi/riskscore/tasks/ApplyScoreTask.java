@@ -60,7 +60,7 @@ public class ApplyScoreTask {
 		for (VariantContext variant : vcfReader) {
 
 			countVariants++;
-			
+
 			// TODO: add filter based on snp position (include, exclude) or imputation
 			// quality (R2)
 
@@ -85,6 +85,12 @@ public class ApplyScoreTask {
 				float effectWeight = referenceVariant.getEffectWeight();
 
 				char referenceAllele = variant.getReference().getBaseString().charAt(0);
+
+				// ignore deletions
+				if (variant.getAlternateAllele(0).getBaseString().length() == 0) {
+					continue;
+				}
+
 				char alternateAllele = variant.getAlternateAllele(0).getBaseString().charAt(0);
 
 				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
@@ -105,7 +111,6 @@ public class ApplyScoreTask {
 				}
 				countVariantsUsed++;
 			}
-
 
 		}
 
