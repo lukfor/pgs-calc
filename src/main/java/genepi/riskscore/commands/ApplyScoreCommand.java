@@ -22,6 +22,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--out" }, description = "Output filename", required = true)
 	String out;
 
+	@Option(names = { "--minR2" }, description = "Minimal imputation quality", required = false)
+	float minR2 = 0;
+
 	public Integer call() throws Exception {
 
 		System.out.println();
@@ -33,6 +36,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println();
 
 		ApplyScoreTask task = new ApplyScoreTask();
+		task.setMinR2(minR2);
 		task.run(chr, vcf, ref);
 
 		System.out.println();

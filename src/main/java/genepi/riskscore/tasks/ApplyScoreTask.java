@@ -27,6 +27,12 @@ public class ApplyScoreTask {
 
 	private int countVariantsAlleleMissmatch;
 
+	private int countR2Filtered;
+
+	private float minR2 = 0;
+
+	public static final String INFO_R2 = "R2";
+
 	public static final String DOSAGE_FORMAT = "DS";
 
 	public void run(String chromosome, String vcfFilename, String riskScoreFilename) throws Exception {
@@ -57,6 +63,8 @@ public class ApplyScoreTask {
 
 		countVariantsAlleleMissmatch = 0;
 
+		countR2Filtered = 0;
+
 		for (VariantContext variant : vcfReader) {
 
 			countVariants++;
@@ -73,44 +81,54 @@ public class ApplyScoreTask {
 
 			boolean isPartOfRiskScore = riskscore.contains(position);
 
-			if (isPartOfRiskScore) {
-
-				ReferenceVariant referenceVariant = riskscore.getVariant(position);
-
-				if (variant.getAlleles().size() > 2) {
-					countVariantsMultiAllelic++;
-					continue;
-				}
-
-				float effectWeight = referenceVariant.getEffectWeight();
-
-				char referenceAllele = variant.getReference().getBaseString().charAt(0);
-
-				// ignore deletions
-				if (variant.getAlternateAllele(0).getBaseString().length() == 0) {
-					continue;
-				}
-
-				char alternateAllele = variant.getAlternateAllele(0).getBaseString().charAt(0);
-
-				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
-					countVariantsAlleleMissmatch++;
-					continue;
-				}
-
-				if (!referenceVariant.isEffectAllele(referenceAllele)) {
-					effectWeight = -effectWeight;
-					countVariantsSwitched++;
-				}
-
-				for (int i = 0; i < countSamples; i++) {
-					Genotype genotype = variant.getGenotype(i);
-					float dosage = Float.parseFloat(genotype.getExtendedAttribute(DOSAGE_FORMAT).toString());
-					float score = riskScores[i].getScore() + (dosage * effectWeight);
-					riskScores[i].setScore(score);
-				}
-				countVariantsUsed++;
+			if (!isPartOfRiskScore) {
+				continue;
 			}
+
+			// Imputation Quality Filter
+			double r2 = variant.getAttributeAsDouble(INFO_R2, 0);
+			if (r2 < minR2) {
+				countR2Filtered++;
+				continue;
+			}
+
+			ReferenceVariant referenceVariant = riskscore.getVariant(position);
+
+			if (variant.getAlleles().size() > 2) {
+				countVariantsMultiAllelic++;
+				continue;
+			}
+
+			float effectWeight = referenceVariant.getEffectWeight();
+
+			char referenceAllele = variant.getReference().getBaseString().charAt(0);
+
+			// ignore deletions
+			if (variant.getAlternateAllele(0).getBaseString().length() == 0) {
+				continue;
+			}
+
+			char alternateAllele = variant.getAlternateAllele(0).getBaseString().charAt(0);
+
+			if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
+				countVariantsAlleleMissmatch++;
+				continue;
+			}
+
+			if (!referenceVariant.isEffectAllele(referenceAllele)) {
+				effectWeight = -effectWeight;
+				countVariantsSwitched++;
+			}
+
+			for (int i = 0; i < countSamples; i++) {
+				Genotype genotype = variant.getGenotype(i);
+				float dosage = Float.parseFloat(genotype.getExtendedAttribute(DOSAGE_FORMAT).toString());
+				float score = riskScores[i].getScore() + (dosage * effectWeight);
+				riskScores[i].setScore(score);
+			}
+			
+			System.out.println(variant.getID() + " " + r2 + " " + minR2);
+			countVariantsUsed++;
 
 		}
 
@@ -120,6 +138,10 @@ public class ApplyScoreTask {
 
 		countVariantsNotUsed = riskscore.getCountVariants() - countVariantsUsed;
 
+	}
+	
+	public void setMinR2(float minR2) {
+		this.minR2 = minR2;
 	}
 
 	public int getCountSamples() {
@@ -152,6 +174,10 @@ public class ApplyScoreTask {
 
 	public int getCountVariantsAlleleMissmatch() {
 		return countVariantsAlleleMissmatch;
+	}
+
+	public int getCountR2Filtered() {
+		return countR2Filtered;
 	}
 
 }
