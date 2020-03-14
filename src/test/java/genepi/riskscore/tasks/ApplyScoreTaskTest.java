@@ -12,7 +12,7 @@ public class ApplyScoreTaskTest {
 	public void testPerformance() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.run("20", "test-data/chr20.dose.vcf.gz", "test-data/chr20.scores.csv");
+		task.run("test-data/chr20.dose.vcf.gz", "test-data/chr20.scores.csv");
 
 		assertEquals(63480, task.getCountVariants());
 		assertEquals(3, task.getCountVariantsUsed());
@@ -28,7 +28,7 @@ public class ApplyScoreTaskTest {
 	public void testMultiPostion() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.run("20", "test-data/small.vcf", "test-data/chr20.scores.csv");
+		task.run("test-data/small.vcf", "test-data/chr20.scores.csv");
 
 		assertEquals(4, task.getCountVariants());
 		assertEquals(3, task.getCountVariantsUsed());
@@ -44,7 +44,7 @@ public class ApplyScoreTaskTest {
 	public void testScore() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.run("20", "test-data/single.vcf", "test-data/chr20.scores.csv");
+		task.run("test-data/single.vcf", "test-data/chr20.scores.csv");
 
 		assertEquals(5, task.getCountVariants());
 		assertEquals(3, task.getCountVariantsUsed());
@@ -58,7 +58,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(0.4, task.getRiskScores()[0].getScore(), 0.00001);
 
 		task = new ApplyScoreTask();
-		task.run("20", "test-data/single.vcf", "test-data/chr20.scores.2.csv");
+		task.run("test-data/single.vcf", "test-data/chr20.scores.2.csv");
 
 		assertEquals(5, task.getCountVariants());
 		assertEquals(3, task.getCountVariantsUsed());
@@ -76,7 +76,7 @@ public class ApplyScoreTaskTest {
 	public void testMinR2() throws Exception {
 		ApplyScoreTask task = new ApplyScoreTask();
 		task.setMinR2(0.6f);
-		task.run("20", "test-data/two.vcf", "test-data/chr20.scores.csv");
+		task.run("test-data/two.vcf", "test-data/chr20.scores.csv");
 
 		assertEquals(5, task.getCountVariants());
 		assertEquals(1, task.getCountVariantsUsed());
@@ -92,7 +92,7 @@ public class ApplyScoreTaskTest {
 
 		task = new ApplyScoreTask();
 		task.setMinR2(0.5f);
-		task.run("20", "test-data/two.vcf", "test-data/chr20.scores.2.csv");
+		task.run("test-data/two.vcf", "test-data/chr20.scores.2.csv");
 
 		assertEquals(5, task.getCountVariants());
 		assertEquals(2, task.getCountVariantsUsed());
@@ -108,7 +108,7 @@ public class ApplyScoreTaskTest {
 
 		task = new ApplyScoreTask();
 		task.setMinR2(1f);
-		task.run("20", "test-data/two.vcf", "test-data/chr20.scores.2.csv");
+		task.run("test-data/two.vcf", "test-data/chr20.scores.2.csv");
 
 		assertEquals(5, task.getCountVariants());
 		assertEquals(0, task.getCountVariantsUsed());

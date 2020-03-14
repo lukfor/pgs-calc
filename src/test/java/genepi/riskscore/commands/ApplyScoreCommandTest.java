@@ -17,13 +17,7 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCall() {
 
-		/*
-		 * String[] args = { "--chr", "20", "--vcf", "test-data/chr20.dose.vcf.gz",
-		 * "--ref", "/Users/lukas/Downloads/Khera.et.al_GPS_BMI_Cell_2019.txt", "--out",
-		 * "output.csv" };
-		 */
-		String[] args = { "--chr", "20", "--vcf", "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv",
-				"--out", "output.csv" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out", "output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -40,8 +34,7 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallAndCheckOutputFile() throws IOException {
 
-		String[] args = { "--chr", "20", "--vcf", "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out",
-				"output.csv" };
+		String[] args = { "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out", "output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -72,8 +65,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithMinR2() throws IOException {
 
-		String[] args = { "--chr", "20", "--vcf", "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out",
-				"output.csv", "--minR2","0.5" };
+		String[] args = { "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out", "output.csv", "--minR2",
+				"0.5" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -99,14 +92,22 @@ public class ApplyScoreCommandTest {
 
 		assertEquals(false, reader.next());
 		reader.close();
-		
+
 	}
 
 	@Test
 	public void testCallWithWrongChromosome() {
 
-		String[] args = { "--chr", "21", "--vcf", "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv",
-				"--out", "output.csv" };
+		String[] args = { "test-data/single.wrong_chr.vcf", "--ref", "test-data/chr20.scores.csv", "--out", "output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(1, result);
+
+	}
+
+	@Test
+	public void testCallWithMissingVcf() {
+
+		String[] args = { "--ref", "test-data/chr20.scores.csv", "--out", "output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(1, result);
 

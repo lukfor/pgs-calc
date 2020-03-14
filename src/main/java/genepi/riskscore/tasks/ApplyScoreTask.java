@@ -32,9 +32,17 @@ public class ApplyScoreTask {
 
 	public static final String DOSAGE_FORMAT = "DS";
 
-	public void run(String chromosome, String vcfFilename, String riskScoreFilename) throws Exception {
+	public void run(String vcfFilename, String riskScoreFilename) throws Exception {
 
 		long start = System.currentTimeMillis();
+
+		// read chromosome from first variant
+		String chromosome = null;
+		FastVCFFileReader vcfReader = new FastVCFFileReader(vcfFilename);
+		while (vcfReader.next()) {
+			chromosome = vcfReader.getVariantContext().getContig();
+		}
+		vcfReader.close();
 
 		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename);
 		System.out.println("Loading file " + riskScoreFilename + "...");
@@ -43,12 +51,12 @@ public class ApplyScoreTask {
 
 		System.out.println("Loading file " + vcfFilename + "...");
 
-		FastVCFFileReader vcfReader = new FastVCFFileReader(vcfFilename);
+		vcfReader = new FastVCFFileReader(vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
 		riskScores = new RiskScore[countSamples];
 		for (int i = 0; i < countSamples; i++) {
-			riskScores[i] = new RiskScore(vcfReader.getGenotypedSamples().get(i));
+			riskScores[i] = new RiskScore(chromosome, vcfReader.getGenotypedSamples().get(i));
 		}
 
 		countVariants = 0;
@@ -63,10 +71,10 @@ public class ApplyScoreTask {
 
 		countR2Filtered = 0;
 
-		while(vcfReader.next()) {
+		while (vcfReader.next()) {
 
 			MinimalVariantContext variant = vcfReader.getVariantContext();
-			
+
 			countVariants++;
 
 			// TODO: add filter based on snp position (include, exclude) or imputation
