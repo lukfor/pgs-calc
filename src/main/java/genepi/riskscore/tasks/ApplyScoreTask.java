@@ -1,13 +1,10 @@
 package genepi.riskscore.tasks;
 
-import java.io.File;
-
 import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.io.vcf.FastVCFFileReader;
+import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
-import htsjdk.variant.variantcontext.Genotype;
-import htsjdk.variant.variantcontext.VariantContext;
-import htsjdk.variant.vcf.VCFFileReader;
 
 public class ApplyScoreTask {
 
@@ -46,13 +43,12 @@ public class ApplyScoreTask {
 
 		System.out.println("Loading file " + vcfFilename + "...");
 
-		VCFFileReader vcfReader = new VCFFileReader(new File(vcfFilename), false);
-
-		countSamples = vcfReader.getFileHeader().getGenotypeSamples().size();
+		FastVCFFileReader vcfReader = new FastVCFFileReader(vcfFilename);
+		countSamples = vcfReader.getGenotypedSamples().size();
 
 		riskScores = new RiskScore[countSamples];
 		for (int i = 0; i < countSamples; i++) {
-			riskScores[i] = new RiskScore(vcfReader.getFileHeader().getGenotypeSamples().get(i));
+			riskScores[i] = new RiskScore(vcfReader.getGenotypedSamples().get(i));
 		}
 
 		countVariants = 0;
@@ -67,8 +63,10 @@ public class ApplyScoreTask {
 
 		countR2Filtered = 0;
 
-		for (VariantContext variant : vcfReader) {
+		while(vcfReader.next()) {
 
+			MinimalVariantContext variant = vcfReader.getVariantContext();
+			
 			countVariants++;
 
 			// TODO: add filter based on snp position (include, exclude) or imputation
@@ -88,7 +86,7 @@ public class ApplyScoreTask {
 			}
 
 			// Imputation Quality Filter
-			double r2 = variant.getAttributeAsDouble(INFO_R2, 0);
+			double r2 = variant.getInfoAsDouble(INFO_R2, 0);
 			if (r2 < minR2) {
 				countR2Filtered++;
 				continue;
@@ -96,21 +94,21 @@ public class ApplyScoreTask {
 
 			ReferenceVariant referenceVariant = riskscore.getVariant(position);
 
-			if (variant.getAlleles().size() > 2) {
+			if (variant.isComplexIndel()) {
 				countVariantsMultiAllelic++;
 				continue;
 			}
 
 			float effectWeight = referenceVariant.getEffectWeight();
 
-			char referenceAllele = variant.getReference().getBaseString().charAt(0);
+			char referenceAllele = variant.getReferenceAllele().charAt(0);
 
 			// ignore deletions
-			if (variant.getAlternateAllele(0).getBaseString().length() == 0) {
+			if (variant.getAlternateAllele().length() == 0) {
 				continue;
 			}
 
-			char alternateAllele = variant.getAlternateAllele(0).getBaseString().charAt(0);
+			char alternateAllele = variant.getAlternateAllele().charAt(0);
 
 			if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
 				countVariantsAlleleMissmatch++;
@@ -122,9 +120,10 @@ public class ApplyScoreTask {
 				countVariantsSwitched++;
 			}
 
+			String[] values = variant.getGenotypes(DOSAGE_FORMAT);
+
 			for (int i = 0; i < countSamples; i++) {
-				Genotype genotype = variant.getGenotype(i);
-				float dosage = Float.parseFloat(genotype.getExtendedAttribute(DOSAGE_FORMAT).toString());
+				float dosage = Float.parseFloat(values[i]);
 				float score = riskScores[i].getScore() + (dosage * effectWeight);
 				riskScores[i].setScore(score);
 			}
@@ -141,7 +140,7 @@ public class ApplyScoreTask {
 
 		long end = System.currentTimeMillis();
 
-		System.out.println("Execution Time: " + ((end - start) / 1000.0/ 60.0) + " min");
+		System.out.println("Execution Time: " + ((end - start) / 1000.0 / 60.0) + " min");
 
 	}
 

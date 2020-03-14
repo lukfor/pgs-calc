@@ -111,5 +111,5 @@ public class ApplyScoreCommandTest {
 		assertEquals(1, result);
 
 	}
-
+	
 }
