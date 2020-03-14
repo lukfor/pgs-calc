@@ -37,6 +37,8 @@ public class ApplyScoreTask {
 
 	public void run(String chromosome, String vcfFilename, String riskScoreFilename) throws Exception {
 
+		long start = System.currentTimeMillis();
+
 		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename);
 		System.out.println("Loading file " + riskScoreFilename + "...");
 		riskscore.buildIndex(chromosome);
@@ -126,8 +128,7 @@ public class ApplyScoreTask {
 				float score = riskScores[i].getScore() + (dosage * effectWeight);
 				riskScores[i].setScore(score);
 			}
-			
-			System.out.println(variant.getID() + " " + r2 + " " + minR2);
+
 			countVariantsUsed++;
 
 		}
@@ -138,8 +139,12 @@ public class ApplyScoreTask {
 
 		countVariantsNotUsed = riskscore.getCountVariants() - countVariantsUsed;
 
+		long end = System.currentTimeMillis();
+
+		System.out.println("Execution Time: " + ((end - start) / 1000.0/ 60.0) + " min");
+
 	}
-	
+
 	public void setMinR2(float minR2) {
 		this.minR2 = minR2;
 	}
