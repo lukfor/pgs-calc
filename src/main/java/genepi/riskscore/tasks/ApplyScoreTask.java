@@ -1,5 +1,9 @@
 package genepi.riskscore.tasks;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Vector;
+
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
@@ -10,31 +14,76 @@ public class ApplyScoreTask {
 
 	private RiskScore[] riskScores;
 
-	private int countSamples;
+	private List<String> vcfs = null;
 
-	private int countVariants;
+	private String riskScoreFilename = null;
 
-	private int countVariantsUsed;
+	private int countSamples = 0;
 
-	private int countVariantsSwitched;
+	private int countVariants = 0;
 
-	private int countVariantsMultiAllelic;
+	private int countVariantsUsed = 0;
 
-	private int countVariantsNotUsed;
+	private int countVariantsSwitched = 0;
 
-	private int countVariantsAlleleMissmatch;
+	private int countVariantsMultiAllelic = 0;
 
-	private int countR2Filtered;
+	private int countVariantsNotUsed = 0;
 
+	private int countVariantsAlleleMissmatch = 0;
+
+	private int countR2Filtered = 0;
+
+	private int countVariantsRiskScore = 0;
+
+	private int countNotFound = 0;
+	
 	private float minR2 = 0;
 
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
 
-	public void run(String vcfFilename, String riskScoreFilename) throws Exception {
+	public void setRiskScoreFilename(String filename) {
+		this.riskScoreFilename = filename;
+	}
+
+	public void setVcfFilenames(List<String> vcfs) {
+		this.vcfs = vcfs;
+	}
+
+	public void setVcfFilenames(String... vcfs) {
+		this.vcfs = new Vector<String>();
+		for (String vcf : vcfs) {
+			this.vcfs.add(vcf);
+		}
+	}
+
+	public void run() throws Exception {
+
+		if (vcfs == null || vcfs.isEmpty()) {
+			throw new Exception("Please specify at leat one vcf file.");
+		}
+
+		if (riskScoreFilename == null) {
+			throw new Exception("Reference can not be null.");
+		}
 
 		long start = System.currentTimeMillis();
+
+		for (String vcfFilename : vcfs) {
+			processVCF(vcfFilename, riskScoreFilename);
+		}
+
+		countVariantsNotUsed = (countVariantsRiskScore - countVariantsUsed);
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Execution Time: " + ((end - start) / 1000.0 / 60.0) + " min");
+
+	}
+
+	private void processVCF(String vcfFilename, String riskScoreFilename) throws Exception {
 
 		// read chromosome from first variant
 		String chromosome = null;
@@ -47,29 +96,28 @@ public class ApplyScoreTask {
 		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename);
 		System.out.println("Loading file " + riskScoreFilename + "...");
 		riskscore.buildIndex(chromosome);
-		System.out.println("Loaded " + riskscore.getCountVariants() + " weights for chromosome " + chromosome);
+		if (countVariantsRiskScore == 0) {
+			countVariantsRiskScore = riskscore.getTotalVariants();
+		}
+		System.out.println("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
 
 		System.out.println("Loading file " + vcfFilename + "...");
 
 		vcfReader = new FastVCFFileReader(vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
-		riskScores = new RiskScore[countSamples];
-		for (int i = 0; i < countSamples; i++) {
-			riskScores[i] = new RiskScore(chromosome, vcfReader.getGenotypedSamples().get(i));
+		if (riskScores == null) {
+			riskScores = new RiskScore[countSamples];
+			for (int i = 0; i < countSamples; i++) {
+				riskScores[i] = new RiskScore(chromosome, vcfReader.getGenotypedSamples().get(i));
+			}
+		} else {
+			if (riskScores.length != countSamples) {
+				vcfReader.close();
+				throw new IOException("Different number of samples in file '" + vcfFilename + "'. Expected "
+						+ riskScores.length + " samples but found " + countSamples + " samples.");
+			}
 		}
-
-		countVariants = 0;
-
-		countVariantsUsed = 0;
-
-		countVariantsSwitched = 0;
-
-		countVariantsMultiAllelic = 0;
-
-		countVariantsAlleleMissmatch = 0;
-
-		countR2Filtered = 0;
 
 		while (vcfReader.next()) {
 
@@ -90,6 +138,7 @@ public class ApplyScoreTask {
 			boolean isPartOfRiskScore = riskscore.contains(position);
 
 			if (!isPartOfRiskScore) {
+				countNotFound++;
 				continue;
 			}
 
@@ -113,6 +162,7 @@ public class ApplyScoreTask {
 
 			// ignore deletions
 			if (variant.getAlternateAllele().length() == 0) {
+				countVariantsMultiAllelic++;
 				continue;
 			}
 
@@ -143,12 +193,6 @@ public class ApplyScoreTask {
 		vcfReader.close();
 
 		System.out.println("Loaded " + getRiskScores().length + " samples and " + getCountVariants() + " variants.");
-
-		countVariantsNotUsed = riskscore.getCountVariants() - countVariantsUsed;
-
-		long end = System.currentTimeMillis();
-
-		System.out.println("Execution Time: " + ((end - start) / 1000.0 / 60.0) + " min");
 
 	}
 
@@ -188,8 +232,16 @@ public class ApplyScoreTask {
 		return countVariantsAlleleMissmatch;
 	}
 
-	public int getCountR2Filtered() {
+	public int getCountVariantsFilteredR2() {
 		return countR2Filtered;
+	}
+	
+	public int getCountVariantsRiskScore() {
+		return countVariantsRiskScore;
+	}
+	
+	public int getCountVariantsNotFound() {
+		return countNotFound;
 	}
 
 }

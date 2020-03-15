@@ -15,6 +15,8 @@ public class RiskScoreFile {
 
 	private Map<Integer, ReferenceVariant> variants;
 
+	private int totalVariants = 0;
+	
 	public static final char SEPARATOR = '\t';
 
 	public static final String CHROMOSOME = "chr";
@@ -80,6 +82,7 @@ public class RiskScoreFile {
 				ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
 				variants.put(position, variant);
 			}
+			totalVariants++;
 		}
 		reader.close();
 	}
@@ -92,8 +95,12 @@ public class RiskScoreFile {
 		return variants.get(position);
 	}
 
-	public int getCountVariants() {
+	public int getCacheSize() {
 		return variants.size();
+	}
+	
+	public int getTotalVariants() {
+		return totalVariants;
 	}
 
 }

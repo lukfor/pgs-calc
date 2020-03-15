@@ -5,14 +5,18 @@ import java.util.concurrent.Callable;
 
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.io.table.writer.ITableWriter;
+import genepi.riskscore.App;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.tasks.ApplyScoreTask;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
+@Command(name = App.APP, version = App.VERSION)
 public class ApplyScoreCommand implements Callable<Integer> {
 
-	@Parameters
+	@Parameters(description = "VCF files")
 	List<String> vcfs;
 
 	@Option(names = { "--ref" }, description = "Reference weights", required = true)
@@ -21,8 +25,21 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--out" }, description = "Output filename", required = true)
 	String out;
 
-	@Option(names = { "--minR2" }, description = "Minimal imputation quality", required = false)
+	@Option(names = {
+			"--minR2" }, description = "Minimal imputation quality", required = false, showDefaultValue = Visibility.ALWAYS)
 	float minR2 = 0;
+
+	@Option(names = { "--help" }, usageHelp = true)
+	boolean showHelp;
+
+	@Option(names = { "--version" }, versionHelp = true)
+	boolean showVersion;
+
+	public static final String COLUMN_SAMPLE = "sample";
+
+	public static final String COLUMN_SCORE = "score";
+
+	public static final char SEPARATOR = ',';
 
 	public Integer call() throws Exception {
 
@@ -32,7 +49,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			System.out.println();
 			return 1;
 		}
-		
+
 		System.out.println();
 		System.out.println("Input:");
 		System.out.println("  vcfs: " + vcfs);
@@ -40,40 +57,52 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("  out: " + out);
 		System.out.println("  minR2: " + minR2);
 		System.out.println();
-		
-		ITableWriter writer = new CsvTableWriter(out, ',');
-		writer.setColumns(new String[] { "chr", "sample", "score" });
-		
-		for (String vcf : vcfs) {
 
-			ApplyScoreTask task = new ApplyScoreTask();
-			task.setMinR2(minR2);
-			task.run(vcf, ref);
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setRiskScoreFilename(ref);
+		task.setVcfFilenames(vcfs);
+		task.setMinR2(minR2);
 
-			System.out.println();
-			System.out.println("Risk Score calculation:");
-			System.out.println("  Variants: " + task.getCountVariantsUsed());
-			System.out.println("  Switched: " + task.getCountVariantsSwitched());
-			System.out.println("  Multi Allelic: " + task.getCountVariantsMultiAllelic());
-			System.out.println("  Allele Mismatch: " + task.getCountVariantsAlleleMissmatch());
-			System.out.println();
+		task.run();
 
+		writeOutputFile(task.getRiskScores(), out);
 
-			for (RiskScore riskScore : task.getRiskScores()) {
-				writer.setString("chr", riskScore.getChromosome());
-				writer.setString("sample", riskScore.getSample());
-				writer.setString("score", riskScore.getScore() + "");
-				writer.next();
-			}
-
-			System.out.println("Output written to '" + out + "'. Done!");
-			System.out.println();
-
-		}
-		
-		writer.close();
-		
+		System.out.println();
+		System.out.println("Summary");
+		System.out.println("-------");
+		System.out.println();
+		System.out.println("  Target VCF file(s):");
+		System.out.println("    - Samples: " + task.getCountSamples());
+		System.out.println("    - Variants: " + task.getCountVariants());
+		System.out.println();
+		System.out.println("  Risk Score:");
+		System.out.println("    - Variants: " + task.getCountVariantsRiskScore());
+		System.out.println("    - Found in target: " + task.getCountVariantsUsed());
+		System.out.println("    - Found in target and filtered by: ");
+		System.out.println("      - allele mismatch: " + task.getCountVariantsAlleleMissmatch());
+		System.out.println("      - multi allelic or indels: " + task.getCountVariantsMultiAllelic());
+		System.out.println("      - low R2 value: " + task.getCountVariantsFilteredR2());
+		System.out.println("    - Not found in target: " + task.getCountVariantsNotFound());
+		System.out.println();
 		return 0;
+
+	}
+
+	protected void writeOutputFile(RiskScore[] finalScores, String filename) {
+
+		ITableWriter writer = new CsvTableWriter(filename, SEPARATOR);
+		writer.setColumns(new String[] { COLUMN_SAMPLE, COLUMN_SCORE });
+
+		for (RiskScore riskScore : finalScores) {
+			writer.setString(COLUMN_SAMPLE, riskScore.getSample());
+			writer.setString(COLUMN_SCORE, riskScore.getScore() + "");
+			writer.next();
+		}
+
+		System.out.println("Output written to '" + filename + "'. Done!");
+		System.out.println();
+
+		writer.close();
 
 	}
 

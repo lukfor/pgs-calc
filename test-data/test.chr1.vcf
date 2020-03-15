@@ -1,0 +1,22 @@
+##fileformat=VCFv4.1
+##filedate=2020.3.13
+##contig=<ID=20>
+##pipeline=michigan-imputationserver-1.2.4
+##imputation=minimac4-1.0.2
+##phasing=eagle-2.4
+##r2Filter=0.0
+##INFO=<ID=AF,Number=1,Type=Float,Description="Estimated Alternate Allele Frequency">
+##INFO=<ID=MAF,Number=1,Type=Float,Description="Estimated Minor Allele Frequency">
+##INFO=<ID=R2,Number=1,Type=Float,Description="Estimated Imputation Accuracy (R-square)">
+##INFO=<ID=ER2,Number=1,Type=Float,Description="Empirical (Leave-One-Out) R-square (available only for genotyped variants)">
+##INFO=<ID=IMPUTED,Number=0,Type=Flag,Description="Marker was imputed but NOT genotyped">
+##INFO=<ID=TYPED,Number=0,Type=Flag,Description="Marker was genotyped AND imputed">
+##INFO=<ID=TYPED_ONLY,Number=0,Type=Flag,Description="Marker was genotyped but NOT imputed">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=DS,Number=1,Type=Float,Description="Estimated Alternate Allele Dosage : [P(0/1)+2*P(1/1)]">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	LF001	LF002
+1	1	1:1:G:T	G	T	.	PASS	AF=0.26318;MAF=0.26318;R2=0.54658;IMPUTED	GT:DS	1|0:0.1	1|0:0.2
+1	2	1:2:T:G	T	G	.	PASS	AF=0.03843;MAF=0.03843;R2=0.67736;IMPUTED	GT:DS	0|0:0.2	1|0:0.4
+1	3	1:3:A:C	A	C	.	PASS	AF=0.16132;MAF=0.16132;R2=0.49907;IMPUTED	GT:DS	0|0:0.3	1|0:0.8
+1	4	1:4:A:G	A	G	.	PASS	AF=0.16132;MAF=0.16132;R2=0.49907;IMPUTED	GT:DS	0|0:0.4	1|0:1.6
+1	5	1:5:A:G	A	G	.	PASS	AF=0.16132;MAF=0.16132;R2=0.49907;IMPUTED	GT:DS	0|0:0.1	1|0:0.1
