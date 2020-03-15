@@ -80,7 +80,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<finalName>riskscore</finalName>
+							<finalName>${project.artifactId}</finalName>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -91,6 +91,53 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- Build final directory structure and zip files -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>create-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Build installer -->
+
+			<plugin>
+				<groupId>com.github.hazendaz.maven</groupId>
+				<artifactId>makeself-maven-plugin</artifactId>
+				<version>1.0.0.beta3</version>
+				<configuration>
+					<archiveDir>${project.artifactId}-${project.version}-assembly</archiveDir>
+					<fileName>installer.sh</fileName>
+					<notemp>true</notemp>
+					<current>true</current>
+					<nox11>true</nox11>
+					<nowait>true</nowait>
+				</configuration>
+				<executions>
+					<execution>
+						<id>makeself</id>
+						<goals>
+							<goal>makeself</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 

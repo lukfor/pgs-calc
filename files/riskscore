@@ -1,0 +1,3 @@
+#!/bin/bash
+export JAVA_PROGRAM_ARGS=`echo "$@"`
+java -jar riskscore.jar $JAVA_PROGRAM_ARGS
