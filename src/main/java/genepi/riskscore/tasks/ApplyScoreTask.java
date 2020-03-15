@@ -37,7 +37,7 @@ public class ApplyScoreTask {
 	private int countVariantsRiskScore = 0;
 
 	private int countNotFound = 0;
-	
+
 	private float minR2 = 0;
 
 	public static final String INFO_R2 = "R2";
@@ -88,10 +88,13 @@ public class ApplyScoreTask {
 		// read chromosome from first variant
 		String chromosome = null;
 		FastVCFFileReader vcfReader = new FastVCFFileReader(vcfFilename);
-		while (vcfReader.next()) {
+		if (vcfReader.next()) {
 			chromosome = vcfReader.getVariantContext().getContig();
+			vcfReader.close();
+		} else {
+			vcfReader.close();
+			throw new Exception("VCF file is empty.");
 		}
-		vcfReader.close();
 
 		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename);
 		System.out.println("Loading file " + riskScoreFilename + "...");
@@ -235,11 +238,11 @@ public class ApplyScoreTask {
 	public int getCountVariantsFilteredR2() {
 		return countR2Filtered;
 	}
-	
+
 	public int getCountVariantsRiskScore() {
 		return countVariantsRiskScore;
 	}
-	
+
 	public int getCountVariantsNotFound() {
 		return countNotFound;
 	}
