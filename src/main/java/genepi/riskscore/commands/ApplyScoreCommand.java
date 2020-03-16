@@ -52,10 +52,13 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		System.out.println();
 		System.out.println("Input:");
-		System.out.println("  vcfs: " + vcfs);
 		System.out.println("  ref: " + ref);
 		System.out.println("  out: " + out);
 		System.out.println("  minR2: " + minR2);
+		System.out.println("  vcfs (" + vcfs.size() + "):");		
+		for (String vcf: vcfs) {
+			System.out.println("   - " + vcf);
+		}
 		System.out.println();
 
 		ApplyScoreTask task = new ApplyScoreTask();
