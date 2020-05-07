@@ -8,6 +8,7 @@ import java.util.Map;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.model.ReferenceVariant;
+import genepi.riskscore.model.RiskScoreFormat;
 
 public class RiskScoreFile {
 
@@ -19,21 +20,17 @@ public class RiskScoreFile {
 	
 	public static final char SEPARATOR = '\t';
 
-	public static final String CHROMOSOME = "chr";
-
-	public static final String POSITION = "position_hg19";
-
-	public static final String EFFECT_WEIGHT = "effect_weight";
-
-	public static final String ALLELE_A = "A1";
-
-	public static final String ALLELE_B = "A2";
-
-	public static final String EFFECT_ALLELE = "effect_allele";
-
+	private RiskScoreFormat format;
+	
 	public RiskScoreFile(String filename) throws Exception {
+		this(filename, new RiskScoreFormat());
+	}
+
+	
+	public RiskScoreFile(String filename, RiskScoreFormat format) throws Exception {
 
 		this.filename = filename;
+		this.format = format;
 
 		variants = new HashMap<Integer, ReferenceVariant>();
 
@@ -47,23 +44,23 @@ public class RiskScoreFile {
 	}
 
 	private void checkFileFormat(ITableReader reader, String filename) throws Exception {
-		if (!reader.hasColumn(CHROMOSOME)) {
-			throw new Exception("Column '" + CHROMOSOME + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getChromosome())) {
+			throw new Exception("Column '" + format.getChromosome() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(POSITION)) {
-			throw new Exception("Column '" + POSITION + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getPosition())) {
+			throw new Exception("Column '" + format.getPosition() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(EFFECT_WEIGHT)) {
-			throw new Exception("Column '" + EFFECT_WEIGHT + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getEffect_weight())) {
+			throw new Exception("Column '" + format.getEffect_weight() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(ALLELE_A)) {
-			throw new Exception("Column '" + ALLELE_A + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getAllele_a())) {
+			throw new Exception("Column '" + format.getAllele_a() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(ALLELE_B)) {
-			throw new Exception("Column '" + ALLELE_B + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getAllele_b())) {
+			throw new Exception("Column '" + format.getAllele_b() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(EFFECT_ALLELE)) {
-			throw new Exception("Column '" + EFFECT_ALLELE + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getEffect_allele())) {
+			throw new Exception("Column '" + format.getEffect_allele() + "' not found in '" + filename + "'");
 		}
 
 	}
@@ -71,13 +68,13 @@ public class RiskScoreFile {
 	public void buildIndex(String chromosome) throws IOException {
 		ITableReader reader = new CsvTableReader(filename, SEPARATOR);
 		while (reader.next()) {
-			String chromsomeVariant = reader.getString(CHROMOSOME);
+			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
-				int position = reader.getInteger(POSITION);
-				float effectWeight = new Float(reader.getDouble(EFFECT_WEIGHT));
-				char alleleA = reader.getString(ALLELE_A).charAt(0);
-				char alleleB = reader.getString(ALLELE_B).charAt(0);
-				char effectAllele = reader.getString(EFFECT_ALLELE).charAt(0);
+				int position = reader.getInteger(format.getPosition());
+				float effectWeight = new Float(reader.getDouble(format.getEffect_weight()));
+				char alleleA = reader.getString(format.getAllele_a()).charAt(0);
+				char alleleB = reader.getString(format.getAllele_b()).charAt(0);
+				char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
 
 				ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
 				variants.put(position, variant);

@@ -7,6 +7,7 @@ import genepi.io.table.writer.CsvTableWriter;
 import genepi.io.table.writer.ITableWriter;
 import genepi.riskscore.App;
 import genepi.riskscore.model.RiskScore;
+import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
@@ -29,6 +30,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			"--minR2" }, description = "Minimal imputation quality", required = false, showDefaultValue = Visibility.ALWAYS)
 	float minR2 = 0;
 
+	@Option(names = {
+	"--format" }, description = "Reference weights format file", required = false)
+	String format = null;
+
+	
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -65,6 +71,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		task.setRiskScoreFilename(ref);
 		task.setVcfFilenames(vcfs);
 		task.setMinR2(minR2);
+		if (format != null) {
+			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
+			task.setRiskScoreFormat(riskScoreFormat);
+		}
 
 		task.run();
 

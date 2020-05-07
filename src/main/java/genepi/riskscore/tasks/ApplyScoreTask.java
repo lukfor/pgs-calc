@@ -9,6 +9,7 @@ import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
+import genepi.riskscore.model.RiskScoreFormat;
 
 public class ApplyScoreTask {
 
@@ -39,6 +40,8 @@ public class ApplyScoreTask {
 	private int countNotFound = 0;
 
 	private float minR2 = 0;
+	
+	private RiskScoreFormat format = new RiskScoreFormat();
 
 	public static final String INFO_R2 = "R2";
 
@@ -96,7 +99,7 @@ public class ApplyScoreTask {
 			throw new Exception("VCF file is empty.");
 		}
 
-		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename);
+		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename, format);
 		System.out.println("Loading file " + riskScoreFilename + "...");
 		riskscore.buildIndex(chromosome);
 		if (countVariantsRiskScore == 0) {
@@ -203,6 +206,10 @@ public class ApplyScoreTask {
 		this.minR2 = minR2;
 	}
 
+	public void setRiskScoreFormat(RiskScoreFormat format) {
+		this.format = format;
+	}
+	
 	public int getCountSamples() {
 		return countSamples;
 	}
