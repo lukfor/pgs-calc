@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
@@ -40,7 +41,11 @@ public class ApplyScoreTask {
 	private int countNotFound = 0;
 
 	private float minR2 = 0;
-	
+
+	private String outputVariantFilename = null;
+
+	private CsvTableWriter variantFile;
+
 	private RiskScoreFormat format = new RiskScoreFormat();
 
 	public static final String INFO_R2 = "R2";
@@ -62,6 +67,10 @@ public class ApplyScoreTask {
 		}
 	}
 
+	public void setOutputVariantFilename(String outputVariantFilename) {
+		this.outputVariantFilename = outputVariantFilename;
+	}
+
 	public void run() throws Exception {
 
 		if (vcfs == null || vcfs.isEmpty()) {
@@ -74,8 +83,17 @@ public class ApplyScoreTask {
 
 		long start = System.currentTimeMillis();
 
+		if (outputVariantFilename != null) {
+			variantFile = new CsvTableWriter(outputVariantFilename);
+			variantFile.setColumns(new String[] { RiskScoreFormat.CHROMOSOME, RiskScoreFormat.POSITION });
+		}
+
 		for (String vcfFilename : vcfs) {
 			processVCF(vcfFilename, riskScoreFilename);
+		}
+
+		if (variantFile != null) {
+			variantFile.close();
 		}
 
 		countVariantsNotUsed = (countVariantsRiskScore - countVariantsUsed);
@@ -184,6 +202,12 @@ public class ApplyScoreTask {
 				countVariantsSwitched++;
 			}
 
+			if (variantFile != null) {
+				variantFile.setString(RiskScoreFormat.CHROMOSOME, variant.getContig());
+				variantFile.setInteger(RiskScoreFormat.POSITION, variant.getStart());
+				variantFile.next();
+			}
+
 			String[] values = variant.getGenotypes(DOSAGE_FORMAT);
 
 			for (int i = 0; i < countSamples; i++) {
@@ -209,7 +233,7 @@ public class ApplyScoreTask {
 	public void setRiskScoreFormat(RiskScoreFormat format) {
 		this.format = format;
 	}
-	
+
 	public int getCountSamples() {
 		return countSamples;
 	}

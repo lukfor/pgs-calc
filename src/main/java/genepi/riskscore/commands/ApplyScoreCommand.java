@@ -30,11 +30,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			"--minR2" }, description = "Minimal imputation quality", required = false, showDefaultValue = Visibility.ALWAYS)
 	float minR2 = 0;
 
-	@Option(names = {
-	"--format" }, description = "Reference weights format file", required = false)
+	@Option(names = { "--format" }, description = "Reference weights format file", required = false)
 	String format = null;
 
-	
+	@Option(names = { "--writeVariants" }, description = "Write csv file with all used variants", required = false)
+	String outputVariantFilename = null;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -61,8 +62,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("  ref: " + ref);
 		System.out.println("  out: " + out);
 		System.out.println("  minR2: " + minR2);
-		System.out.println("  vcfs (" + vcfs.size() + "):");		
-		for (String vcf: vcfs) {
+		System.out.println("  vcfs (" + vcfs.size() + "):");
+		for (String vcf : vcfs) {
 			System.out.println("   - " + vcf);
 		}
 		System.out.println();
@@ -75,6 +76,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
 			task.setRiskScoreFormat(riskScoreFormat);
 		}
+		task.setOutputVariantFilename(outputVariantFilename);
 
 		task.run();
 
