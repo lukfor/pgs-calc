@@ -36,6 +36,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--writeVariants" }, description = "Write csv file with all used variants", required = false)
 	String outputVariantFilename = null;
 
+	@Option(names = { "--includeVariants" }, description = "Include only variants from this file", required = false)
+	String includeVariantFilename = null;
+
+	
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -77,7 +81,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setRiskScoreFormat(riskScoreFormat);
 		}
 		task.setOutputVariantFilename(outputVariantFilename);
-
+		task.setIncludeVariantFilename(includeVariantFilename);
+		
 		task.run();
 
 		writeOutputFile(task.getRiskScores(), out);
@@ -94,6 +99,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("    - Variants: " + task.getCountVariantsRiskScore());
 		System.out.println("    - Found in target: " + task.getCountVariantsUsed());
 		System.out.println("    - Found in target and filtered by: ");
+		System.out.println("      - not in variant file: " + task.getCountFiltered());
 		System.out.println("      - allele mismatch: " + task.getCountVariantsAlleleMissmatch());
 		System.out.println("      - multi allelic or indels: " + task.getCountVariantsMultiAllelic());
 		System.out.println("      - low R2 value: " + task.getCountVariantsFilteredR2());

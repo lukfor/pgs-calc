@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
@@ -40,9 +41,13 @@ public class ApplyScoreTask {
 
 	private int countNotFound = 0;
 
-	private float minR2 = 0;
+	private int countFiltered = 0;
+	
+	private float minR2 = 0;	
 
 	private String outputVariantFilename = null;
+
+	private String includeVariantFilename = null;
 
 	private CsvTableWriter variantFile;
 
@@ -71,6 +76,10 @@ public class ApplyScoreTask {
 		this.outputVariantFilename = outputVariantFilename;
 	}
 
+	public void setIncludeVariantFilename(String includeVariantFilename) {
+		this.includeVariantFilename = includeVariantFilename;
+	}
+
 	public void run() throws Exception {
 
 		if (vcfs == null || vcfs.isEmpty()) {
@@ -85,7 +94,7 @@ public class ApplyScoreTask {
 
 		if (outputVariantFilename != null) {
 			variantFile = new CsvTableWriter(outputVariantFilename);
-			variantFile.setColumns(new String[] { RiskScoreFormat.CHROMOSOME, RiskScoreFormat.POSITION });
+			variantFile.setColumns(new String[] { VariantFile.CHROMOSOME, VariantFile.POSITION });
 		}
 
 		for (String vcfFilename : vcfs) {
@@ -117,9 +126,18 @@ public class ApplyScoreTask {
 			throw new Exception("VCF file is empty.");
 		}
 
+		VariantFile includeVariants = null;
+		if (includeVariantFilename != null) {
+			System.out.println("Loading file " + includeVariantFilename + "...");
+			includeVariants = new VariantFile(includeVariantFilename);
+			includeVariants.buildIndex(chromosome);
+			System.out.println("Loaded " + includeVariants.getCacheSize() + " variants for chromosome " + chromosome);
+		}
+
 		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename, format);
 		System.out.println("Loading file " + riskScoreFilename + "...");
 		riskscore.buildIndex(chromosome);
+
 		if (countVariantsRiskScore == 0) {
 			countVariantsRiskScore = riskscore.getTotalVariants();
 		}
@@ -158,6 +176,13 @@ public class ApplyScoreTask {
 			}
 
 			int position = variant.getStart();
+
+			if (includeVariants != null) {
+				if (!includeVariants.contains(position)) {
+					countFiltered++;
+					continue;
+				}
+			}
 
 			boolean isPartOfRiskScore = riskscore.contains(position);
 
@@ -203,8 +228,8 @@ public class ApplyScoreTask {
 			}
 
 			if (variantFile != null) {
-				variantFile.setString(RiskScoreFormat.CHROMOSOME, variant.getContig());
-				variantFile.setInteger(RiskScoreFormat.POSITION, variant.getStart());
+				variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
+				variantFile.setInteger(VariantFile.POSITION, variant.getStart());
 				variantFile.next();
 			}
 
@@ -276,6 +301,10 @@ public class ApplyScoreTask {
 
 	public int getCountVariantsNotFound() {
 		return countNotFound;
+	}
+	
+	public int getCountFiltered() {
+		return countFiltered;
 	}
 
 }
