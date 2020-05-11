@@ -1,5 +1,6 @@
 package genepi.riskscore.commands;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -39,7 +40,6 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--includeVariants" }, description = "Include only variants from this file", required = false)
 	String includeVariantFilename = null;
 
-	
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -79,10 +79,16 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		if (format != null) {
 			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
 			task.setRiskScoreFormat(riskScoreFormat);
+		} else {
+			String autoFormat = ref + ".format";
+			if (new File(autoFormat).exists()) {
+				RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
+				task.setRiskScoreFormat(riskScoreFormat);
+			}
 		}
 		task.setOutputVariantFilename(outputVariantFilename);
 		task.setIncludeVariantFilename(includeVariantFilename);
-		
+
 		task.run();
 
 		writeOutputFile(task.getRiskScores(), out);
