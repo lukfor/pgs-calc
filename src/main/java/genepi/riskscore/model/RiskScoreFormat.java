@@ -9,6 +9,8 @@ import com.google.gson.JsonSyntaxException;
 
 public class RiskScoreFormat {
 
+	public static final char SEPARATOR = '\t';
+
 	public static final String CHROMOSOME = "chr";
 
 	public static final String POSITION = "position_hg19";

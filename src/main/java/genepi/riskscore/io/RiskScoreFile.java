@@ -17,16 +17,13 @@ public class RiskScoreFile {
 	private Map<Integer, ReferenceVariant> variants;
 
 	private int totalVariants = 0;
-	
-	public static final char SEPARATOR = '\t';
 
 	private RiskScoreFormat format;
-	
+
 	public RiskScoreFile(String filename) throws Exception {
 		this(filename, new RiskScoreFormat());
 	}
 
-	
 	public RiskScoreFile(String filename, RiskScoreFormat format) throws Exception {
 
 		this.filename = filename;
@@ -38,7 +35,7 @@ public class RiskScoreFile {
 			throw new Exception("File '" + filename + "' not found.");
 		}
 
-		ITableReader reader = new CsvTableReader(filename, SEPARATOR);
+		ITableReader reader = new CsvTableReader(filename, RiskScoreFormat.SEPARATOR);
 		checkFileFormat(reader, filename);
 		reader.close();
 	}
@@ -66,7 +63,7 @@ public class RiskScoreFile {
 	}
 
 	public void buildIndex(String chromosome) throws IOException {
-		ITableReader reader = new CsvTableReader(filename, SEPARATOR);
+		ITableReader reader = new CsvTableReader(filename, RiskScoreFormat.SEPARATOR);
 		while (reader.next()) {
 			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
@@ -95,7 +92,7 @@ public class RiskScoreFile {
 	public int getCacheSize() {
 		return variants.size();
 	}
-	
+
 	public int getTotalVariants() {
 		return totalVariants;
 	}
