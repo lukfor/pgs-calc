@@ -5,7 +5,7 @@
 
 	<groupId>genepi</groupId>
 	<artifactId>riskscore</artifactId>
-	<version>0.5.0</version>
+	<version>0.6.0</version>
 	<packaging>jar</packaging>
 
 	<name>riskscore</name>
