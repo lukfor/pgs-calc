@@ -31,6 +31,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			"--minR2" }, description = "Minimal imputation quality", required = false, showDefaultValue = Visibility.ALWAYS)
 	float minR2 = 0;
 
+	@Option(names = {
+			"--genotypes" }, description = "Genotype field (DS or GT)", required = false, showDefaultValue = Visibility.ALWAYS)
+	String genotypeFormat = ApplyScoreTask.DOSAGE_FORMAT;
+
 	@Option(names = { "--format" }, description = "Reference weights format file", required = false)
 	String format = null;
 
@@ -65,6 +69,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("Input:");
 		System.out.println("  ref: " + ref);
 		System.out.println("  out: " + out);
+		System.out.println("  genotypes: " + genotypeFormat);
 		System.out.println("  minR2: " + minR2);
 		System.out.println("  vcfs (" + vcfs.size() + "):");
 		for (String vcf : vcfs) {
@@ -76,6 +81,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		task.setRiskScoreFilename(ref);
 		task.setVcfFilenames(vcfs);
 		task.setMinR2(minR2);
+		task.setGenotypeFormat(genotypeFormat);
 		if (format != null) {
 			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
 			task.setRiskScoreFormat(riskScoreFormat);

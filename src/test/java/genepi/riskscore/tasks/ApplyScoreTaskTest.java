@@ -63,7 +63,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(1, task.getCountSamples());
 		assertEquals(1, task.getRiskScores().length);
 		assertEquals("LF001", task.getRiskScores()[0].getSample());
-		assertEquals(0.4, task.getRiskScores()[0].getScore(), 0.00001);
+		assertEquals(-0.4, task.getRiskScores()[0].getScore(), 0.00001);
 
 	}
 
@@ -84,7 +84,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(1, task.getCountSamples());
 		assertEquals(1, task.getRiskScores().length);
 		assertEquals("LF001", task.getRiskScores()[0].getSample());
-		assertEquals(0.6, task.getRiskScores()[0].getScore(), 0.00001);
+		assertEquals(-0.6, task.getRiskScores()[0].getScore(), 0.00001);
 	}
 
 	@Test
@@ -106,7 +106,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(2, task.getCountSamples());
 		assertEquals(2, task.getRiskScores().length);
 		assertEquals("LF001", task.getRiskScores()[0].getSample());
-		assertEquals(0.2, task.getRiskScores()[0].getScore(), 0.00001);
+		assertEquals(-0.2, task.getRiskScores()[0].getScore(), 0.00001);
 
 	}
 
@@ -129,7 +129,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(2, task.getCountVariantsFilteredR2());
 		assertEquals(2, task.getRiskScores().length);
 		assertEquals("LF001", task.getRiskScores()[0].getSample());
-		assertEquals(0.3, task.getRiskScores()[0].getScore(), 0.00001);
+		assertEquals(-0.3, task.getRiskScores()[0].getScore(), 0.00001);
 
 	}
 
@@ -178,11 +178,11 @@ public class ApplyScoreTaskTest {
 
 		RiskScore first = task.getRiskScores()[0];
 		assertEquals("LF001", first.getSample());
-		assertEquals(1 + 3, first.getScore(), 0.0000001);
+		assertEquals(-(1 + 3), first.getScore(), 0.0000001);
 
 		RiskScore second = task.getRiskScores()[1];
 		assertEquals("LF002", second.getSample());
-		assertEquals(3 + 7, second.getScore(), 0.0000001);
+		assertEquals(-(3 + 7), second.getScore(), 0.0000001);
 
 	}
 

@@ -42,8 +42,8 @@ public class ApplyScoreTask {
 	private int countNotFound = 0;
 
 	private int countFiltered = 0;
-	
-	private float minR2 = 0;	
+
+	private float minR2 = 0;
 
 	private String outputVariantFilename = null;
 
@@ -52,6 +52,8 @@ public class ApplyScoreTask {
 	private CsvTableWriter variantFile;
 
 	private RiskScoreFormat format = new RiskScoreFormat();
+
+	private String genotypeFormat = DOSAGE_FORMAT;
 
 	public static final String INFO_R2 = "R2";
 
@@ -78,6 +80,10 @@ public class ApplyScoreTask {
 
 	public void setIncludeVariantFilename(String includeVariantFilename) {
 		this.includeVariantFilename = includeVariantFilename;
+	}
+
+	public void setGenotypeFormat(String genotypeFormat) {
+		this.genotypeFormat = genotypeFormat;
 	}
 
 	public void run() throws Exception {
@@ -205,7 +211,7 @@ public class ApplyScoreTask {
 				continue;
 			}
 
-			float effectWeight = referenceVariant.getEffectWeight();
+			float effectWeight = -referenceVariant.getEffectWeight();
 
 			char referenceAllele = variant.getReferenceAllele().charAt(0);
 
@@ -233,10 +239,21 @@ public class ApplyScoreTask {
 				variantFile.next();
 			}
 
-			String[] values = variant.getGenotypes(DOSAGE_FORMAT);
+			String[] values = variant.getGenotypes(genotypeFormat);
 
 			for (int i = 0; i < countSamples; i++) {
-				float dosage = Float.parseFloat(values[i]);
+				float dosage = 0;
+				// genotypes
+				if (values[i].equals("0|0")) {
+					dosage = 0;
+				} else if (values[i].equals("0|1") || values[i].equals("1|0")) {
+					dosage = 1;
+				} else if (values[i].equals("1|1")) {
+					dosage = 2;
+				} else {
+					// dosage
+					dosage = Float.parseFloat(values[i]);
+				}
 				float score = riskScores[i].getScore() + (dosage * effectWeight);
 				riskScores[i].setScore(score);
 			}
@@ -302,7 +319,7 @@ public class ApplyScoreTask {
 	public int getCountVariantsNotFound() {
 		return countNotFound;
 	}
-	
+
 	public int getCountFiltered() {
 		return countFiltered;
 	}

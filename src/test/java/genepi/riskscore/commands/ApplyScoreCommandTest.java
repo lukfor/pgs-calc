@@ -45,14 +45,14 @@ public class ApplyScoreCommandTest {
 		double score = reader.getDouble("score");
 		String sample = reader.getString("sample");
 		assertEquals("LF001", sample);
-		assertEquals(0.4, score, 0.0000001);
+		assertEquals(-0.4, score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
 		score = reader.getDouble("score");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
-		assertEquals(1, score, 0.0000001);
+		assertEquals(-1, score, 0.0000001);
 
 		assertEquals(false, reader.next());
 		reader.close();
@@ -73,14 +73,14 @@ public class ApplyScoreCommandTest {
 		double score = reader.getDouble("score");
 		String sample = reader.getString("sample");
 		assertEquals("LF001", sample);
-		assertEquals(1 + 3, score, 0.0000001);
+		assertEquals(-(1 + 3), score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
 		score = reader.getDouble("score");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
-		assertEquals(3 + 7, score, 0.0000001);
+		assertEquals(-(3 + 7), score, 0.0000001);
 
 		assertEquals(false, reader.next());
 		reader.close();
@@ -100,14 +100,14 @@ public class ApplyScoreCommandTest {
 
 		double score = reader.getDouble("score");
 		String sample = reader.getString("sample");
-		assertEquals(0.1, score, 0.0000001);
+		assertEquals(-0.1, score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
 		score = reader.getDouble("score");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
-		assertEquals(0.2, score, 0.0000001);
+		assertEquals(-0.2, score, 0.0000001);
 
 		assertEquals(false, reader.next());
 		reader.close();
