@@ -173,28 +173,25 @@ public class ApplyScoreTask {
 
 			countVariants++;
 
-			// TODO: add filter based on snp position (include, exclude) or imputation
-			// quality (R2)
-
 			if (!variant.getContig().equals(chromosome)) {
 				vcfReader.close();
 				throw new Exception("Different chromosomes found in file.");
 			}
 
 			int position = variant.getStart();
-
-			if (includeVariants != null) {
-				if (!includeVariants.contains(position)) {
-					countFiltered++;
-					continue;
-				}
-			}
-
+			
 			boolean isPartOfRiskScore = riskscore.contains(position);
 
 			if (!isPartOfRiskScore) {
 				countNotFound++;
 				continue;
+			}
+			
+			if (includeVariants != null) {
+				if (!includeVariants.contains(position)) {
+					countFiltered++;
+					continue;
+				}
 			}
 
 			// Imputation Quality Filter

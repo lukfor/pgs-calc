@@ -1,6 +1,7 @@
 package genepi.riskscore.commands;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -10,6 +11,7 @@ import genepi.riskscore.App;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
+import htsjdk.samtools.util.StopWatch;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Option;
@@ -95,27 +97,38 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		task.setOutputVariantFilename(outputVariantFilename);
 		task.setIncludeVariantFilename(includeVariantFilename);
 
+		StopWatch watch = new StopWatch();
+		watch.start();
 		task.run();
 
 		writeOutputFile(task.getRiskScores(), out);
+		watch.stop();
 
 		System.out.println();
 		System.out.println("Summary");
 		System.out.println("-------");
 		System.out.println();
 		System.out.println("  Target VCF file(s):");
-		System.out.println("    - Samples: " + task.getCountSamples());
-		System.out.println("    - Variants: " + task.getCountVariants());
+		System.out.println("    - Samples: " + number(task.getCountSamples()));
+		System.out.println("    - Variants: " + number(task.getCountVariants()));
 		System.out.println();
 		System.out.println("  Risk Score:");
-		System.out.println("    - Variants: " + task.getCountVariantsRiskScore());
-		System.out.println("    - Found in target: " + task.getCountVariantsUsed());
+		System.out.println("    - Variants: " + number(task.getCountVariantsRiskScore()));
+		System.out.println("    - Variants used: " + number(task.getCountVariantsUsed()) + " ( "
+				+ percentage(task.getCountVariantsUsed(), task.getCountVariantsRiskScore()) + ")");
 		System.out.println("    - Found in target and filtered by: ");
-		System.out.println("      - not in variant file: " + task.getCountFiltered());
-		System.out.println("      - allele mismatch: " + task.getCountVariantsAlleleMissmatch());
-		System.out.println("      - multi allelic or indels: " + task.getCountVariantsMultiAllelic());
-		System.out.println("      - low R2 value: " + task.getCountVariantsFilteredR2());
-		System.out.println("    - Not found in target: " + task.getCountVariantsNotFound());
+		System.out.println("      - allele mismatch: " + number(task.getCountVariantsAlleleMissmatch()));
+		System.out.println("      - multi allelic or indels: " + number(task.getCountVariantsMultiAllelic()));
+		System.out.println("      - low R2 value: " + number(task.getCountVariantsFilteredR2()));
+		System.out.println("      - variants file: " + number(task.getCountFiltered()));
+
+		int notFound = task.getCountVariantsRiskScore()
+				- (task.getCountVariantsUsed() + task.getCountFiltered() + task.getCountVariantsAlleleMissmatch()
+						+ task.getCountVariantsMultiAllelic() + task.getCountVariantsFilteredR2());
+
+		//System.out.println("    - Not found in target: " + number(notFound));
+		System.out.println();
+		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();
 		return 0;
 
@@ -137,6 +150,21 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		writer.close();
 
+	}
+
+	public String number(long number) {
+		DecimalFormat formatter = new DecimalFormat("###,####");
+		return formatter.format(number);
+	}
+
+	public static String percentage(double obtained, double total) {
+		double percentage = (obtained / total) * 100;
+		DecimalFormat df = new DecimalFormat("###.##'%'");
+		return df.format(percentage);
+	}
+
+	public String formatTime(long timeInSeconds) {
+		return String.format("%d min, %d sec", (timeInSeconds / 60), (timeInSeconds % 60));
 	}
 
 }
