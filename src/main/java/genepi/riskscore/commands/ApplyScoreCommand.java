@@ -152,8 +152,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	}
 
-	public String number(long number) {
-		DecimalFormat formatter = new DecimalFormat("###,####");
+	public static String number(long number) {
+		DecimalFormat formatter = new DecimalFormat("###,###,###");
 		return formatter.format(number);
 	}
 
