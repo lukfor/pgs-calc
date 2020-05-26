@@ -1,6 +1,6 @@
 # PGS Calculator
 
-Applying polygenic risk scores (PRS) on imputed genotypes
+Applying polygenic risk scores (PGS) on imputed genotypes
 
 ## Features
 
@@ -43,7 +43,7 @@ riskscore --ref PGS000018.txt --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
 - one VCF file per chromosome (e.g. output of Imputationserver)
 - works out of the box with imputed genotypes from [Michigan Imputation Server](http://imputationserver.sph.umich.edu)
 
-#### Risk score weights
+#### Scores
 
 `riskscore` supports the file-format of [PGSCatalog](https://www.pgscatalog.org) out of the box: open the website, find your score of interest and download the provided `txt.gz` files.
 
