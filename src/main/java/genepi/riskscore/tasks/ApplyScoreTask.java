@@ -7,6 +7,7 @@ import java.util.Vector;
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.VariantFile;
+import genepi.riskscore.io.formats.PGSCatalogFormat;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
@@ -51,7 +52,7 @@ public class ApplyScoreTask {
 
 	private CsvTableWriter variantFile;
 
-	private RiskScoreFormat format = new RiskScoreFormat();
+	private RiskScoreFormat format = new PGSCatalogFormat();
 
 	private String genotypeFormat = DOSAGE_FORMAT;
 

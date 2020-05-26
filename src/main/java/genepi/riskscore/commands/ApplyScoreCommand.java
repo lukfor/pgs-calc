@@ -114,7 +114,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println();
 		System.out.println("  Risk Score:");
 		System.out.println("    - Variants: " + number(task.getCountVariantsRiskScore()));
-		System.out.println("    - Variants used: " + number(task.getCountVariantsUsed()) + " ( "
+		System.out.println("    - Variants used: " + number(task.getCountVariantsUsed()) + " ("
 				+ percentage(task.getCountVariantsUsed(), task.getCountVariantsRiskScore()) + ")");
 		System.out.println("    - Found in target and filtered by: ");
 		System.out.println("      - allele mismatch: " + number(task.getCountVariantsAlleleMissmatch()));
