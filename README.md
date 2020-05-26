@@ -41,6 +41,7 @@ riskscore --ref PGS000018.txt --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
 
 - VCF file format (`*.vcf` and `*.vcf.gz`)
 - one VCF file per chromosome (e.g. output of Imputationserver)
+- works out of the box with imputed genotypes from [Michigan Imputation Server](http://imputationserver.sph.umich.edu)
 
 #### Risk score weights
 
