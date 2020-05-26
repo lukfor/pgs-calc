@@ -1,4 +1,4 @@
-# riskscore
+# PGS Calculator
 
 Applying polygenic risk scores (PRS) on imputed genotypes
 
