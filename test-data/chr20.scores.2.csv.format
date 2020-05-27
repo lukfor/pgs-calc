@@ -1,0 +1,8 @@
+{
+  "chromosome": "chr",
+  "position": "position_hg19",
+  "effect_weight": "effect_weight",
+  "allele_a": "A1",
+  "allele_b": "A2",
+  "effect_allele": "effect_allele"
+}
