@@ -6,11 +6,11 @@ import picocli.CommandLine;
 
 public class App {
 
-	public static final String APP = "riskscore";
+	public static final String APP = "pgs-calc";
 
 	public static final String VERSION = "0.7.0";
 
-	public static final String URL = "https://github.com/lukfor/riskscore";
+	public static final String URL = "https://github.com/lukfor/pgs-calc";
 	
 	public static final String COPYRIGHT = "(c) 2020 Lukas Forer, Claudia Lamina and Stefan Coassin";
 	

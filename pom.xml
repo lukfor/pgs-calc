@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>genepi</groupId>
-	<artifactId>riskscore</artifactId>
+	<artifactId>pgs-calc</artifactId>
 	<version>0.7.0</version>
 	<packaging>jar</packaging>
 

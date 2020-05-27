@@ -24,7 +24,7 @@ Applying polygenic risk scores (PGS) on imputed genotypes
 Applying polygenic risk scores (PRS) on imputed genotypes
 
 ```
-riskscore --ref PGS000018.txt --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
+./pgs-calc --ref PGS000018.txt --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
 ```
 
 ### Optional parameters
@@ -45,7 +45,7 @@ riskscore --ref PGS000018.txt --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
 
 #### Scores
 
-`riskscore` supports the file-format of [PGSCatalog](https://www.pgscatalog.org) out of the box: open the website, find your score of interest and download the provided `txt.gz` files.
+`./pgs-calc` supports [PGSCatalog](https://www.pgscatalog.org) out of the box: open the website, find your score of interest and download the provided `txt.gz` files.
 
 
 ### Examples
@@ -55,7 +55,7 @@ riskscore --ref PGS000018.txt --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
 Apply PRS to a single file (e.g. one chromosome):
 
 ```
-./riskscore --ref PGS000018.txt test.chr1.vcf.gz --out scores.txt
+./pgs-calc --ref PGS000018.txt test.chr1.vcf.gz --out scores.txt
 ```
 
 All risk scores are written to file `scores.txt`
@@ -65,13 +65,13 @@ All risk scores are written to file `scores.txt`
 Apply PRS to multiple files (e.g. multiple chromosomes):
 
 ```
-./riskscore --ref PGS000018.txt test.chr1.vcf.gz test.chr2.vcf.gz test.chr3.vcf.gz test.chr4.vcf.gz --out scores.txt
+./pgs-calc --ref PGS000018.txt test.chr1.vcf.gz test.chr2.vcf.gz test.chr3.vcf.gz test.chr4.vcf.gz --out scores.txt
 ```
 
 Apply PRS to multiple files by using file patterns:
 
 ```
-./riskscore --ref PGS000018.txt test.chr*.vcf.gz --out scores.txt
+./pgs-calc --ref PGS000018.txt test.chr*.vcf.gz --out scores.txt
 ```
 
 
@@ -80,7 +80,7 @@ Apply PRS to multiple files by using file patterns:
 Use only variants with an imputation quality (R2) >= 0.9:
 
 ```
-./riskscore --ref PGS000018.txt test.chr*.vcf.gz --minR2 0.9 --out scores.txt
+./pgs-calc --ref PGS000018.txt test.chr*.vcf.gz --minR2 0.9 --out scores.txt
 ```
 
 ## Contact
