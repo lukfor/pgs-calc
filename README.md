@@ -1,5 +1,10 @@
 # PGS Calculator
 
+[![Build Status](https://travis-ci.org/lukfor/pgs-calc.svg?branch=master)](https://travis-ci.org/lukfor/pgs-calc)
+[![codecov](https://codecov.io/gh/lukfor/pgs-calc/branch/master/graph/badge.svg)](https://codecov.io/gh/lukfor/pgs-calc)
+[![GitHub release](https://img.shields.io/github/release/lukfor/pgs-calc.svg)](https://GitHub.com/lukfor/pgs-calc/releases/)
+
+
 Applying polygenic risk scores (PGS) on imputed genotypes
 
 ## Features
