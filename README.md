@@ -14,7 +14,6 @@ Applying polygenic risk scores (PGS) on imputed genotypes
 - supports different filters (e.g. r2 or variant list)
 - supports PGS Catalog format (https://www.pgscatalog.org, currently over 190 scores)
 - supports custom file formats with simple mapping mechanism
-- fast, scalable and well documented
 
 
 ## Installation
