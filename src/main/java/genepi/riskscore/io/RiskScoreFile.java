@@ -1,10 +1,14 @@
 package genepi.riskscore.io;
 
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.model.ReferenceVariant;
@@ -35,9 +39,12 @@ public class RiskScoreFile {
 			throw new Exception("File '" + filename + "' not found.");
 		}
 
-		ITableReader reader = new CsvTableReader(filename, RiskScoreFormat.SEPARATOR);
+		DataInputStream in = openTxtOrGzipStream(filename);
+
+		ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
 		checkFileFormat(reader, filename);
 		reader.close();
+
 	}
 
 	private void checkFileFormat(ITableReader reader, String filename) throws Exception {
@@ -63,12 +70,15 @@ public class RiskScoreFile {
 	}
 
 	public void buildIndex(String chromosome) throws IOException {
-		ITableReader reader = new CsvTableReader(filename, RiskScoreFormat.SEPARATOR);
+
+		DataInputStream in = openTxtOrGzipStream(filename);
+
+		ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
 		while (reader.next()) {
 			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
 				int position = reader.getInteger(format.getPosition());
-				float effectWeight = new Float(reader.getDouble(format.getEffect_weight()));
+				float effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
 				char alleleA = reader.getString(format.getAllele_a()).charAt(0);
 				char alleleB = reader.getString(format.getAllele_b()).charAt(0);
 				char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
@@ -95,6 +105,12 @@ public class RiskScoreFile {
 
 	public int getTotalVariants() {
 		return totalVariants;
+	}
+
+	private DataInputStream openTxtOrGzipStream(String filename) throws IOException {
+		FileInputStream inputStream = new FileInputStream(filename);
+		InputStream in2 = FileUtil.decompressStream(inputStream);
+		return new DataInputStream(in2);
 	}
 
 }
