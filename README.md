@@ -20,8 +20,8 @@ Applying polygenic risk scores (PGS) on imputed genotypes
 
 - Download `install.sh` from [latest release](https://github.com/lukfor/pgs-calc/releases/latest)
 - Execute `bash install.sh`
-- Installer creates a file `riskscore` in current directory
-- Validate installation with `./riskscore --version`
+- Installer creates a file `pgs-calc` in current directory
+- Validate installation with `./pgs-calc --version`
 
 ## Usage
 
