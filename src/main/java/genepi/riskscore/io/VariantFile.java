@@ -16,11 +16,11 @@ public class VariantFile {
 
 	private int totalVariants = 0;
 
-	public static final char SEPARATOR = ',';
+	public static final char SEPARATOR = '\t';
 
-	public static final String CHROMOSOME = "chr";
+	public static final String CHROMOSOME = "chr_name";
 
-	public static final String POSITION = "position_hg19";
+	public static final String POSITION = "chr_position";
 
 	public VariantFile(String filename) throws Exception {
 

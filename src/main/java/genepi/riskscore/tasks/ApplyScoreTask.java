@@ -100,7 +100,7 @@ public class ApplyScoreTask {
 		long start = System.currentTimeMillis();
 
 		if (outputVariantFilename != null) {
-			variantFile = new CsvTableWriter(outputVariantFilename);
+			variantFile = new CsvTableWriter(outputVariantFilename, VariantFile.SEPARATOR);
 			variantFile.setColumns(new String[] { VariantFile.CHROMOSOME, VariantFile.POSITION });
 		}
 

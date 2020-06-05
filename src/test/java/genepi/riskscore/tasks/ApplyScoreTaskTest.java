@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.model.RiskScoreFormat;
 
@@ -192,6 +193,53 @@ public class ApplyScoreTaskTest {
 		RiskScore second = task.getRiskScores()[1];
 		assertEquals("LF002", second.getSample());
 		assertEquals(-(3 + 7), second.getScore(), 0.0000001);
+
+	}
+
+	@Test
+	public void testWriteVariantFile() throws Exception {
+
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setRiskScoreFormat(new RiskScoreFormat());
+		task.setVcfFilenames("test-data/test.chr1.vcf", "test-data/test.chr2.vcf");
+		task.setRiskScoreFilename("test-data/test.scores.csv");
+		task.setOutputVariantFilename("variants.txt");
+		task.run();
+
+		assertEquals(10, task.getCountVariants());
+		assertEquals(11, task.getCountVariantsRiskScore());
+		assertEquals(7, task.getCountVariantsUsed());
+
+		VariantFile variants = new VariantFile("variants.txt");
+		variants.buildIndex("1");
+		assertEquals(4, variants.getCacheSize());
+
+		variants = new VariantFile("variants.txt");
+		variants.buildIndex("2");
+		variants.getCacheSize();
+		assertEquals(3, variants.getCacheSize());
+
+	}
+	
+	@Test
+	public void testReadVariantsFile() throws Exception {
+
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setRiskScoreFormat(new RiskScoreFormat());
+		task.setVcfFilenames("test-data/test.chr1.vcf", "test-data/test.chr2.vcf");
+		task.setRiskScoreFilename("test-data/test.scores.csv");
+		task.setIncludeVariantFilename("test-data/variants.txt");
+		task.run();
+
+		assertEquals(10, task.getCountVariants());
+		assertEquals(11, task.getCountVariantsRiskScore());
+		assertEquals(5, task.getCountVariantsUsed());
+		assertEquals(0, task.getCountVariantsSwitched());
+		assertEquals(0, task.getCountVariantsFilteredR2());
+		assertEquals(0, task.getCountVariantsMultiAllelic());
+		assertEquals(0, task.getCountVariantsAlleleMissmatch());
+		assertEquals(2, task.getCountSamples());
+		assertEquals(2, task.getRiskScores().length);
 
 	}
 
