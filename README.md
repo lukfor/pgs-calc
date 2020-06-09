@@ -9,7 +9,7 @@ Applying polygenic risk scores (PGS) on imputed genotypes
 
 ## Features
 
-- command line programm (works on linux or MacOS)
+- command line program (works on linux or MacOS)
 - supports vcf.gz files (imputed or genotyped)
 - supports different filters (e.g. r2 or variant list)
 - supports PGS Catalog format (https://www.pgscatalog.org, currently over 190 scores)
@@ -18,8 +18,8 @@ Applying polygenic risk scores (PGS) on imputed genotypes
 
 ## Installation
 
-- Download `install.sh` from [latest release](https://github.com/lukfor/pgs-calc/releases/latest)
-- Execute `bash install.sh`
+- Download `installer.sh` from [latest release](https://github.com/lukfor/pgs-calc/releases/latest)
+- Execute `bash installer.sh`
 - Installer creates a file `pgs-calc` in current directory
 - Validate installation with `./pgs-calc --version`
 
