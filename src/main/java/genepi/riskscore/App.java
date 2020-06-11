@@ -12,7 +12,7 @@ public class App {
 
 	public static final String URL = "https://github.com/lukfor/pgs-calc";
 	
-	public static final String COPYRIGHT = "(c) 2020 Lukas Forer, Claudia Lamina and Stefan Coassin";
+	public static final String COPYRIGHT = "(c) 2020 Lukas Forer";
 	
 	public static void main(String[] args) {
 		
