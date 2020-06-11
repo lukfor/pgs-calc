@@ -5,7 +5,7 @@
 [![GitHub release](https://img.shields.io/github/release/lukfor/pgs-calc.svg)](https://GitHub.com/lukfor/pgs-calc/releases/)
 
 
-Applying polygenic risk scores (PGS) on imputed genotypes
+> Applying polygenic risk scores (PGS) on imputed genotypes
 
 ## Features
 
