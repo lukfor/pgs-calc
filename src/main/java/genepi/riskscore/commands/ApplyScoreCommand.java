@@ -5,10 +5,8 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import genepi.io.table.writer.CsvTableWriter;
-import genepi.io.table.writer.ITableWriter;
 import genepi.riskscore.App;
-import genepi.riskscore.model.RiskScore;
+import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import htsjdk.samtools.util.StopWatch;
@@ -51,12 +49,6 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--version" }, versionHelp = true)
 	boolean showVersion;
-
-	public static final String COLUMN_SAMPLE = "sample";
-
-	public static final String COLUMN_SCORE = "score";
-
-	public static final char SEPARATOR = ',';
 
 	public Integer call() throws Exception {
 
@@ -101,8 +93,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		watch.start();
 		task.run();
 
-		writeOutputFile(task.getRiskScores(), out);
+		OutputFile output = new OutputFile(task.getRiskScores());
+		output.save(out);
 		watch.stop();
+
+		System.out.println("Output written to '" + out + "'. Done!");
+		System.out.println();
 
 		System.out.println();
 		System.out.println("Summary");
@@ -126,29 +122,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				- (task.getCountVariantsUsed() + task.getCountFiltered() + task.getCountVariantsAlleleMissmatch()
 						+ task.getCountVariantsMultiAllelic() + task.getCountVariantsFilteredR2());
 
-		//System.out.println("    - Not found in target: " + number(notFound));
+		// System.out.println(" - Not found in target: " + number(notFound));
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();
 		return 0;
-
-	}
-
-	protected void writeOutputFile(RiskScore[] finalScores, String filename) {
-
-		ITableWriter writer = new CsvTableWriter(filename, SEPARATOR);
-		writer.setColumns(new String[] { COLUMN_SAMPLE, COLUMN_SCORE });
-
-		for (RiskScore riskScore : finalScores) {
-			writer.setString(COLUMN_SAMPLE, riskScore.getSample());
-			writer.setString(COLUMN_SCORE, riskScore.getScore() + "");
-			writer.next();
-		}
-
-		System.out.println("Output written to '" + filename + "'. Done!");
-		System.out.println();
-
-		writer.close();
 
 	}
 
