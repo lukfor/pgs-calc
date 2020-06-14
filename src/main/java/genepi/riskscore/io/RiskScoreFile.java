@@ -70,6 +70,10 @@ public class RiskScoreFile {
 	}
 
 	public void buildIndex(String chromosome) throws IOException {
+		buildIndex(chromosome,  new Chunk());
+	}
+
+	public void buildIndex(String chromosome, Chunk chunk) throws IOException {
 
 		DataInputStream in = openTxtOrGzipStream(filename);
 
@@ -78,13 +82,17 @@ public class RiskScoreFile {
 			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
 				int position = reader.getInteger(format.getPosition());
-				float effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
-				char alleleA = reader.getString(format.getAllele_a()).charAt(0);
-				char alleleB = reader.getString(format.getAllele_b()).charAt(0);
-				char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
 
-				ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
-				variants.put(position, variant);
+				if (position >= chunk.getStart() && position <= chunk.getEnd()) {
+
+					float effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
+					char alleleA = reader.getString(format.getAllele_a()).charAt(0);
+					char alleleB = reader.getString(format.getAllele_b()).charAt(0);
+					char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
+
+					ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
+					variants.put(position, variant);
+				}
 			}
 			totalVariants++;
 		}

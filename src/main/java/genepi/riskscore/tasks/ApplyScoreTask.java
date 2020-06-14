@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
+import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
@@ -44,6 +45,8 @@ public class ApplyScoreTask {
 
 	private int countFiltered = 0;
 
+	private Chunk chunk = null;
+
 	private float minR2 = 0;
 
 	private String outputVariantFilename = null;
@@ -62,6 +65,10 @@ public class ApplyScoreTask {
 
 	public void setRiskScoreFilename(String filename) {
 		this.riskScoreFilename = filename;
+	}
+
+	public void setChunk(Chunk chunk) {
+		this.chunk = chunk;
 	}
 
 	public void setVcfFilenames(List<String> vcfs) {
@@ -143,7 +150,12 @@ public class ApplyScoreTask {
 
 		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename, format);
 		System.out.println("Loading file " + riskScoreFilename + "...");
-		riskscore.buildIndex(chromosome);
+
+		if (chunk != null) {
+			riskscore.buildIndex(chromosome, chunk);
+		} else {
+			riskscore.buildIndex(chromosome);
+		}
 
 		if (countVariantsRiskScore == 0) {
 			countVariantsRiskScore = riskscore.getTotalVariants();
@@ -180,14 +192,14 @@ public class ApplyScoreTask {
 			}
 
 			int position = variant.getStart();
-			
+
 			boolean isPartOfRiskScore = riskscore.contains(position);
 
 			if (!isPartOfRiskScore) {
 				countNotFound++;
 				continue;
 			}
-			
+
 			if (includeVariants != null) {
 				if (!includeVariants.contains(position)) {
 					countFiltered++;

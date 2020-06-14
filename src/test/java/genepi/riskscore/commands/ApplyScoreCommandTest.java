@@ -122,5 +122,31 @@ public class ApplyScoreCommandTest {
 		assertEquals(1, result);
 
 	}
+	
+	@Test
+	public void testCallWithChunk() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out", "output.csv", "--start", "61795", "--end", "63231" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(EXPECTED_SAMPLES, samples);
+
+	}
+	
+	@Test
+	public void testCallWithStartOnly() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out", "output.csv", "--start", "61795"};
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(2, result);
+		
+	}
 
 }

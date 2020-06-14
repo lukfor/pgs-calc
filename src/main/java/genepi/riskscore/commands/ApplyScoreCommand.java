@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
+import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import htsjdk.samtools.util.StopWatch;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Option;
@@ -50,6 +52,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--version" }, versionHelp = true)
 	boolean showVersion;
 
+	@ArgGroup(exclusive = false, multiplicity = "0..1")
+	Chunk chunk;
+
 	public Integer call() throws Exception {
 
 		if (vcfs == null || vcfs.isEmpty()) {
@@ -65,6 +70,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("  out: " + out);
 		System.out.println("  genotypes: " + genotypeFormat);
 		System.out.println("  minR2: " + minR2);
+		if (chunk != null) {
+			System.out.println("  Chunk: " + chunk.getStart() + " - " + chunk.getEnd());
+		}
 		System.out.println("  vcfs (" + vcfs.size() + "):");
 		for (String vcf : vcfs) {
 			System.out.println("   - " + vcf);
@@ -73,6 +81,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		ApplyScoreTask task = new ApplyScoreTask();
 		task.setRiskScoreFilename(ref);
+		if (chunk != null) {
+			task.setChunk(chunk);
+		}
 		task.setVcfFilenames(vcfs);
 		task.setMinR2(minR2);
 		task.setGenotypeFormat(genotypeFormat);

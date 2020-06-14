@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.model.RiskScoreFormat;
@@ -267,4 +268,28 @@ public class ApplyScoreTaskTest {
 
 	}
 
+	@Test
+	public void testWithChunk() throws Exception {
+
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setRiskScoreFormat(new RiskScoreFormat());
+		task.setVcfFilenames("test-data/chr20.dose.vcf.gz");
+		task.setRiskScoreFilename("test-data/chr20.scores.csv");
+		Chunk chunk = new Chunk();
+		chunk.setStart(61795);
+		chunk.setEnd(63231);
+		task.setChunk(chunk);
+		task.run();
+
+		assertEquals(63480, task.getCountVariants());
+		assertEquals(2, task.getCountVariantsUsed());
+		assertEquals(1, task.getCountVariantsSwitched());
+		assertEquals(2, task.getCountVariantsNotUsed());
+		assertEquals(0, task.getCountVariantsMultiAllelic());
+		assertEquals(0, task.getCountVariantsAlleleMissmatch());
+		assertEquals(EXPECTED_SAMPLES, task.getCountSamples());
+
+	}
+
+	
 }
