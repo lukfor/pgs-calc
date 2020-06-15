@@ -1,7 +1,9 @@
 package genepi.riskscore.tasks;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
@@ -38,7 +40,9 @@ public class ApplyScoreTask {
 
 	private CsvTableWriter variantFile;
 
-	private RiskScoreFormat format = new PGSCatalogFormat();
+	private RiskScoreFormat defaultFormat = new PGSCatalogFormat();
+	
+	private Map<String, RiskScoreFormat> formats = new HashMap<String, RiskScoreFormat>();
 
 	private String genotypeFormat = DOSAGE_FORMAT;
 
@@ -52,6 +56,9 @@ public class ApplyScoreTask {
 
 	public void setRiskScoreFilenames(String... filenames) {
 		this.riskScoreFilenames = filenames;
+		for (String filename : filenames) {
+			formats.put(filename, defaultFormat);
+		}
 	}
 
 	public void setChunk(Chunk chunk) {
@@ -144,6 +151,7 @@ public class ApplyScoreTask {
 		}
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
+			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
 			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format);
 			System.out.println("Loading file " + riskScoreFilenames[i] + "...");
 
@@ -156,11 +164,11 @@ public class ApplyScoreTask {
 			summaries[i].setVariants(riskscore.getTotalVariants());
 
 			System.out.println("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
-
-			System.out.println("Loading file " + vcfFilename + "...");
 			riskscores[i] = riskscore;
 		}
 
+		System.out.println("Loading file " + vcfFilename + "...");
+		
 		vcfReader = new FastVCFFileReader(vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
@@ -276,8 +284,17 @@ public class ApplyScoreTask {
 		this.minR2 = minR2;
 	}
 
-	public void setRiskScoreFormat(RiskScoreFormat format) {
-		this.format = format;
+	public void setRiskScoreFormat(RiskScoreFormat defaultFormat) {
+		this.defaultFormat = defaultFormat;
+		if (riskScoreFilenames != null) {
+			for (String file : riskScoreFilenames) {
+				setRiskScoreFormat(file, defaultFormat);
+			}
+		}
+	}
+	
+	public void setRiskScoreFormat(String file, RiskScoreFormat format) {
+		this.formats.put(file, format);
 	}
 
 	public int getCountSamples() {

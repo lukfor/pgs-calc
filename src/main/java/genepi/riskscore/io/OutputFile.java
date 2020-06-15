@@ -31,19 +31,17 @@ public class OutputFile {
 
 	public OutputFile(RiskScore[] finalScores, RiskScoreSummary[] summaries) {
 
-		this.scores = new Vector<String>();
+		scores = new Vector<String>();
 		for (RiskScoreSummary summary : summaries) {
 			scores.add(summary.getName());
 		}
 
 		samples = new Vector<String>();
-		data = new Vector[1 + scores.size()];
+		data = new Vector[scores.size()];
 		for (int i = 0; i < scores.size(); i++) {
 			data[i] = new Vector<Float>();
 		}
-		scores = new Vector<String>();
-		scores.add(COLUMN_SCORE);
-		this.scores = scores;
+
 		for (RiskScore riskScore : finalScores) {
 			samples.add(riskScore.getSample());
 			for (int i = 0; i < scores.size(); i++) {
