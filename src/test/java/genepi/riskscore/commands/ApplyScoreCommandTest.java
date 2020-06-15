@@ -32,7 +32,7 @@ public class ApplyScoreCommandTest {
 	}
 
 	@Test
-	public void testCallWithMultipleScores() {
+	public void testCallWithMultipleScores() throws IOException {
 
 		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref",
 				"test-data/test.scores.csv,test-data/test.scores.csv,test-data/test.scores.csv", "--out",
