@@ -284,7 +284,7 @@ public class ApplyScoreTask {
 		this.minR2 = minR2;
 	}
 
-	public void setRiskScoreFormat(RiskScoreFormat defaultFormat) {
+	public void setDefaultRiskScoreFormat(RiskScoreFormat defaultFormat) {
 		this.defaultFormat = defaultFormat;
 		if (riskScoreFilenames != null) {
 			for (String file : riskScoreFilenames) {
