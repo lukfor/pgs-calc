@@ -9,6 +9,7 @@ import genepi.io.table.reader.ITableReader;
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.io.table.writer.ITableWriter;
 import genepi.riskscore.model.RiskScore;
+import genepi.riskscore.model.RiskScoreSummary;
 
 public class OutputFile {
 
@@ -28,15 +29,26 @@ public class OutputFile {
 
 	}
 
-	public OutputFile(RiskScore[] finalScores) {
+	public OutputFile(RiskScore[] finalScores, RiskScoreSummary[] summaries) {
+
+		this.scores = new Vector<String>();
+		for (RiskScoreSummary summary : summaries) {
+			scores.add(summary.getName());
+		}
+
 		samples = new Vector<String>();
-		data = new Vector[1];
-		data[0] = new Vector<Float>();
+		data = new Vector[1 + scores.size()];
+		for (int i = 0; i < scores.size(); i++) {
+			data[i] = new Vector<Float>();
+		}
 		scores = new Vector<String>();
 		scores.add(COLUMN_SCORE);
+		this.scores = scores;
 		for (RiskScore riskScore : finalScores) {
 			samples.add(riskScore.getSample());
-			data[0].add(riskScore.getScore());
+			for (int i = 0; i < scores.size(); i++) {
+				data[i].add(riskScore.getScore(i));
+			}
 		}
 
 	}

@@ -6,19 +6,20 @@ public class RiskScore {
 	
 	private String chromosome;
 
-	private float score = 0;
+	private float[] scores;
 
-	public RiskScore(String chromosome, String sample) {
+	public RiskScore(String chromosome, String sample, int numberOfScores) {
 		this.chromosome = chromosome;
 		this.sample = sample;
+		this.scores = new float[numberOfScores];
 	}
 
-	public void setScore(float score) {
-		this.score = score;
+	public void setScore(int index, float score) {
+		this.scores[index] = score;
 	}
 	
-	public float getScore() {
-		return score;
+	public float getScore(int index) {
+		return scores[index];
 	}
 
 	public String getSample() {
@@ -31,6 +32,6 @@ public class RiskScore {
 
 	@Override
 	public String toString() {
-		return sample + ": " + score;
+		return sample + ": " + scores;
 	}
 }

@@ -14,6 +14,7 @@ import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.model.RiskScoreFormat;
+import genepi.riskscore.model.RiskScoreSummary;
 
 public class ApplyScoreTask {
 
@@ -21,29 +22,11 @@ public class ApplyScoreTask {
 
 	private List<String> vcfs = null;
 
-	private String riskScoreFilename = null;
+	private String riskScoreFilenames[] = null;
 
 	private int countSamples = 0;
 
 	private int countVariants = 0;
-
-	private int countVariantsUsed = 0;
-
-	private int countVariantsSwitched = 0;
-
-	private int countVariantsMultiAllelic = 0;
-
-	private int countVariantsNotUsed = 0;
-
-	private int countVariantsAlleleMissmatch = 0;
-
-	private int countR2Filtered = 0;
-
-	private int countVariantsRiskScore = 0;
-
-	private int countNotFound = 0;
-
-	private int countFiltered = 0;
 
 	private Chunk chunk = null;
 
@@ -59,12 +42,16 @@ public class ApplyScoreTask {
 
 	private String genotypeFormat = DOSAGE_FORMAT;
 
+	private int numberRiskScores = 0;
+
+	private RiskScoreSummary[] summaries;
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
 
-	public void setRiskScoreFilename(String filename) {
-		this.riskScoreFilename = filename;
+	public void setRiskScoreFilenames(String... filenames) {
+		this.riskScoreFilenames = filenames;
 	}
 
 	public void setChunk(Chunk chunk) {
@@ -100,8 +87,8 @@ public class ApplyScoreTask {
 			throw new Exception("Please specify at leat one vcf file.");
 		}
 
-		if (riskScoreFilename == null) {
-			throw new Exception("Reference can not be null.");
+		if (riskScoreFilenames == null || riskScoreFilenames.length == 0) {
+			throw new Exception("Reference can not be null or empty.");
 		}
 
 		long start = System.currentTimeMillis();
@@ -111,15 +98,23 @@ public class ApplyScoreTask {
 			variantFile.setColumns(new String[] { VariantFile.CHROMOSOME, VariantFile.POSITION });
 		}
 
+		numberRiskScores = riskScoreFilenames.length;
+		summaries = new RiskScoreSummary[numberRiskScores];
+		for (int i = 0; i < numberRiskScores; i++) {
+			if (i == 0) {
+				summaries[i] = new RiskScoreSummary("score");
+			} else {
+				summaries[i] = new RiskScoreSummary("score_" + i);
+			}
+		}
+
 		for (String vcfFilename : vcfs) {
-			processVCF(vcfFilename, riskScoreFilename);
+			processVCF(vcfFilename, riskScoreFilenames);
 		}
 
 		if (variantFile != null) {
 			variantFile.close();
 		}
-
-		countVariantsNotUsed = (countVariantsRiskScore - countVariantsUsed);
 
 		long end = System.currentTimeMillis();
 
@@ -127,7 +122,7 @@ public class ApplyScoreTask {
 
 	}
 
-	private void processVCF(String vcfFilename, String riskScoreFilename) throws Exception {
+	private void processVCF(String vcfFilename, String... riskScoreFilenames) throws Exception {
 
 		// read chromosome from first variant
 		String chromosome = null;
@@ -147,22 +142,24 @@ public class ApplyScoreTask {
 			includeVariants.buildIndex(chromosome);
 			System.out.println("Loaded " + includeVariants.getCacheSize() + " variants for chromosome " + chromosome);
 		}
+		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
+		for (int i = 0; i < numberRiskScores; i++) {
+			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format);
+			System.out.println("Loading file " + riskScoreFilenames[i] + "...");
 
-		RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilename, format);
-		System.out.println("Loading file " + riskScoreFilename + "...");
+			if (chunk != null) {
+				riskscore.buildIndex(chromosome, chunk);
+			} else {
+				riskscore.buildIndex(chromosome);
+			}
 
-		if (chunk != null) {
-			riskscore.buildIndex(chromosome, chunk);
-		} else {
-			riskscore.buildIndex(chromosome);
+			summaries[i].setVariants(riskscore.getTotalVariants());
+
+			System.out.println("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
+
+			System.out.println("Loading file " + vcfFilename + "...");
+			riskscores[i] = riskscore;
 		}
-
-		if (countVariantsRiskScore == 0) {
-			countVariantsRiskScore = riskscore.getTotalVariants();
-		}
-		System.out.println("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
-
-		System.out.println("Loading file " + vcfFilename + "...");
 
 		vcfReader = new FastVCFFileReader(vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
@@ -170,7 +167,9 @@ public class ApplyScoreTask {
 		if (riskScores == null) {
 			riskScores = new RiskScore[countSamples];
 			for (int i = 0; i < countSamples; i++) {
-				riskScores[i] = new RiskScore(chromosome, vcfReader.getGenotypedSamples().get(i));
+				riskScores[i] = new RiskScore(chromosome, vcfReader.getGenotypedSamples().get(i),
+						riskScoreFilenames.length);
+
 			}
 		} else {
 			if (riskScores.length != countSamples) {
@@ -193,88 +192,94 @@ public class ApplyScoreTask {
 
 			int position = variant.getStart();
 
-			boolean isPartOfRiskScore = riskscore.contains(position);
+			for (int j = 0; j < riskScoreFilenames.length; j++) {
 
-			if (!isPartOfRiskScore) {
-				countNotFound++;
-				continue;
-			}
+				RiskScoreSummary summary = summaries[j];
 
-			if (includeVariants != null) {
-				if (!includeVariants.contains(position)) {
-					countFiltered++;
+				RiskScoreFile riskscore = riskscores[j];
+				boolean isPartOfRiskScore = riskscore.contains(position);
+
+				if (!isPartOfRiskScore) {
+					summary.incNotFound();
 					continue;
 				}
-			}
 
-			// Imputation Quality Filter
-			double r2 = variant.getInfoAsDouble(INFO_R2, 0);
-			if (r2 < minR2) {
-				countR2Filtered++;
-				continue;
-			}
-
-			ReferenceVariant referenceVariant = riskscore.getVariant(position);
-
-			if (variant.isComplexIndel()) {
-				countVariantsMultiAllelic++;
-				continue;
-			}
-
-			float effectWeight = -referenceVariant.getEffectWeight();
-
-			char referenceAllele = variant.getReferenceAllele().charAt(0);
-
-			// ignore deletions
-			if (variant.getAlternateAllele().length() == 0) {
-				countVariantsMultiAllelic++;
-				continue;
-			}
-
-			char alternateAllele = variant.getAlternateAllele().charAt(0);
-
-			if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
-				countVariantsAlleleMissmatch++;
-				continue;
-			}
-
-			if (!referenceVariant.isEffectAllele(referenceAllele)) {
-				effectWeight = -effectWeight;
-				countVariantsSwitched++;
-			}
-
-			if (variantFile != null) {
-				variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
-				variantFile.setInteger(VariantFile.POSITION, variant.getStart());
-				variantFile.next();
-			}
-
-			String[] values = variant.getGenotypes(genotypeFormat);
-
-			for (int i = 0; i < countSamples; i++) {
-				float dosage = 0;
-				// genotypes
-				if (values[i].equals("0|0")) {
-					dosage = 0;
-				} else if (values[i].equals("0|1") || values[i].equals("1|0")) {
-					dosage = 1;
-				} else if (values[i].equals("1|1")) {
-					dosage = 2;
-				} else {
-					// dosage
-					dosage = Float.parseFloat(values[i]);
+				if (includeVariants != null) {
+					if (!includeVariants.contains(position)) {
+						summary.incFiltered();
+						continue;
+					}
 				}
-				float score = riskScores[i].getScore() + (dosage * effectWeight);
-				riskScores[i].setScore(score);
+
+				// Imputation Quality Filter
+				double r2 = variant.getInfoAsDouble(INFO_R2, 0);
+				if (r2 < minR2) {
+					summary.incR2Filtered();
+					continue;
+				}
+
+				ReferenceVariant referenceVariant = riskscore.getVariant(position);
+
+				if (variant.isComplexIndel()) {
+					summary.incMultiAllelic();
+					continue;
+				}
+
+				float effectWeight = -referenceVariant.getEffectWeight();
+
+				char referenceAllele = variant.getReferenceAllele().charAt(0);
+
+				// ignore deletions
+				if (variant.getAlternateAllele().length() == 0) {
+					summary.incMultiAllelic();
+					continue;
+				}
+
+				char alternateAllele = variant.getAlternateAllele().charAt(0);
+
+				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
+					summary.incAlleleMissmatch();
+					continue;
+				}
+
+				if (!referenceVariant.isEffectAllele(referenceAllele)) {
+					effectWeight = -effectWeight;
+					summary.incSwitched();
+				}
+
+				if (variantFile != null) {
+					variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
+					variantFile.setInteger(VariantFile.POSITION, variant.getStart());
+					variantFile.next();
+				}
+
+				String[] values = variant.getGenotypes(genotypeFormat);
+
+				for (int i = 0; i < countSamples; i++) {
+					float dosage = 0;
+					// genotypes
+					if (values[i].equals("0|0")) {
+						dosage = 0;
+					} else if (values[i].equals("0|1") || values[i].equals("1|0")) {
+						dosage = 1;
+					} else if (values[i].equals("1|1")) {
+						dosage = 2;
+					} else {
+						// dosage
+						dosage = Float.parseFloat(values[i]);
+					}
+					float score = riskScores[i].getScore(j) + (dosage * effectWeight);
+					riskScores[i].setScore(j, score);
+				}
+
+				summary.incVariantsUsed();
+
 			}
-
-			countVariantsUsed++;
-
 		}
 
 		vcfReader.close();
 
-		System.out.println("Loaded " + getRiskScores().length + " samples and " + getCountVariants() + " variants.");
+		System.out.println("Loaded " + getRiskScores().length + " samples and " + countVariants + " variants.");
 
 	}
 
@@ -294,44 +299,11 @@ public class ApplyScoreTask {
 		return riskScores;
 	}
 
+	public RiskScoreSummary[] getSummaries() {
+		return summaries;
+	}
+
 	public int getCountVariants() {
 		return countVariants;
 	}
-
-	public int getCountVariantsUsed() {
-		return countVariantsUsed;
-	}
-
-	public int getCountVariantsSwitched() {
-		return countVariantsSwitched;
-	}
-
-	public int getCountVariantsMultiAllelic() {
-		return countVariantsMultiAllelic;
-	}
-
-	public int getCountVariantsNotUsed() {
-		return countVariantsNotUsed;
-	}
-
-	public int getCountVariantsAlleleMissmatch() {
-		return countVariantsAlleleMissmatch;
-	}
-
-	public int getCountVariantsFilteredR2() {
-		return countR2Filtered;
-	}
-
-	public int getCountVariantsRiskScore() {
-		return countVariantsRiskScore;
-	}
-
-	public int getCountVariantsNotFound() {
-		return countNotFound;
-	}
-
-	public int getCountFiltered() {
-		return countFiltered;
-	}
-
 }
