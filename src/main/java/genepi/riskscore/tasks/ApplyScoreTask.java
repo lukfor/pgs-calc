@@ -253,21 +253,10 @@ public class ApplyScoreTask {
 					variantFile.next();
 				}
 
-				String[] values = variant.getGenotypes(genotypeFormat);
+				float[] dosages = variant.getGenotypeDosages(genotypeFormat);
 
 				for (int i = 0; i < countSamples; i++) {
-					float dosage = 0;
-					// genotypes
-					if (values[i].equals("0|0")) {
-						dosage = 0;
-					} else if (values[i].equals("0|1") || values[i].equals("1|0")) {
-						dosage = 1;
-					} else if (values[i].equals("1|1")) {
-						dosage = 2;
-					} else {
-						// dosage
-						dosage = Float.parseFloat(values[i]);
-					}
+					float dosage = dosages[i];
 					float score = riskScores[i].getScore(j) + (dosage * effectWeight);
 					riskScores[i].setScore(j, score);
 				}
