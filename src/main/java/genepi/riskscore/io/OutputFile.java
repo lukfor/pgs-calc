@@ -21,7 +21,7 @@ public class OutputFile {
 
 	private List<String> samples;
 
-	private List<Float>[] data;
+	private List<Double>[] data;
 
 	private List<String> scores;
 
@@ -39,7 +39,7 @@ public class OutputFile {
 		samples = new Vector<String>();
 		data = new Vector[scores.size()];
 		for (int i = 0; i < scores.size(); i++) {
-			data[i] = new Vector<Float>();
+			data[i] = new Vector<Double>();
 		}
 
 		for (RiskScore riskScore : finalScores) {
@@ -65,7 +65,7 @@ public class OutputFile {
 		for (int i = 0; i < samples.size(); i++) {
 			writer.setString(COLUMN_SAMPLE, samples.get(i));
 			for (int j = 0; j < scores.size(); j++) {
-				writer.setString(scores.get(j), data[j].get(i) + "");
+				writer.setDouble(scores.get(j), data[j].get(i));
 			}
 			writer.next();
 		}
@@ -88,7 +88,7 @@ public class OutputFile {
 
 		data = new Vector[scores.size()];
 		for (int i = 0; i < scores.size(); i++) {
-			data[i] = new Vector<Float>();
+			data[i] = new Vector<Double>();
 		}
 
 		samples = new Vector<String>();
@@ -98,7 +98,7 @@ public class OutputFile {
 			samples.add(sample);
 			for (int i = 0; i < scores.size(); i++) {
 				Double value = reader.getDouble(scores.get(i));
-				data[i].add(value.floatValue());
+				data[i].add(value);
 			}
 		}
 		reader.close();
@@ -119,7 +119,7 @@ public class OutputFile {
 
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].size(); j++) {
-				float sum = data[i].get(j) + file.getData()[i].get(j);
+				double sum = data[i].get(j) + file.getData()[i].get(j);
 				data[i].set(j, sum);
 			}
 		}
@@ -133,7 +133,7 @@ public class OutputFile {
 		return samples;
 	}
 
-	public List<Float>[] getData() {
+	public List<Double>[] getData() {
 		return data;
 	}
 

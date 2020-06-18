@@ -267,7 +267,7 @@ public class ApplyScoreTask {
 
 				for (int i = 0; i < countSamples; i++) {
 					float dosage = dosages[i];
-					float score = riskScores[i].getScore(j) + (dosage * effectWeight);
+					double score = riskScores[i].getScore(j) + (dosage * effectWeight);
 					riskScores[i].setScore(j, score);
 				}
 
