@@ -36,13 +36,22 @@ public class RiskScoreFile {
 		variants = new HashMap<Integer, ReferenceVariant>();
 
 		if (!new File(filename).exists()) {
-			throw new Exception("File '" + filename + "' not found.");
+
+			// check if its a PGS id
+			if (filename.startsWith("PGS") && filename.length() == 9 && !filename.endsWith(".txt.gz")) {
+				String id = filename;
+				this.filename = PGSCatalog.getFilenameById(id);
+			} else {
+
+				throw new Exception("File '" + filename + "' not found.");
+
+			}
 		}
 
-		DataInputStream in = openTxtOrGzipStream(filename);
+		DataInputStream in = openTxtOrGzipStream(this.filename);
 
 		ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
-		checkFileFormat(reader, filename);
+		checkFileFormat(reader, this.filename);
 		reader.close();
 
 	}
@@ -70,7 +79,7 @@ public class RiskScoreFile {
 	}
 
 	public void buildIndex(String chromosome) throws IOException {
-		buildIndex(chromosome,  new Chunk());
+		buildIndex(chromosome, new Chunk());
 	}
 
 	public void buildIndex(String chromosome, Chunk chunk) throws IOException {

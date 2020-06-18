@@ -9,6 +9,7 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.model.RiskScoreFormat;
+import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import htsjdk.samtools.util.StopWatch;
 import picocli.CommandLine.ArgGroup;
@@ -80,23 +81,30 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println();
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setRiskScoreFilename(ref);
+
+		String[] refs = parseRef(ref);
+		task.setRiskScoreFilenames(refs);
+		if (format != null) {
+			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
+			for (String file : refs) {
+				task.setRiskScoreFormat(file, riskScoreFormat);
+			}
+		} else {
+			for (String file : refs) {
+				String autoFormat = file + ".format";
+				if (new File(autoFormat).exists()) {
+					RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
+					task.setRiskScoreFormat(file, riskScoreFormat);
+				}
+			}
+		}
+
 		if (chunk != null) {
 			task.setChunk(chunk);
 		}
 		task.setVcfFilenames(vcfs);
 		task.setMinR2(minR2);
 		task.setGenotypeFormat(genotypeFormat);
-		if (format != null) {
-			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
-			task.setRiskScoreFormat(riskScoreFormat);
-		} else {
-			String autoFormat = ref + ".format";
-			if (new File(autoFormat).exists()) {
-				RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
-				task.setRiskScoreFormat(riskScoreFormat);
-			}
-		}
 		task.setOutputVariantFilename(outputVariantFilename);
 		task.setIncludeVariantFilename(includeVariantFilename);
 
@@ -104,7 +112,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		watch.start();
 		task.run();
 
-		OutputFile output = new OutputFile(task.getRiskScores());
+		OutputFile output = new OutputFile(task.getRiskScores(), task.getSummaries());
 		output.save(out);
 		watch.stop();
 
@@ -119,19 +127,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("    - Samples: " + number(task.getCountSamples()));
 		System.out.println("    - Variants: " + number(task.getCountVariants()));
 		System.out.println();
-		System.out.println("  Risk Score:");
-		System.out.println("    - Variants: " + number(task.getCountVariantsRiskScore()));
-		System.out.println("    - Variants used: " + number(task.getCountVariantsUsed()) + " ("
-				+ percentage(task.getCountVariantsUsed(), task.getCountVariantsRiskScore()) + ")");
-		System.out.println("    - Found in target and filtered by: ");
-		System.out.println("      - allele mismatch: " + number(task.getCountVariantsAlleleMissmatch()));
-		System.out.println("      - multi allelic or indels: " + number(task.getCountVariantsMultiAllelic()));
-		System.out.println("      - low R2 value: " + number(task.getCountVariantsFilteredR2()));
-		System.out.println("      - variants file: " + number(task.getCountFiltered()));
 
-		int notFound = task.getCountVariantsRiskScore()
-				- (task.getCountVariantsUsed() + task.getCountFiltered() + task.getCountVariantsAlleleMissmatch()
-						+ task.getCountVariantsMultiAllelic() + task.getCountVariantsFilteredR2());
+		for (RiskScoreSummary summary : task.getSummaries()) {
+			System.out.println(summary);
+			System.out.println();
+		}
 
 		// System.out.println(" - Not found in target: " + number(notFound));
 		System.out.println();
@@ -139,6 +139,14 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println();
 		return 0;
 
+	}
+
+	private String[] parseRef(String ref) {
+		String[] refs = ref.split(",");
+		for (int i = 0; i < refs.length; i++) {
+			refs[i] = refs[i].trim();
+		}
+		return refs;
 	}
 
 	public static String number(long number) {

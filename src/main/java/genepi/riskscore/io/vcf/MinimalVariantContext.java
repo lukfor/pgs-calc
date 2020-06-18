@@ -32,19 +32,21 @@ public class MinimalVariantContext {
 
 	private boolean[] genotypes;
 
-	private String[] genotypesParsed;
-	
+	private float[] genotypesParsed;
+
 	private String id = null;
 
 	private String genotype = null;
 
 	private String info = null;
-	
+
 	private Map<String, String> infos;
+
+	private boolean dirtyGenotypes = true;
 	
 	public MinimalVariantContext(int samples) {
 		genotypes = new boolean[samples];
-		genotypesParsed = new String[samples];
+		genotypesParsed = new float[samples];
 	}
 
 	public int getHetCount() {
@@ -133,6 +135,7 @@ public class MinimalVariantContext {
 	public void setRawLine(String rawLine) {
 		this.rawLine = rawLine;
 		this.id = null;
+		this.dirtyGenotypes = true;
 	}
 
 	public String getRawLine() {
@@ -199,20 +202,20 @@ public class MinimalVariantContext {
 		}
 		return id;
 	}
-	
+
 	public void setInfo(String info) {
 		this.info = info;
 		infos = null;
 	}
-	
+
 	public String getInfo(String key) {
-		//lazy loadding
+		// lazy loadding
 		if (infos == null) {
 			infos = new HashMap<String, String>();
 			String[] tiles = this.info.split(";");
 			for (int i = 0; i < tiles.length; i++) {
 				String[] tiles2 = tiles[i].split("=");
-				if(tiles2.length == 2) {
+				if (tiles2.length == 2) {
 					infos.put(tiles2[0], tiles2[1]);
 				}
 			}
@@ -228,27 +231,49 @@ public class MinimalVariantContext {
 			return defaultValue;
 		}
 	}
-	
-	public String[] getGenotypes(String field) throws IOException {
-		String tiles[] = rawLine.split("\t", 10);
-		String[] formats = tiles[8].split(":");
-		int index = -1;
-		for (int i = 0; i < formats.length; i++) {
-			if (formats[i].equals(field)) {
-				index = i;
+
+	public float[] getGenotypeDosages(String field) throws IOException {
+
+		if (dirtyGenotypes) {
+
+			String tiles[] = rawLine.split("\t", 10);
+			String[] formats = tiles[8].split(":");
+			int index = -1;
+			for (int i = 0; i < formats.length; i++) {
+				if (formats[i].equals(field)) {
+					index = i;
+				}
 			}
-		}
-		
-		if (index == -1) {
-			throw new IOException("field '" + field + "' not found in FORMAT");
-		}
-		String[] values = tiles[9].split("\t");
-		for (int i = 0; i < genotypesParsed.length; i++) {
-			String value = values[i];
-			String[] tiles2 = value.split(":");
-			genotypesParsed[i] = tiles2[index];
+
+			if (index == -1) {
+				throw new IOException("field '" + field + "' not found in FORMAT");
+			}
+			String[] values = tiles[9].split("\t");
+			for (int i = 0; i < genotypesParsed.length; i++) {
+				String value = values[i];
+				String[] tiles2 = value.split(":");
+				String genotype = tiles2[index];
+
+				float dosage = 0;
+				// genotypes
+				if (genotype.equals("0|0")) {
+					dosage = 0;
+				} else if (genotype.equals("0|1") || genotype.equals("1|0")) {
+					dosage = 1;
+				} else if (genotype.equals("1|1")) {
+					dosage = 2;
+				} else {
+					// dosage
+					dosage = Float.parseFloat(genotype);
+				}
+				genotypesParsed[i] = dosage;
+
+			}
+			
+			dirtyGenotypes = false;
+
 		}
 		return genotypesParsed;
 	}
-	
+
 }

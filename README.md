@@ -78,6 +78,14 @@ Apply PRS to multiple files by using file patterns:
 ./pgs-calc --ref PGS000018.txt.gz test.chr*.vcf.gz --out scores.txt
 ```
 
+#### Multiple scores
+
+Apply multiple score files:
+
+```
+./pgs-calc --ref PGS000018.txt.gz,PGS000027.txt.gz test.chr*.vcf.gz --out scores.txt
+```
+
 
 #### Filter by Imputation Qualitity
 
