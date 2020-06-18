@@ -42,6 +42,8 @@ public class MinimalVariantContext {
 
 	private Map<String, String> infos;
 
+	private boolean dirtyGenotypes = true;
+	
 	public MinimalVariantContext(int samples) {
 		genotypes = new boolean[samples];
 		genotypesParsed = new float[samples];
@@ -133,6 +135,7 @@ public class MinimalVariantContext {
 	public void setRawLine(String rawLine) {
 		this.rawLine = rawLine;
 		this.id = null;
+		this.dirtyGenotypes = true;
 	}
 
 	public String getRawLine() {
@@ -230,40 +233,44 @@ public class MinimalVariantContext {
 	}
 
 	public float[] getGenotypeDosages(String field) throws IOException {
-		
-		//TODO: implement dirty flag, and parse genotypes only once
-		
-		String tiles[] = rawLine.split("\t", 10);
-		String[] formats = tiles[8].split(":");
-		int index = -1;
-		for (int i = 0; i < formats.length; i++) {
-			if (formats[i].equals(field)) {
-				index = i;
-			}
-		}
 
-		if (index == -1) {
-			throw new IOException("field '" + field + "' not found in FORMAT");
-		}
-		String[] values = tiles[9].split("\t");
-		for (int i = 0; i < genotypesParsed.length; i++) {
-			String value = values[i];
-			String[] tiles2 = value.split(":");
-			String genotype = tiles2[index];
+		if (dirtyGenotypes) {
 
-			float dosage = 0;
-			// genotypes
-			if (genotype.equals("0|0")) {
-				dosage = 0;
-			} else if (genotype.equals("0|1") || genotype.equals("1|0")) {
-				dosage = 1;
-			} else if (genotype.equals("1|1")) {
-				dosage = 2;
-			} else {
-				// dosage
-				dosage = Float.parseFloat(genotype);
+			String tiles[] = rawLine.split("\t", 10);
+			String[] formats = tiles[8].split(":");
+			int index = -1;
+			for (int i = 0; i < formats.length; i++) {
+				if (formats[i].equals(field)) {
+					index = i;
+				}
 			}
-			genotypesParsed[i] = dosage;
+
+			if (index == -1) {
+				throw new IOException("field '" + field + "' not found in FORMAT");
+			}
+			String[] values = tiles[9].split("\t");
+			for (int i = 0; i < genotypesParsed.length; i++) {
+				String value = values[i];
+				String[] tiles2 = value.split(":");
+				String genotype = tiles2[index];
+
+				float dosage = 0;
+				// genotypes
+				if (genotype.equals("0|0")) {
+					dosage = 0;
+				} else if (genotype.equals("0|1") || genotype.equals("1|0")) {
+					dosage = 1;
+				} else if (genotype.equals("1|1")) {
+					dosage = 2;
+				} else {
+					// dosage
+					dosage = Float.parseFloat(genotype);
+				}
+				genotypesParsed[i] = dosage;
+
+			}
+			
+			dirtyGenotypes = false;
 
 		}
 		return genotypesParsed;
