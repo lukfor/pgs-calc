@@ -30,6 +30,25 @@ public class ApplyScoreCommandTest {
 		assertEquals(EXPECTED_SAMPLES, samples);
 		reader.close();
 	}
+	
+	
+	@Test
+	public void testCallWithPGSID() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028", "--out", "output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(EXPECTED_SAMPLES, samples);
+		reader.close();
+	}
+	
 
 	@Test
 	public void testCallWithMultipleScores() throws IOException {

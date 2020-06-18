@@ -151,9 +151,11 @@ public class ApplyScoreTask {
 		}
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
+
+			System.out.println("Loading file " + riskScoreFilenames[i] + "...");
+			
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
 			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format);
-			System.out.println("Loading file " + riskScoreFilenames[i] + "...");
 
 			if (chunk != null) {
 				riskscore.buildIndex(chromosome, chunk);
