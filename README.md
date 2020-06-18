@@ -95,6 +95,16 @@ Use only variants with an imputation quality (R2) >= 0.9:
 ./pgs-calc --ref PGS000018.txt.gz test.chr*.vcf.gz --minR2 0.9 --out scores.txt
 ```
 
+#### PGSCatalog support
+
+If a PGS id is provided, pgs-calc downloads the file from PGSCatalog automatically:
+
+```
+./pgs-calc --ref PGS000018 test.chr1.vcf.gz --out scores.txt
+```
+
+All risk scores are written to file `scores.txt`
+
 ## Contact
 
 Lukas Forer, Institute of Genetic Epidemiology, Medical University of Innsbruck
