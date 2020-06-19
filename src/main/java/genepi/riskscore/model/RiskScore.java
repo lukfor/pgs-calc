@@ -20,6 +20,10 @@ public class RiskScore {
 	public void setScore(int index, double score) {
 		this.scores[index] = score;
 	}
+	
+	public void incScore(int index, double score) {
+		this.scores[index] += score;
+	}
 
 	public double getScore(int index) {
 		return scores[index];
