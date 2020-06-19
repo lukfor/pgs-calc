@@ -5,7 +5,7 @@
 
 	<groupId>lukfor</groupId>
 	<artifactId>pgs-calc</artifactId>
-	<version>0.8.3</version>
+	<version>0.8.4</version>
 	<packaging>jar</packaging>
 
 	<name>riskscore</name>
