@@ -108,11 +108,8 @@ public class ApplyScoreTask {
 		numberRiskScores = riskScoreFilenames.length;
 		summaries = new RiskScoreSummary[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
-			if (i == 0) {
-				summaries[i] = new RiskScoreSummary("score");
-			} else {
-				summaries[i] = new RiskScoreSummary("score_" + i);
-			}
+			String name = RiskScoreFile.getName(riskScoreFilenames[i]);
+			summaries[i] = new RiskScoreSummary(name);
 		}
 
 		for (String vcfFilename : vcfs) {

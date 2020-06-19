@@ -42,4 +42,8 @@ public class PGSCatalog {
 
 	}
 
+	public static boolean isValidId(String id) {
+		return (id.startsWith("PGS") && id.length() == 9 && !id.endsWith(".txt.gz"));
+	}
+
 }

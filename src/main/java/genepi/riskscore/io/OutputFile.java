@@ -15,8 +15,6 @@ public class OutputFile {
 
 	public static final String COLUMN_SAMPLE = "sample";
 
-	public static final String COLUMN_SCORE = "score";
-
 	public static final char SEPARATOR = ',';
 
 	private List<String> samples;

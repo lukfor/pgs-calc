@@ -109,14 +109,14 @@ public class ApplyScoreCommandTest {
 
 		assertEquals(true, reader.next());
 
-		double score = reader.getDouble("score");
+		double score = reader.getDouble("test.scores");
 		String sample = reader.getString("sample");
 		assertEquals("LF001", sample);
 		assertEquals(-(1 + 3), score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
-		score = reader.getDouble("score");
+		score = reader.getDouble("test.scores");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
 		assertEquals(-(3 + 7), score, 0.0000001);
@@ -136,14 +136,14 @@ public class ApplyScoreCommandTest {
 
 		assertEquals(true, reader.next());
 
-		double score = reader.getDouble("score");
+		double score = reader.getDouble("chr20.scores");
 		String sample = reader.getString("sample");
 		assertEquals("LF001", sample);
 		assertEquals(-0.4, score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
-		score = reader.getDouble("score");
+		score = reader.getDouble("chr20.scores");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
 		assertEquals(-1, score, 0.0000001);
@@ -164,14 +164,14 @@ public class ApplyScoreCommandTest {
 
 		assertEquals(true, reader.next());
 
-		double score = reader.getDouble("score");
+		double score = reader.getDouble("test.scores");
 		String sample = reader.getString("sample");
 		assertEquals("LF001", sample);
 		assertEquals(-(1 + 3), score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
-		score = reader.getDouble("score");
+		score = reader.getDouble("test.scores");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
 		assertEquals(-(3 + 7), score, 0.0000001);
@@ -192,13 +192,13 @@ public class ApplyScoreCommandTest {
 
 		assertEquals(true, reader.next());
 
-		double score = reader.getDouble("score");
+		double score = reader.getDouble("chr20.scores");
 		String sample = reader.getString("sample");
 		assertEquals(-0.1, score, 0.0000001);
 
 		assertEquals(true, reader.next());
 
-		score = reader.getDouble("score");
+		score = reader.getDouble("chr20.scores");
 		sample = reader.getString("sample");
 		assertEquals("LF002", sample);
 		assertEquals(-0.2, score, 0.0000001);

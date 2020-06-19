@@ -37,8 +37,8 @@ public class RiskScoreFile {
 
 		if (!new File(filename).exists()) {
 
-			// check if its a PGS id
-			if (filename.startsWith("PGS") && filename.length() == 9 && !filename.endsWith(".txt.gz")) {
+			// check if filename is a PGS id
+			if (PGSCatalog.isValidId(filename)) {
 				String id = filename;
 				this.filename = PGSCatalog.getFilenameById(id);
 			} else {
@@ -114,6 +114,22 @@ public class RiskScoreFile {
 
 	public ReferenceVariant getVariant(int position) {
 		return variants.get(position);
+	}
+
+	public static String getName(String filename) throws Exception {
+
+		if (PGSCatalog.isValidId(filename)) {
+			// use PGS ID as score name
+			return filename;
+		}
+
+		// Cleanup filename and use it as name (remove extension etc..)
+		String name = FileUtil.getFilename(filename);
+		name = name.replaceAll(".txt.gz", "");
+		name = name.replaceAll(".txt", "");
+		name = name.replaceAll(".csv.gz", "");
+		name = name.replaceAll(".csv", "");
+		return name;
 	}
 
 	public int getCacheSize() {
