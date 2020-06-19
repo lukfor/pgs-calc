@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
+import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
@@ -142,11 +143,21 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	}
 
 	private String[] parseRef(String ref) {
-		String[] refs = ref.split(",");
-		for (int i = 0; i < refs.length; i++) {
-			refs[i] = refs[i].trim();
+
+		try {
+			
+			// check if file is a pgscatalog file
+			PGSCatalogIDFile file = new PGSCatalogIDFile(ref);
+			return file.getIds();
+			
+		} catch (Exception e) {
+			
+			String[] refs = ref.split(",");
+			for (int i = 0; i < refs.length; i++) {
+				refs[i] = refs[i].trim();
+			}
+			return refs;
 		}
-		return refs;
 	}
 
 	public static String number(long number) {

@@ -45,10 +45,46 @@ public class ApplyScoreCommandTest {
 			samples++;
 
 		}
+		assertEquals(2, reader.getColumns().length);
 		assertEquals(EXPECTED_SAMPLES, samples);
 		reader.close();
 	}
 	
+	@Test
+	public void testCallWithMultiplePGSIDs() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(3, reader.getColumns().length);
+		assertEquals(EXPECTED_SAMPLES, samples);
+		reader.close();
+	}
+	
+	@Test
+	public void testCallWithPGSCatalogIDFile() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/pgs-ids.txt", "--out", "output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(3, reader.getColumns().length);
+		assertEquals(EXPECTED_SAMPLES, samples);
+		reader.close();
+	}
 
 	@Test
 	public void testCallWithMultipleScores() throws IOException {
