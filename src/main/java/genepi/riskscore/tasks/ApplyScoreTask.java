@@ -41,7 +41,7 @@ public class ApplyScoreTask {
 	private CsvTableWriter variantFile;
 
 	private RiskScoreFormat defaultFormat = new PGSCatalogFormat();
-	
+
 	private Map<String, RiskScoreFormat> formats = new HashMap<String, RiskScoreFormat>();
 
 	private String genotypeFormat = DOSAGE_FORMAT;
@@ -153,7 +153,7 @@ public class ApplyScoreTask {
 		for (int i = 0; i < numberRiskScores; i++) {
 
 			System.out.println("Loading file " + riskScoreFilenames[i] + "...");
-			
+
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
 			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format);
 
@@ -170,7 +170,7 @@ public class ApplyScoreTask {
 		}
 
 		System.out.println("Loading file " + vcfFilename + "...");
-		
+
 		vcfReader = new FastVCFFileReader(vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
@@ -189,7 +189,9 @@ public class ApplyScoreTask {
 			}
 		}
 
-		while (vcfReader.next()) {
+		boolean outOfChunk = false;
+
+		while (vcfReader.next() && !outOfChunk) {
 
 			MinimalVariantContext variant = vcfReader.getVariantContext();
 
@@ -201,6 +203,19 @@ public class ApplyScoreTask {
 			}
 
 			int position = variant.getStart();
+
+			if (chunk != null) {
+
+				if (position < chunk.getStart()) {
+					continue;
+				}
+
+				if (position > chunk.getEnd()) {
+					outOfChunk = true;
+					continue;
+				}
+
+			}
 
 			for (int j = 0; j < riskScoreFilenames.length; j++) {
 
@@ -294,7 +309,7 @@ public class ApplyScoreTask {
 			}
 		}
 	}
-	
+
 	public void setRiskScoreFormat(String file, RiskScoreFormat format) {
 		this.formats.put(file, format);
 	}
