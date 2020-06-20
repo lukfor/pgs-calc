@@ -278,7 +278,7 @@ public class ApplyScoreTask {
 				float[] dosages = variant.getGenotypeDosages(genotypeFormat);
 
 				for (int i = 0; i < countSamples; i++) {
-					double dosage = dosages[i];
+					float dosage = dosages[i];
 					double effect = dosage * effectWeight;
 					riskScores[i].incScore(j, effect);
 				}
