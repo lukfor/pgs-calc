@@ -90,6 +90,11 @@ public class RiskScoreFile {
 		while (reader.next()) {
 			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
+				
+				if (reader.getString("position").isEmpty()) {
+					continue;
+				}
+				
 				int position = reader.getInteger(format.getPosition());
 
 				if (position >= chunk.getStart() && position <= chunk.getEnd()) {
