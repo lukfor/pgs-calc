@@ -91,7 +91,7 @@ public class RiskScoreFile {
 			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
 				
-				if (reader.getString("position").isEmpty()) {
+				if (reader.getString(format.getPosition()).isEmpty()) {
 					continue;
 				}
 				
