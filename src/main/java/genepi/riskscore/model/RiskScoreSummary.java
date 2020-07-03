@@ -16,11 +16,11 @@ public class RiskScoreSummary {
 
 	private int variantsAlleleMissmatch = 0;
 
-	private int R2Filtered = 0;
+	private int r2Filtered = 0;
 
-	private int NotFound = 0;
+	private int notFound = 0;
 
-	private int Filtered = 0;
+	private int filtered = 0;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -63,11 +63,11 @@ public class RiskScoreSummary {
 	}
 
 	public int getR2Filtered() {
-		return R2Filtered;
+		return r2Filtered;
 	}
 
 	public void incR2Filtered() {
-		this.R2Filtered++;
+		this.r2Filtered++;
 	}
 
 	public int getVariants() {
@@ -79,23 +79,39 @@ public class RiskScoreSummary {
 	}
 
 	public int getNotFound() {
-		return NotFound;
+		return notFound;
 	}
 
 	public void incNotFound() {
-		this.NotFound++;
+		this.notFound++;
 	}
 
 	public int getFiltered() {
-		return Filtered;
+		return filtered;
 	}
 
 	public void incFiltered() {
-		this.Filtered++;
+		this.filtered++;
 	}
 
 	public int getVariantsNotUsed() {
 		return (variants - variantsUsed);
+	}
+
+	public void merge(RiskScoreSummary other) throws Exception {
+		if (!other.name.equals(name)) {
+			throw new Exception("Different score names: '" + name + "' vs. '" + other.name + "'.");
+		}
+
+		// total variants has to be ignored.
+		variantsUsed += other.variantsUsed;
+		variantsSwitched += other.variantsSwitched;
+		variantsMultiAllelic += other.variantsMultiAllelic;
+		variantsAlleleMissmatch += other.variantsAlleleMissmatch;
+		r2Filtered += other.r2Filtered;
+		notFound += other.notFound;
+		filtered += other.filtered;
+
 	}
 
 	@Override

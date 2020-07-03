@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
+import genepi.riskscore.io.JsonReportFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.model.RiskScoreFormat;
@@ -48,6 +49,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--includeVariants" }, description = "Include only variants from this file", required = false)
 	String includeVariantFilename = null;
 
+	@Option(names = { "--report-json" }, description = "Write statistics to json file", required = false)
+	String reportJson = null;
+
+	
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -117,6 +122,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		output.save(out);
 		watch.stop();
 
+		if (reportJson != null) {
+			JsonReportFile report = new JsonReportFile(task.getSummaries());
+			report.save(reportJson);			
+		}
+		
 		System.out.println("Output written to '" + out + "'. Done!");
 		System.out.println();
 
