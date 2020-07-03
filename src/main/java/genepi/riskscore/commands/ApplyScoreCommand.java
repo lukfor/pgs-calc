@@ -3,6 +3,7 @@ package genepi.riskscore.commands;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
@@ -13,6 +14,12 @@ import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import htsjdk.samtools.util.StopWatch;
+import lukfor.progress.ProgressBarBuilder;
+import lukfor.progress.TaskService;
+import lukfor.progress.renderer.labels.TaskNameLabel;
+import lukfor.progress.renderer.labels.TimeLabel;
+import lukfor.progress.renderer.spinners.DefaultSpinner;
+import lukfor.progress.tasks.ITaskRunnable;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
@@ -41,6 +48,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--format" }, description = "Reference weights format file", required = false)
 	String format = null;
+
+	@Option(names = { "--threads" }, description = "Number of threads", required = false)
+	int threads = 1;
 
 	@Option(names = { "--writeVariants" }, description = "Write csv file with all used variants", required = false)
 	String outputVariantFilename = null;
@@ -81,63 +91,88 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		}
 		System.out.println();
 
-		ApplyScoreTask task = new ApplyScoreTask();
-
-		String[] refs = parseRef(ref);
-		task.setRiskScoreFilenames(refs);
-		if (format != null) {
-			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
-			for (String file : refs) {
-				task.setRiskScoreFormat(file, riskScoreFormat);
-			}
-		} else {
-			for (String file : refs) {
-				String autoFormat = file + ".format";
-				if (new File(autoFormat).exists()) {
-					RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
-					task.setRiskScoreFormat(file, riskScoreFormat);
-				}
-			}
-		}
-
-		if (chunk != null) {
-			task.setChunk(chunk);
-		}
-		task.setVcfFilenames(vcfs);
-		task.setMinR2(minR2);
-		task.setGenotypeFormat(genotypeFormat);
-		task.setOutputVariantFilename(outputVariantFilename);
-		task.setIncludeVariantFilename(includeVariantFilename);
-
 		StopWatch watch = new StopWatch();
 		watch.start();
-		task.run();
 
-		OutputFile output = new OutputFile(task.getRiskScores(), task.getSummaries());
-		output.save(out);
-		watch.stop();
+		List<ITaskRunnable> tasks = new Vector<ITaskRunnable>();
 
-		System.out.println("Output written to '" + out + "'. Done!");
-		System.out.println();
+		for (String vcf : vcfs) {
 
-		System.out.println();
-		System.out.println("Summary");
-		System.out.println("-------");
-		System.out.println();
-		System.out.println("  Target VCF file(s):");
-		System.out.println("    - Samples: " + number(task.getCountSamples()));
-		System.out.println("    - Variants: " + number(task.getCountVariants()));
-		System.out.println();
+			ApplyScoreTask task = new ApplyScoreTask();
 
-		for (RiskScoreSummary summary : task.getSummaries()) {
-			System.out.println(summary);
-			System.out.println();
+			String[] refs = parseRef(ref);
+			task.setRiskScoreFilenames(refs);
+			if (format != null) {
+				RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
+				for (String file : refs) {
+					task.setRiskScoreFormat(file, riskScoreFormat);
+				}
+			} else {
+				for (String file : refs) {
+					String autoFormat = file + ".format";
+					if (new File(autoFormat).exists()) {
+						RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
+						task.setRiskScoreFormat(file, riskScoreFormat);
+					}
+				}
+			}
+
+			if (chunk != null) {
+				task.setChunk(chunk);
+			}
+			task.setVcfFilename(vcf);
+			task.setMinR2(minR2);
+			task.setGenotypeFormat(genotypeFormat);
+			task.setOutputVariantFilename(outputVariantFilename);
+			task.setIncludeVariantFilename(includeVariantFilename);
+			tasks.add(task);
+
 		}
 
-		// System.out.println(" - Not found in target: " + number(notFound));
-		System.out.println();
-		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
-		System.out.println();
+		ProgressBarBuilder builder = new ProgressBarBuilder();
+		builder.components(new DefaultSpinner(), new TaskNameLabel(), ProgressBarBuilder.DEFAULT_STYLE,
+				new TimeLabel());
+
+		TaskService.getExecutor().setThreads(threads);
+		TaskService.run(tasks, builder);
+
+		OutputFile output = null;
+		for (ITaskRunnable t : tasks) {
+			ApplyScoreTask task = (ApplyScoreTask) t;
+			OutputFile outputChunk = new OutputFile(task.getRiskScores(), task.getSummaries());
+			if (output == null) {
+				output = outputChunk;
+			} else {
+				output.merge(outputChunk);
+			}
+
+			System.out.println("Output written to '" + out + "'. Done!");
+			System.out.println();
+
+			System.out.println();
+			System.out.println("Summary");
+			System.out.println("-------");
+			System.out.println();
+			System.out.println("  Target VCF file(s):");
+			System.out.println("    - Samples: " + number(task.getCountSamples()));
+			System.out.println("    - Variants: " + number(task.getCountVariants()));
+			System.out.println();
+
+			for (RiskScoreSummary summary : task.getSummaries()) {
+				System.out.println(summary);
+				System.out.println();
+			}
+
+			// System.out.println(" - Not found in target: " + number(notFound));
+			System.out.println();
+			System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
+			System.out.println();
+
+		}
+		output.save(out);
+
+		watch.stop();
+
 		return 0;
 
 	}
@@ -145,13 +180,13 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	private String[] parseRef(String ref) {
 
 		try {
-			
+
 			// check if file is a pgscatalog file
 			PGSCatalogIDFile file = new PGSCatalogIDFile(ref);
 			return file.getIds();
-			
+
 		} catch (Exception e) {
-			
+
 			String[] refs = ref.split(",");
 			for (int i = 0; i < refs.length; i++) {
 				refs[i] = refs[i].trim();

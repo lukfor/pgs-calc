@@ -1,5 +1,7 @@
 package genepi.riskscore.tasks;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -17,12 +19,15 @@ import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
+import lukfor.progress.tasks.ITaskRunnable;
+import lukfor.progress.tasks.monitors.ITaskMonitor;
+import lukfor.progress.util.CountingInputStream;
 
-public class ApplyScoreTask {
+public class ApplyScoreTask implements ITaskRunnable {
 
 	private RiskScore[] riskScores;
 
-	private List<String> vcfs = null;
+	private String vcf = null;
 
 	private String riskScoreFilenames[] = null;
 
@@ -65,15 +70,8 @@ public class ApplyScoreTask {
 		this.chunk = chunk;
 	}
 
-	public void setVcfFilenames(List<String> vcfs) {
-		this.vcfs = vcfs;
-	}
-
-	public void setVcfFilenames(String... vcfs) {
-		this.vcfs = new Vector<String>();
-		for (String vcf : vcfs) {
-			this.vcfs.add(vcf);
-		}
+	public void setVcfFilename(String vcf) {
+		this.vcf = vcf;
 	}
 
 	public void setOutputVariantFilename(String outputVariantFilename) {
@@ -88,10 +86,10 @@ public class ApplyScoreTask {
 		this.genotypeFormat = genotypeFormat;
 	}
 
-	public void run() throws Exception {
+	public void run(ITaskMonitor monitor) throws Exception {
 
-		if (vcfs == null || vcfs.isEmpty()) {
-			throw new Exception("Please specify at leat one vcf file.");
+		if (vcf == null || vcf.isEmpty()) {
+			throw new Exception("Please specify a vcf file.");
 		}
 
 		if (riskScoreFilenames == null || riskScoreFilenames.length == 0) {
@@ -112,9 +110,7 @@ public class ApplyScoreTask {
 			summaries[i] = new RiskScoreSummary(name);
 		}
 
-		for (String vcfFilename : vcfs) {
-			processVCF(vcfFilename, riskScoreFilenames);
-		}
+		processVCF(monitor, vcf, riskScoreFilenames);
 
 		if (variantFile != null) {
 			variantFile.close();
@@ -126,11 +122,15 @@ public class ApplyScoreTask {
 
 	}
 
-	private void processVCF(String vcfFilename, String... riskScoreFilenames) throws Exception {
+	private void processVCF(ITaskMonitor monitor, String vcfFilename, String... riskScoreFilenames) throws Exception {
+
+		monitor.beginTask("??", new File(vcf).length());
 
 		// read chromosome from first variant
 		String chromosome = null;
-		FastVCFFileReader vcfReader = new FastVCFFileReader(vcfFilename);
+		CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
+
+		FastVCFFileReader vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
 		if (vcfReader.next()) {
 			chromosome = vcfReader.getVariantContext().getContig();
 			vcfReader.close();
@@ -139,17 +139,20 @@ public class ApplyScoreTask {
 			throw new Exception("VCF file is empty.");
 		}
 
+		monitor.setTaskName("Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome);
+
 		VariantFile includeVariants = null;
 		if (includeVariantFilename != null) {
-			System.out.println("Loading file " + includeVariantFilename + "...");
+			// System.out.println("Loading file " + includeVariantFilename + "...");
 			includeVariants = new VariantFile(includeVariantFilename);
 			includeVariants.buildIndex(chromosome);
-			System.out.println("Loaded " + includeVariants.getCacheSize() + " variants for chromosome " + chromosome);
+			// System.out.println("Loaded " + includeVariants.getCacheSize() + " variants
+			// for chromosome " + chromosome);
 		}
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
 
-			System.out.println("Loading file " + riskScoreFilenames[i] + "...");
+			// System.out.println("Loading file " + riskScoreFilenames[i] + "...");
 
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
 			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format);
@@ -162,13 +165,15 @@ public class ApplyScoreTask {
 
 			summaries[i].setVariants(riskscore.getTotalVariants());
 
-			System.out.println("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
+			// System.out.println("Loaded " + riskscore.getCacheSize() + " weights for
+			// chromosome " + chromosome);
 			riskscores[i] = riskscore;
 		}
 
-		System.out.println("Loading file " + vcfFilename + "...");
+		// System.out.println("Loading file " + vcfFilename + "...");
 
-		vcfReader = new FastVCFFileReader(vcfFilename);
+		countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
+		vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
 		if (riskScores == null) {
@@ -291,6 +296,8 @@ public class ApplyScoreTask {
 		vcfReader.close();
 
 		System.out.println("Loaded " + getRiskScores().length + " samples and " + countVariants + " variants.");
+
+		monitor.done();
 
 	}
 
