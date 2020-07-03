@@ -30,7 +30,8 @@ public class MergeScoreTaskTest {
 	public void testMergingChunks() throws Exception {
 
 		// whoole file
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "output.csv" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "output.csv",
+				"--report-json", "report.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -44,18 +45,21 @@ public class MergeScoreTaskTest {
 		}
 
 		String[] chunkFiles = new String[chunks];
+		String[] reportFiles = new String[chunks];
 
 		int count = 0;
 		for (int i = 1; i <= lengthChr20; i += chunkSize) {
 			int start = i;
 			int end = i + chunkSize - 1;
 			String chunk = "output" + start + "_" + end + ".csv";
+			String report = "output" + start + "_" + end + ".json";
 			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--start", start + "",
-					"--end", end + "", "--out", chunk };
+					"--end", end + "", "--out", chunk, "--report-json", report };
 			result = new CommandLine(new ApplyScoreCommand()).execute(args);
 			assertEquals(0, result);
 
 			chunkFiles[count] = chunk;
+			reportFiles[count] = report;
 			count++;
 		}
 
@@ -65,6 +69,13 @@ public class MergeScoreTaskTest {
 		task.run();
 
 		assertEqualsScoreFiles("output.csv", "output.merged.txt", 0.0000001);
+
+		MergeJsonReportFileTask task2 = new MergeJsonReportFileTask();
+		task2.setInputs(reportFiles);
+		task2.setOutput("report.merged.json");
+		task2.run();
+
+		assertEqualsScoreFiles("report.json", "report.merged.json", 0.0000001);
 
 	}
 

@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
+import genepi.riskscore.io.JsonReportFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.model.RiskScoreFormat;
@@ -57,6 +58,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--includeVariants" }, description = "Include only variants from this file", required = false)
 	String includeVariantFilename = null;
+
+	@Option(names = { "--report-json" }, description = "Write statistics to json file", required = false)
+	String reportJson = null;
 
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
@@ -137,7 +141,14 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		TaskService.run(tasks, builder);
 
 		OutputFile output = null;
+		JsonReportFile report = null;
+		int samples = 0;
+		int variants = 0;
+
+		// merge scores and statistics
+
 		for (ITaskRunnable t : tasks) {
+
 			ApplyScoreTask task = (ApplyScoreTask) t;
 			OutputFile outputChunk = new OutputFile(task.getRiskScores(), task.getSummaries());
 			if (output == null) {
@@ -146,30 +157,44 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				output.merge(outputChunk);
 			}
 
-			System.out.println("Output written to '" + out + "'. Done!");
-			System.out.println();
-
-			System.out.println();
-			System.out.println("Summary");
-			System.out.println("-------");
-			System.out.println();
-			System.out.println("  Target VCF file(s):");
-			System.out.println("    - Samples: " + number(task.getCountSamples()));
-			System.out.println("    - Variants: " + number(task.getCountVariants()));
-			System.out.println();
-
-			for (RiskScoreSummary summary : task.getSummaries()) {
-				System.out.println(summary);
-				System.out.println();
+			if (report == null) {
+				report = new JsonReportFile(task.getSummaries());
+			} else {
+				report.merge(new JsonReportFile(task.getSummaries()));
 			}
 
-			// System.out.println(" - Not found in target: " + number(notFound));
-			System.out.println();
-			System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
-			System.out.println();
+			samples += task.getCountSamples();
+			variants += task.getCountVariants();
 
 		}
+
 		output.save(out);
+		System.out.println("Output written to '" + out + "'. Done!");
+
+		if (reportJson != null) {
+			report.save(reportJson);
+			System.out.println("Report written to '" + reportJson + "'. Done!");
+		}
+
+		System.out.println();
+
+		System.out.println();
+		System.out.println("Summary");
+		System.out.println("-------");
+		System.out.println();
+		System.out.println("  Target VCF file(s):");
+		System.out.println("    - Samples: " + number(samples));
+		System.out.println("    - Variants: " + number(variants));
+		System.out.println();
+
+		for (RiskScoreSummary summary : report.getSummaries()) {
+			System.out.println(summary);
+			System.out.println();
+		}
+
+		System.out.println();
+		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
+		System.out.println();
 
 		watch.stop();
 
