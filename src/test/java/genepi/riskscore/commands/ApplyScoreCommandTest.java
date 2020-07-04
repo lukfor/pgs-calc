@@ -53,7 +53,7 @@ public class ApplyScoreCommandTest {
 	public void testCallWithMultiplePGSIDs() {
 
 		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv",
-				"--report-html", "output.html", "--meta", "pgs-catalog.json" };
+				"--report-html", "output.html", "--meta", "test-data/pgs-catalog-small.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
