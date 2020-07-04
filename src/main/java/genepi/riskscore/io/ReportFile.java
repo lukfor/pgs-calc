@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import com.google.gson.Gson;
@@ -13,15 +14,15 @@ import com.google.gson.reflect.TypeToken;
 
 import genepi.riskscore.model.RiskScoreSummary;
 
-public class JsonReportFile {
+public class ReportFile {
 
 	private List<RiskScoreSummary> summaries;
 
-	public JsonReportFile() {
+	public ReportFile() {
 		this.summaries = new Vector<RiskScoreSummary>();
 	}
 
-	public JsonReportFile(RiskScoreSummary[] summaries) {
+	public ReportFile(RiskScoreSummary[] summaries) {
 		this.summaries = new Vector<RiskScoreSummary>();
 		for (RiskScoreSummary summary : summaries) {
 			this.summaries.add(summary);
@@ -48,7 +49,7 @@ public class JsonReportFile {
 
 	}
 
-	public void merge(JsonReportFile file) throws Exception {
+	public void merge(ReportFile file) throws Exception {
 
 		summaries.size();
 		file.summaries.size();
@@ -63,6 +64,16 @@ public class JsonReportFile {
 			summaries.get(i).merge(file.summaries.get(i));
 		}
 
+	}
+	
+	
+	public void mergeWithMeta(MetaFile meta) {
+		for (RiskScoreSummary summary : summaries) {
+			Object data = meta.getDataById(summary.getName());
+			if (data != null) {
+				summary.setMeta(data);
+			}
+		}
 	}
 
 	public List<RiskScoreSummary> getSummaries() {

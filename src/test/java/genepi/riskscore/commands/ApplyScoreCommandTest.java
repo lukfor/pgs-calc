@@ -30,8 +30,7 @@ public class ApplyScoreCommandTest {
 		assertEquals(EXPECTED_SAMPLES, samples);
 		reader.close();
 	}
-	
-	
+
 	@Test
 	public void testCallWithPGSID() {
 
@@ -49,11 +48,12 @@ public class ApplyScoreCommandTest {
 		assertEquals(EXPECTED_SAMPLES, samples);
 		reader.close();
 	}
-	
+
 	@Test
 	public void testCallWithMultiplePGSIDs() {
 
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv",
+				"--report-html", "output.html", "--meta", "pgs-catalog.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -67,7 +67,7 @@ public class ApplyScoreCommandTest {
 		assertEquals(EXPECTED_SAMPLES, samples);
 		reader.close();
 	}
-	
+
 	@Test
 	public void testCallWithPGSCatalogIDFile() {
 

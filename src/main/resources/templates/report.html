@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="{{application}}">
+  <meta name="generator" content="{{application}} {{version}}">
+  <title>Report - {{application}}</title>
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+  <style>
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      #wrapper {
+    overflow-x: hidden;
+ }
+
+#sidebar-wrapper {
+  min-height: 100vh;
+  margin-left: -15rem;
+  -webkit-transition: margin .25s ease-out;
+  -moz-transition: margin .25s ease-out;
+  -o-transition: margin .25s ease-out;
+  transition: margin .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  width: 15rem;
+}
+
+#page-content-wrapper {
+  min-width: 100vw;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  margin-left: 0;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+  }
+
+  #page-content-wrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+    margin-left: -15rem;
+  }
+}
+
+    </style>
+  <!-- Custom styles for this template -->
+</head>
+
+<body>
+  <div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+      <div class="sidebar-heading">{{application}} {{version}}</div>
+      <div class="input-group">
+        <input class="field form-control mx-2 mb-3" id="s" name="s" type="text" value="" placeholder="PGS-ID or trait" autocomplete="off">
+              </div>
+        <div class="list-group mx-2" style="overflow-y: scroll;  height: 75vh;" role="tablist">
+          {{#scores}}
+            <a data-toggle="list" href="#score{{-index}}" role="tab" data-meta="{{name}}, {{#meta}}{{trait_reported}}{{/meta}}" class="list-group-item list-group-item-action {{#-first}}active{{/-first}}">{{name}}{{#meta}}<br><small>{{trait_reported}}</small>{{/meta}}</a>
+          {{/scores}}
+        </div>
+      </div>
+      <!-- /#sidebar-wrapper -->
+
+      <!-- Page Content -->
+      <div id="page-content-wrapper">
+        <div class="container-fluid">
+          <div class="tab-content">
+            {{#scores}}
+              <div class="tab-pane {{#-first}}active{{/-first}}" id="score{{-index}}" role="tabpanel">
+                <h2 class="mt-4">{{name}}</h2>
+                <hr>
+                <ul>
+                  <li>Variants: {{variants}}</li>
+                  <li>Variants used: {{variantsUsed}}</li>
+                  <li>Filter by</li>
+                  <ul>
+                    <li>multi allelic: {{variantsMultiAllelic}}</li>
+                    <li>multi allelic or indels: {{variantsAlleleMissmatch}}</li>
+                    <li>low R2 value: {{r2Filtered}}</li>
+                    <li>variants file: {{filtered}}</li>
+                  </ul>
+                  {{#meta}}
+                  <li>Trait: {{trait_reported}}</li>
+                  {{#trait_additional}}
+                    <li>Additional Trait: {{.}}</li>
+                  {{/trait_additional}}
+                  <li>Publication: <a href="https://doi.org/{{publication.doi}}" target="_blank">{{publication.firstauthor}} et.al, {{publication.journal}} ({{publication.date_publication}})</a></li>
+                  {{/meta}}
+                  <li>View in <a href="https://www.pgscatalog.org/score/{{name}}">PGS-Catalog</a></li>
+                </ul>
+                <small class="text-muted">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>
+              </div>
+            {{/scores}}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    </main><!-- /.container -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script>
+      $('#s').on('input', function(e) {
+        let input = $(this).val()
+        let filter = input.toUpperCase()
+        $('.list-group .list-group-item').each(function() {
+          let anchor = $(this)
+          if (anchor.data('meta').toUpperCase().indexOf(filter) > -1) {
+            anchor.removeClass('d-none')
+          } else {
+            anchor.addClass('d-none');
+          }
+        });
+      });
+    </script>
+
+</html>

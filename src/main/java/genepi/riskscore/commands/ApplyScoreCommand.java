@@ -7,12 +7,14 @@ import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
-import genepi.riskscore.io.JsonReportFile;
+import genepi.riskscore.io.MetaFile;
+import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
+import genepi.riskscore.tasks.CreateHtmlReportTask;
 import htsjdk.samtools.util.StopWatch;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -52,7 +54,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--report-json" }, description = "Write statistics to json file", required = false)
 	String reportJson = null;
 
-	
+	@Option(names = { "--report-html" }, description = "Write statistics to html file", required = false)
+	String reportHtml = null;
+
+	@Option(names = { "--meta" }, description = "JSON file with meta data about scores", required = false)
+	String meta = null;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -116,19 +123,35 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		StopWatch watch = new StopWatch();
 		watch.start();
+
 		task.run();
 
 		OutputFile output = new OutputFile(task.getRiskScores(), task.getSummaries());
 		output.save(out);
 		watch.stop();
 
-		if (reportJson != null) {
-			JsonReportFile report = new JsonReportFile(task.getSummaries());
-			report.save(reportJson);			
-		}
-		
 		System.out.println("Output written to '" + out + "'. Done!");
 		System.out.println();
+
+		if (reportJson != null) {
+			ReportFile report = new ReportFile(task.getSummaries());
+			report.save(reportJson);
+			System.out.println("Json Report written to '" + reportJson + "'. Done!");
+		}
+
+		if (reportHtml != null) {
+			ReportFile report = new ReportFile(task.getSummaries());			
+			if (meta != null) {
+				MetaFile metaFile = MetaFile.load(meta);
+				report.mergeWithMeta(metaFile);
+			}
+			
+			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
+			htmlReportTask.setReport(report);
+			htmlReportTask.setOutput(reportHtml);
+			htmlReportTask.run();
+			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
+		}
 
 		System.out.println();
 		System.out.println("Summary");
@@ -155,13 +178,13 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	private String[] parseRef(String ref) {
 
 		try {
-			
+
 			// check if file is a pgscatalog file
 			PGSCatalogIDFile file = new PGSCatalogIDFile(ref);
 			return file.getIds();
-			
+
 		} catch (Exception e) {
-			
+
 			String[] refs = ref.split(",");
 			for (int i = 0; i < refs.length; i++) {
 				refs[i] = refs[i].trim();

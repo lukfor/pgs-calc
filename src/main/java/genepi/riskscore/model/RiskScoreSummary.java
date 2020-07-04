@@ -22,6 +22,8 @@ public class RiskScoreSummary {
 
 	private int filtered = 0;
 
+	private Object meta;
+
 	public RiskScoreSummary(String name) {
 		this.name = name;
 	}
@@ -96,6 +98,14 @@ public class RiskScoreSummary {
 
 	public int getVariantsNotUsed() {
 		return (variants - variantsUsed);
+	}
+
+	public void setMeta(Object meta) {
+		this.meta = meta;
+	}
+
+	public Object getMeta() {
+		return meta;
 	}
 
 	public void merge(RiskScoreSummary other) throws Exception {

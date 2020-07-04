@@ -1,8 +1,8 @@
 package genepi.riskscore.tasks;
 
-import genepi.riskscore.io.JsonReportFile;
+import genepi.riskscore.io.ReportFile;
 
-public class MergeJsonReportFileTask {
+public class MergeReportTask {
 
 	private String output;
 
@@ -21,11 +21,11 @@ public class MergeJsonReportFileTask {
 		assert (output != null);
 		assert (inputs.length > 0);
 
-		JsonReportFile first = new JsonReportFile();
+		ReportFile first = new ReportFile();
 		first.load(inputs[0]);
 
 		for (int i = 1; i < inputs.length; i++) {
-			JsonReportFile next = new JsonReportFile();
+			ReportFile next = new ReportFile();
 			next.load(inputs[i]);
 			first.merge(next);
 		}
