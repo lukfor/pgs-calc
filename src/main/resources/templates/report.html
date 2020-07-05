@@ -111,7 +111,7 @@ data['score{{-index}}']={{data}};
                 <hr>
                 <h5>Reference score</h5>
                 <ul class="text-small">
-                  <li>Variants: {{variants}}</li>
+                  <li>Variants: {{#format}}{{variants}}{{/format}}</li>
                   {{#meta}}
                   <li>Trait: {{trait_reported}}</li>
                   {{#trait_additional}}
@@ -124,8 +124,8 @@ data['score{{-index}}']={{data}};
                 <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
                 <h5>Target study</h5>
                 <ul>
-                  <li>Variants used: {{variantsUsed}} ({{variantsUsedPercentage}})</li>
-                  <li>Samples: {{samples.size}}</li>
+                  <li>Variants used: {{#format}}{{variantsUsed}}{{/format}} ({{variantsUsedPercentage}})</li>
+                  <li>Samples: {{#format}}{{samples.size}}{{/format}}</li>
                 </ul>
               </div>
             {{/scores}}
