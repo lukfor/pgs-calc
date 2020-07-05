@@ -74,7 +74,15 @@
 
     </style>
   <!-- Custom styles for this template -->
+  <script>
+    data = [];
+{{#scores}}
+data['score{{-index}}']={{data}};
+{{/scores}}
+</script>
+
 </head>
+
 
 <body>
   <div class="d-flex" id="wrapper">
@@ -83,11 +91,11 @@
     <div class="bg-light border-right" id="sidebar-wrapper">
       <div class="sidebar-heading">{{application}} {{version}}</div>
       <div class="input-group">
-        <input class="field form-control mx-2 mb-3" id="s" name="s" type="text" value="" placeholder="PGS-ID or trait" autocomplete="off">
+        <input class="field form-control mx-2 mb-3" id="s" name="s" type="text" value="" placeholder="Search by ID or trait" autocomplete="off">
               </div>
         <div class="list-group mx-2" style="overflow-y: scroll;  height: 75vh;" role="tablist">
           {{#scores}}
-            <a data-toggle="list" href="#score{{-index}}" role="tab" data-meta="{{name}}, {{#meta}}{{trait_reported}}{{/meta}}" class="list-group-item list-group-item-action {{#-first}}active{{/-first}}">{{name}}{{#meta}}<br><small>{{trait_reported}}</small>{{/meta}}</a>
+            <a data-toggle="list" href="#score{{-index}}"  data-score="score{{-index}}" role="tab" data-meta="{{name}}, {{#meta}}{{trait_reported}}{{/meta}}" class="list-group-item list-group-item-action {{#-first}}active{{/-first}}">{{name}}{{#meta}}<br><small>{{trait_reported}}</small>{{/meta}}</a>
           {{/scores}}
         </div>
       </div>
@@ -99,18 +107,11 @@
           <div class="tab-content">
             {{#scores}}
               <div class="tab-pane {{#-first}}active{{/-first}}" id="score{{-index}}" role="tabpanel">
-                <h2 class="mt-4">{{name}}</h2>
+                <h3 class="mt-4">{{name}}</h3>
                 <hr>
-                <ul>
+                <h5>Reference score</h5>
+                <ul class="text-small">
                   <li>Variants: {{variants}}</li>
-                  <li>Variants used: {{variantsUsed}}</li>
-                  <li>Filter by</li>
-                  <ul>
-                    <li>multi allelic: {{variantsMultiAllelic}}</li>
-                    <li>multi allelic or indels: {{variantsAlleleMissmatch}}</li>
-                    <li>low R2 value: {{r2Filtered}}</li>
-                    <li>variants file: {{filtered}}</li>
-                  </ul>
                   {{#meta}}
                   <li>Trait: {{trait_reported}}</li>
                   {{#trait_additional}}
@@ -118,11 +119,18 @@
                   {{/trait_additional}}
                   <li>Publication: <a href="https://doi.org/{{publication.doi}}" target="_blank">{{publication.firstauthor}} et.al, {{publication.journal}} ({{publication.date_publication}})</a></li>
                   {{/meta}}
-                  <li>View in <a href="https://www.pgscatalog.org/score/{{name}}">PGS-Catalog</a></li>
+                  <li>View in <a href="https://www.pgscatalog.org/score/{{name}}" target="_blank">PGS-Catalog</a></li>
                 </ul>
-                <small class="text-muted">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>
+                <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
+                <h5>Target study</h5>
+                <ul>
+                  <li>Variants used: {{variantsUsed}} ({{variantsUsedPercentage}})</li>
+                  <li>Samples: {{samples.size}}</li>
+                </ul>
               </div>
             {{/scores}}
+          </div>
+          <div id="plot">
           </div>
         </div>
       </div>
@@ -134,6 +142,8 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
     <script>
       $('#s').on('input', function(e) {
         let input = $(this).val()
@@ -145,6 +155,54 @@
           } else {
             anchor.addClass('d-none');
           }
+        });
+      });
+
+      $('.list-group-item').on('click', function(e) {
+        var score = $(this).data('score');
+        console.log(score);
+        var plotData = [{
+          x: data[score],
+          type: 'histogram',
+        }];
+        Plotly.react('plot', plotData, {
+          margin: {
+            l: 50,
+            r: 50,
+            b: 50,
+            t: 50,
+            pad: 4
+          },
+          xaxis: {
+            title: 'Score'
+          },
+          yaxis: {
+            title: 'Count'
+          },
+          bargap: 0
+        });
+      });
+
+      $(document).ready(function() {
+        var plotData = [{
+          x: data['score1'],
+          type: 'histogram',
+        }];
+        Plotly.newPlot('plot', plotData, {
+          margin: {
+            l: 50,
+            r: 50,
+            b: 50,
+            t: 50,
+            pad: 4
+          },
+          xaxis: {
+            title: 'Score'
+          },
+          yaxis: {
+            title: 'Count'
+          },
+          bargap: 0
         });
       });
     </script>

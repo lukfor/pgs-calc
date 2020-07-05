@@ -10,6 +10,8 @@ public class RiskScoreSummary {
 
 	private int variantsUsed = 0;
 
+	private String variantsUsedPercentage = "0%";
+	
 	private int variantsSwitched = 0;
 
 	private int variantsMultiAllelic = 0;
@@ -23,6 +25,8 @@ public class RiskScoreSummary {
 	private int filtered = 0;
 
 	private Object meta;
+
+	private Object data;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -38,6 +42,7 @@ public class RiskScoreSummary {
 
 	public void incVariantsUsed() {
 		this.variantsUsed++;
+		variantsUsedPercentage = percentage(getVariantsUsed(), getVariants());
 	}
 
 	public int getSwitched() {
@@ -78,6 +83,7 @@ public class RiskScoreSummary {
 
 	public void setVariants(int count) {
 		this.variants = count;
+		variantsUsedPercentage = percentage(getVariantsUsed(), getVariants());
 	}
 
 	public int getNotFound() {
@@ -99,6 +105,14 @@ public class RiskScoreSummary {
 	public int getVariantsNotUsed() {
 		return (variants - variantsUsed);
 	}
+	
+	public void setVariantsUsedPercentage(String variantsUsedPercentage) {
+
+	}
+	
+	public String getVariantsUsedPercentage() {
+		return variantsUsedPercentage;
+	}
 
 	public void setMeta(Object meta) {
 		this.meta = meta;
@@ -106,6 +120,18 @@ public class RiskScoreSummary {
 
 	public Object getMeta() {
 		return meta;
+	}
+
+	public void setData(Object data) {
+		this.data = data;
+	}
+
+	public Object getData() {
+		return data;
+	}
+	
+	public void updateStatistics() {
+		variantsUsedPercentage = percentage(getVariantsUsed(), getVariants());
 	}
 
 	public void merge(RiskScoreSummary other) throws Exception {
@@ -121,8 +147,9 @@ public class RiskScoreSummary {
 		r2Filtered += other.r2Filtered;
 		notFound += other.notFound;
 		filtered += other.filtered;
-
+		updateStatistics();
 	}
+	
 
 	@Override
 	public String toString() {

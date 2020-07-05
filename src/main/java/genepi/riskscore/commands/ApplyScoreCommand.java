@@ -149,6 +149,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
 			htmlReportTask.setOutput(reportHtml);
+			htmlReportTask.setData(output);
 			htmlReportTask.run();
 			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
 		}
