@@ -31,11 +31,11 @@ public class CreateHtmlReportTask {
 	private String output;
 
 	private ReportFile report;
-	
+
 	private OutputFile data;
 
 	private DecimalFormat formatter = new DecimalFormat("###,###,###");
-	
+
 	public void setOutput(String output) {
 		this.output = output;
 	}
@@ -43,7 +43,7 @@ public class CreateHtmlReportTask {
 	public void setReport(ReportFile report) {
 		this.report = report;
 	}
-	
+
 	public void setData(OutputFile data) {
 		this.data = data;
 	}
@@ -53,10 +53,9 @@ public class CreateHtmlReportTask {
 		assert (output != null);
 		assert (data != null);
 
-
 		Map<String, Object> variables = new HashMap<String, Object>();
-		
-		//general informations
+
+		// general informations
 		variables.put("createdOn", new Date());
 		variables.put("version", App.VERSION);
 		variables.put("application", App.APP);
@@ -64,33 +63,39 @@ public class CreateHtmlReportTask {
 		variables.put("copyright", App.COPYRIGHT);
 
 		variables.put("samples", data.getSamples());
-		
-		// score statistics
-		
 		Gson gson = new Gson();
-		Type type = new TypeToken<List<Double>>() {
+		Type type = new TypeToken<List<String>>() {
+		}.getType();
+		String jsonArray = gson.toJson(data.getSamples(), type);
+
+		variables.put("samplesData", jsonArray);
+
+		// score statistics
+
+		Type type2 = new TypeToken<List<Double>>() {
 		}.getType();
 		for (int i = 0; i < report.getSummaries().size(); i++) {
-			String jsonArray = gson.toJson(data.getData()[i], type);
+			jsonArray = gson.toJson(data.getData()[i], type2);
 			report.getSummaries().get(i).setData(jsonArray);
 			report.getSummaries().get(i).updateStatistics();
 		}
-		
+
 		variables.put("scores", report.getSummaries());
-		
-		//format functions
+
+		// format functions
 		variables.put("format", new Mustache.Lambda() {
-            public void execute (Template.Fragment frag, Writer out) throws IOException {
-                String number = frag.execute();
-                Integer integer = Integer.parseInt(number);
-                String result = formatter.format(integer);
-                out.write(result);;
-            }
+			public void execute(Template.Fragment frag, Writer out) throws IOException {
+				String number = frag.execute();
+				Integer integer = Integer.parseInt(number);
+				String result = formatter.format(integer);
+				out.write(result);
+				;
+			}
 		});
 
 		InputStream is = getClass().getResourceAsStream(TEMPLATE);
 		Reader reader = new InputStreamReader(is);
-		Template tmpl = Mustache.compiler().compile(reader);
+		Template tmpl = Mustache.compiler().escapeHTML(false).compile(reader);
 		reader.close();
 
 		FileWriter writer = new FileWriter(output);
