@@ -14,6 +14,7 @@
             {{#trait_additional}}
               <li>Additional Trait: {{.}}</li>
             {{/trait_additional}}
+            <li>Populations: {{#samples_variants}}{{ancestry_broad}} ({{#decimal}}{{sample_number}}{{/decimal}}){{^-last}}&nbsp;&#8226;&nbsp;{{/-last}}{{/samples_variants}}
             <li>Publication: <a href="https://doi.org/{{publication.doi}}" target="_blank">{{publication.firstauthor}} et.al, {{publication.journal}} ({{publication.date_publication}})</a></li>
             {{/meta}}
             <li>View in <a href="https://www.pgscatalog.org/score/{{name}}" target="_blank">PGS-Catalog</a></li>
