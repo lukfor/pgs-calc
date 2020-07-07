@@ -1,0 +1,67 @@
+<div id="page-content-wrapper">
+
+  <div class="container-fluid">
+    <div class="tab-content">
+      {{#scores}}
+        <div class="tab-pane {{#-first}}active{{/-first}}" id="score{{-index}}" role="tabpanel">
+          <h3 class="mt-4">{{name}}</h3>
+          <hr>
+          <h5>Reference score</h5>
+          <ul class="text-small">
+            <li>Variants: {{#format}}{{variants}}{{/format}}</li>
+            {{#meta}}
+            <li>Trait: {{trait_reported}}</li>
+            {{#trait_additional}}
+              <li>Additional Trait: {{.}}</li>
+            {{/trait_additional}}
+            <li>Publication: <a href="https://doi.org/{{publication.doi}}" target="_blank">{{publication.firstauthor}} et.al, {{publication.journal}} ({{publication.date_publication}})</a></li>
+            {{/meta}}
+            <li>View in <a href="https://www.pgscatalog.org/score/{{name}}" target="_blank">PGS-Catalog</a></li>
+          </ul>
+          <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
+          <h5>Target study</h5>
+          <ul>
+            <li>Coverage: {{#format}}{{variantsUsed}}{{/format}} ({{variantsUsedPercentage}})</li>
+            <li>Samples: {{#format}}{{samples.size}}{{/format}}</li>
+          </ul>
+        </div>
+      {{/scores}}
+    </div>
+    <div class="row" id="row-plots">
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header">
+            Distribution
+          </div>
+          <div class="card-body mx-0 my-0">
+            <div id="plot" style="height:300px">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="card">
+          <div class="card-header" id="selection-header">
+            Selection (0)
+          </div>
+          <div class="card-body" style="padding: 0px;">
+            <div style="height:300px; overflow-y: scroll;">
+              <table class="table table-sm table-striped" id="selection-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Sample</th>
+                    <th scope="col">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

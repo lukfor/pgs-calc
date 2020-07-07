@@ -1,0 +1,12 @@
+<div class="bg-light border-right" id="sidebar-wrapper">
+  <div class="sidebar-heading">{{application}} {{version}}</div>
+  <div class="input-group">
+    <input class="field form-control mx-2 mb-3" id="s" name="s" type="text" value="" placeholder="Search by ID or trait" autocomplete="off">
+  </div>
+  <div class="list-group mx-2" style="overflow-y: scroll; position: fixed; top: 100px; bottom:0px; left: 0px;" role="tablist">
+    {{#scores}}
+      <a data-toggle="list" href="#score{{-index}}" data-score="score{{-index}}" role="tab" data-meta="{{name}}, {{#meta}}{{trait_reported}}{{/meta}}"
+        class="list-group-item list-group-item-action {{#-first}}active{{/-first}}">{{name}}{{#meta}}<br><small>{{trait_reported}}</small>{{/meta}}</a>
+    {{/scores}}
+  </div>
+</div>

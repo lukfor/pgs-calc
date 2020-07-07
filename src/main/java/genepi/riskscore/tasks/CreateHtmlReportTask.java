@@ -1,13 +1,10 @@
 package genepi.riskscore.tasks;
 
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.Writer;
 import java.lang.reflect.Type;
-import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,25 +13,26 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Mustache.Compiler;
 import com.samskivert.mustache.Template;
-import com.samskivert.mustache.Template.Fragment;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
-import genepi.riskscore.model.RiskScoreSummary;
+import genepi.riskscore.tasks.report.FormatFunction;
+import genepi.riskscore.tasks.report.TemplateLoader;
 
 public class CreateHtmlReportTask {
 
-	public static final String TEMPLATE = "/templates/report.html";
+	public static final String TEMPLATE_DIRECTORY = "/templates";
+
+	public static final String REPORT_TEMPLATE = TEMPLATE_DIRECTORY + "/report.html";
 
 	private String output;
 
 	private ReportFile report;
 
 	private OutputFile data;
-
-	private DecimalFormat formatter = new DecimalFormat("###,###,###");
 
 	public void setOutput(String output) {
 		this.output = output;
@@ -75,27 +73,23 @@ public class CreateHtmlReportTask {
 		Type type2 = new TypeToken<List<Double>>() {
 		}.getType();
 		for (int i = 0; i < report.getSummaries().size(); i++) {
-			jsonArray = gson.toJson(data.getData()[i], type2);
-			report.getSummaries().get(i).setData(jsonArray);
+			// ignore empty scores
+			if (report.getSummaries().get(i).getVariantsUsed() > 0) {
+				jsonArray = gson.toJson(data.getData()[i], type2);
+				report.getSummaries().get(i).setData(jsonArray);
+			}
 			report.getSummaries().get(i).updateStatistics();
 		}
-
 		variables.put("scores", report.getSummaries());
 
-		// format functions
-		variables.put("format", new Mustache.Lambda() {
-			public void execute(Template.Fragment frag, Writer out) throws IOException {
-				String number = frag.execute();
-				Integer integer = Integer.parseInt(number);
-				String result = formatter.format(integer);
-				out.write(result);
-				;
-			}
-		});
+		// format functions and helpers
+		variables.put("format", new FormatFunction());
 
-		InputStream is = getClass().getResourceAsStream(TEMPLATE);
+		InputStream is = getClass().getResourceAsStream(REPORT_TEMPLATE);
 		Reader reader = new InputStreamReader(is);
-		Template tmpl = Mustache.compiler().escapeHTML(false).compile(reader);
+		Compiler compiler = Mustache.compiler().escapeHTML(false).withLoader(new TemplateLoader(TEMPLATE_DIRECTORY));
+
+		Template tmpl = compiler.compile(reader);
 		reader.close();
 
 		FileWriter writer = new FileWriter(output);
