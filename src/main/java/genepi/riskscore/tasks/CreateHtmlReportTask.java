@@ -19,7 +19,8 @@ import com.samskivert.mustache.Template;
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
-import genepi.riskscore.tasks.report.FormatFunction;
+import genepi.riskscore.tasks.report.DecimalFormatFunction;
+import genepi.riskscore.tasks.report.PercentageFormatFunction;
 import genepi.riskscore.tasks.report.TemplateLoader;
 
 public class CreateHtmlReportTask {
@@ -83,7 +84,8 @@ public class CreateHtmlReportTask {
 		variables.put("scores", report.getSummaries());
 
 		// format functions and helpers
-		variables.put("format", new FormatFunction());
+		variables.put("decimal", new DecimalFormatFunction());
+		variables.put("percentage", new PercentageFormatFunction());
 
 		InputStream is = getClass().getResourceAsStream(REPORT_TEMPLATE);
 		Reader reader = new InputStreamReader(is);

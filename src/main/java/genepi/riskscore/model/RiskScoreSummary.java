@@ -10,8 +10,8 @@ public class RiskScoreSummary {
 
 	private int variantsUsed = 0;
 
-	private String variantsUsedPercentage = "0%";
-	
+	private double coverage = 0;
+
 	private int variantsSwitched = 0;
 
 	private int variantsMultiAllelic = 0;
@@ -28,6 +28,8 @@ public class RiskScoreSummary {
 
 	private Object data;
 
+	private String coverageLabel;
+
 	public RiskScoreSummary(String name) {
 		this.name = name;
 	}
@@ -42,7 +44,7 @@ public class RiskScoreSummary {
 
 	public void incVariantsUsed() {
 		this.variantsUsed++;
-		variantsUsedPercentage = percentage(getVariantsUsed(), getVariants());
+		coverage = getVariantsUsed() / getVariants();
 	}
 
 	public int getSwitched() {
@@ -83,7 +85,7 @@ public class RiskScoreSummary {
 
 	public void setVariants(int count) {
 		this.variants = count;
-		variantsUsedPercentage = percentage(getVariantsUsed(), getVariants());
+		coverage = getVariantsUsed() / getVariants();
 	}
 
 	public int getNotFound() {
@@ -105,13 +107,13 @@ public class RiskScoreSummary {
 	public int getVariantsNotUsed() {
 		return (variants - variantsUsed);
 	}
-	
-	public void setVariantsUsedPercentage(String variantsUsedPercentage) {
 
+	public void setCoverage(double coverage) {
+		this.coverage = coverage;
 	}
-	
-	public String getVariantsUsedPercentage() {
-		return variantsUsedPercentage;
+
+	public double getCoverage() {
+		return coverage;
 	}
 
 	public void setMeta(Object meta) {
@@ -129,9 +131,27 @@ public class RiskScoreSummary {
 	public Object getData() {
 		return data;
 	}
-	
+
+	public void setCoverageLabel(String coverageLabel) {
+		this.coverageLabel = coverageLabel;
+	}
+
+	public String getCoverageLabel() {
+		return coverageLabel;
+	}
+
 	public void updateStatistics() {
-		variantsUsedPercentage = percentage(getVariantsUsed(), getVariants());
+		coverage = (double) getVariantsUsed() / (double) getVariants();
+
+		if (getVariantsUsed() == 0) {
+			coverageLabel = "zero";
+		} else if (coverage <= 0.25) {
+			coverageLabel = "low";
+		} else if (coverage > 0.25 && coverage <= 0.75) {
+			coverageLabel = "medium";
+		} else {
+			coverageLabel = "high";
+		}
 	}
 
 	public void merge(RiskScoreSummary other) throws Exception {
@@ -149,7 +169,6 @@ public class RiskScoreSummary {
 		filtered += other.filtered;
 		updateStatistics();
 	}
-	
 
 	@Override
 	public String toString() {

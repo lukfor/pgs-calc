@@ -8,7 +8,7 @@
           <hr>
           <h5>Reference score</h5>
           <ul class="text-small">
-            <li>Variants: {{#format}}{{variants}}{{/format}}</li>
+            <li>Variants: {{#decimal}}{{variants}}{{/decimal}}</li>
             {{#meta}}
             <li>Trait: {{trait_reported}}</li>
             {{#trait_additional}}
@@ -21,8 +21,8 @@
           <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
           <h5>Target study</h5>
           <ul>
-            <li>Coverage: {{#format}}{{variantsUsed}}{{/format}} ({{variantsUsedPercentage}})</li>
-            <li>Samples: {{#format}}{{samples.size}}{{/format}}</li>
+            <li>Coverage: {{#decimal}}{{variantsUsed}}{{/decimal}} ({{#percentage}}{{coverage}}{{/percentage}}) <span class="badge badge-{{coverageLabel}}">{{coverageLabel}}</span> </li>
+            <li>Samples: {{#decimal}}{{samples.size}}{{/decimal}}</li>
           </ul>
         </div>
       {{/scores}}
