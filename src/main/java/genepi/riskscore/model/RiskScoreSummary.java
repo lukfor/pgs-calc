@@ -109,7 +109,7 @@ public class RiskScoreSummary {
 	}
 
 	public void setCoverage(double coverage) {
-		this.coverage = coverage;
+		// nothing to do. needed for gson.
 	}
 
 	public double getCoverage() {
@@ -133,7 +133,7 @@ public class RiskScoreSummary {
 	}
 
 	public void setCoverageLabel(String coverageLabel) {
-		this.coverageLabel = coverageLabel;
+		// nothing to do. needed for gson.
 	}
 
 	public String getCoverageLabel() {

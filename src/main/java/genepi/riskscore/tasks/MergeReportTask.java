@@ -1,6 +1,7 @@
 package genepi.riskscore.tasks;
 
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.model.RiskScoreSummary;
 
 public class MergeReportTask {
 
@@ -29,7 +30,12 @@ public class MergeReportTask {
 			next.load(inputs[i]);
 			first.merge(next);
 		}
-
+		
+		//update statistics
+		for(RiskScoreSummary summary: first.getSummaries()) {
+			summary.updateStatistics();
+		}
+		
 		first.save(output);
 	}
 

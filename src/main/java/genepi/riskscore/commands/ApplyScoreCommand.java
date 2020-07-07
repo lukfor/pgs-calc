@@ -133,6 +133,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("Output written to '" + out + "'. Done!");
 		System.out.println();
 
+		//update statistics
+		for(RiskScoreSummary summary: task.getSummaries()) {
+			summary.updateStatistics();
+		}
+		
 		if (reportJson != null) {
 			ReportFile report = new ReportFile(task.getSummaries());
 			report.save(reportJson);
