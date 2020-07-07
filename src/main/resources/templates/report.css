@@ -32,11 +32,13 @@
 }
 
 #sidebar-wrapper .list-group {
-  width: 13rem;
+  width: 18rem;
 }
 
 #page-content-wrapper {
   min-width: 100vw;
+  margin-left: 20rem;
+  margin-top: 60px;
 }
 
 #wrapper.toggled #sidebar-wrapper {
@@ -58,42 +60,58 @@
   }
 }
 
-.coverage-low{
-  border-left-width: 4px;
+.sidebar-search {
+  position: fixed;
+  top: 80px;
+  bottom: 0px;
+  left: 0px;
+  width: 18rem;
+}
+
+.sidebar-list {
+  overflow-y: scroll;
+  position: fixed;
+  top: 135px;
+  bottom: 0px;
+  left: 0px;
+}
+
+.coverage-low {
+  border-left-width: 8px;
   border-left-color: #dc3545;
 }
 
-.coverage-medium{
-  border-left-width: 4px;
+.coverage-medium {
+  border-left-width: 8px;
   border-left-color: #ffc107;
 }
 
-.coverage-high{
-  border-left-width: 4px;
+.coverage-high {
+  border-left-width: 8px;
   border-left-color: #28a745;
 }
 
-.coverage-zero{
-  border-left-width: 4px;
+.coverage-zero {
+  border-left-width: 8px;
   border-left-color: #dc3545;
 }
 
-.badge-low{
+.badge-low {
   color: #ffffff;
   background: #dc3545;
 }
 
-.badge-medium{
+.badge-medium {
   color: #ffffff;
   background: #ffc107;
 }
 
-.badge-high{
+.badge-high {
   color: #ffffff;
   background: #28a745;
 }
 
-.badge-zero{
+.badge-zero {
   color: #ffffff;
   background: #dc3545;
 }

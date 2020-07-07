@@ -58,6 +58,7 @@ public class CreateHtmlReportTask {
 		variables.put("createdOn", new Date());
 		variables.put("version", App.VERSION);
 		variables.put("application", App.APP);
+		variables.put("application_name", "PGS-Calc");
 		variables.put("url", App.URL);
 		variables.put("copyright", App.COPYRIGHT);
 

@@ -5,7 +5,7 @@ function createPlot(selectedData) {
     name: 'Distribution',
     orientation: 'v',
     marker: {
-      color: 'blue',
+      color: '#007bff',
       line: {
         color: 'white',
         width: 1
