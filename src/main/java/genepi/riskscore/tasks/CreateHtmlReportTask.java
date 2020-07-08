@@ -5,12 +5,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Mustache.Compiler;
@@ -19,6 +24,7 @@ import com.samskivert.mustache.Template;
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.tasks.report.CompressFunction;
 import genepi.riskscore.tasks.report.DecimalFormatFunction;
 import genepi.riskscore.tasks.report.PercentageFormatFunction;
 import genepi.riskscore.tasks.report.TemplateLoader;
@@ -63,7 +69,16 @@ public class CreateHtmlReportTask {
 		variables.put("copyright", App.COPYRIGHT);
 
 		variables.put("samples", data.getSamples());
-		Gson gson = new Gson();
+
+		
+		GsonBuilder builder = new GsonBuilder();
+		builder.registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
+		    DecimalFormat df = new DecimalFormat("#.########");
+		    df.setRoundingMode(RoundingMode.CEILING);
+		    return new JsonPrimitive(Double.parseDouble(df.format(src)));
+		});
+		Gson gson = builder.create();
+		
 		Type type = new TypeToken<List<String>>() {
 		}.getType();
 		String jsonArray = gson.toJson(data.getSamples(), type);
@@ -87,6 +102,7 @@ public class CreateHtmlReportTask {
 		// format functions and helpers
 		variables.put("decimal", new DecimalFormatFunction());
 		variables.put("percentage", new PercentageFormatFunction());
+		variables.put("compress", new CompressFunction());
 
 		InputStream is = getClass().getResourceAsStream(REPORT_TEMPLATE);
 		Reader reader = new InputStreamReader(is);
