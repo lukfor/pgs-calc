@@ -1,6 +1,6 @@
 <div id="page-content-wrapper">
 
-  <div class="container-fluid">
+  <div class="container">
     <div class="tab-content">
       {{#scores}}
         <div class="tab-pane {{#-first}}active{{/-first}}" id="score{{-index}}" role="tabpanel">
@@ -29,7 +29,7 @@
       {{/scores}}
     </div>
     <div class="row" id="row-plots">
-      <div class="col-sm-6">
+      <div class="col-sm-8">
         <div class="card">
           <div class="card-header">
             Distribution
@@ -41,10 +41,11 @@
         </div>
       </div>
 
-      <div class="col-sm-6">
+      <div class="col-sm-4">
         <div class="card">
-          <div class="card-header" id="selection-header">
-            Selection (0)
+          <div class="card-header">
+            <span id="selection-header">Selection (0)</span>
+            <button class="btn btn-sm btn-outline-secondary float-right" id="highlight-selection-button">Highlight all</button>
           </div>
           <div class="card-body" style="padding: 0px;">
             <div style="height:300px; overflow-y: scroll;">

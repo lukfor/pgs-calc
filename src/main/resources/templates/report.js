@@ -1,8 +1,11 @@
-function createPlot(selectedData) {
-  return [{
+function createPlot(selectedData, highlightedSamples) {
+
+  //histogram of score
+  var plotData = [];
+  plotData.push({
     x: selectedData,
     type: 'histogram',
-    name: 'Distribution',
+    name: 'Distribution Score',
     orientation: 'v',
     marker: {
       color: '#007bff',
@@ -11,11 +14,38 @@ function createPlot(selectedData) {
         width: 1
       }
     }
-  }];
+  });
+
+  //scatter plot of selected samples
+  if (highlightedSamples && highlightedSamples.length > 0) {
+    var x = [];
+    var y = [];
+    var text = [];
+    for (var i = 0; i < highlightedSamples.length; i++) {
+      x.push(selectedData[highlightedSamples[i]]);
+      y.push(0);
+      text.push(samples[highlightedSamples[i]]);
+    }
+    plotData.push({
+      x: x,
+      y: y,
+      type: 'scatter',
+      mode: 'markers',
+      name: 'Highlighted Samples',
+      text: text,
+      marker: {
+        color: 'red'
+      }
+    });
+  }
+
+  return plotData;
+
 };
 
 function createPlotLayout() {
   return {
+    showlegend: false,
     dragmode: 'select',
     hovermode: 'x',
     margin: {
@@ -39,16 +69,41 @@ function updateSelection(eventData) {
   var selection = 0;
   var table = $('#selection-table tbody');
   var rows = '';
+  selectedSamples = [];
   eventData.points.forEach(function(pt) {
-    selection += pt.pointIndices.length;
-    for (var i = 0; i < pt.pointIndices.length; i++) {
-      var index = pt.pointIndices[i];
-      rows += '<tr><td>' + samples[index] + '</td><td>' + selectedData[index] + '</td></tr>';
+    if (pt.pointIndices) {
+      selection += pt.pointIndices.length;
+      for (var i = 0; i < pt.pointIndices.length; i++) {
+        var index = pt.pointIndices[i];
+        selectedSamples.push(index);
+        rows += '<tr><td>' + samples[index] + '</td><td>' + selectedData[index] + '</td></tr>';
+      }
     }
   });
   table.html(rows);
   $('#selection-header').html('Selection (' + selection + ')');
 };
+
+function highlightAllSelectedSamples() {
+  for (var i = 0; i < selectedSamples.length; i++) {
+    var sample = selectedSamples[i];
+    if (!highlightedSamples.includes(sample)) {
+      highlightedSamples.push(sample);
+    }
+  }
+  updatePlots();
+  updateHighlightSample();
+}
+
+function clearHighlightedSamples() {
+  highlightedSamples = [];
+  updatePlots();
+  updateHighlightSample();
+}
+
+function updateHighlightSample() {
+  $('#highlight-samples-header').html('Highlighted Samples (' + highlightedSamples.length + ')');
+}
 
 function updateScore(e) {
   var score = $(this).data('score');
@@ -59,11 +114,7 @@ function updateScore(e) {
     var table = $('#selection-table tbody');
     table.html('');
     $('#selection-header').html('Selection (' + 0 + ')');
-    var plotData = createPlot(selectedData);
-    var layout = createPlotLayout();
-    Plotly.react('plot', plotData, layout, {
-      displayModeBar: false
-    });
+    updatePlots();
 
   } else {
     $('#row-plots').hide();
@@ -83,13 +134,28 @@ function filterScores(e) {
   });
 }
 
+function updatePlots() {
+  var plotData = createPlot(selectedData, highlightedSamples);
+  var layout = createPlotLayout();
+  Plotly.react('plot', plotData, layout, {
+    displayModeBar: false
+  });
+}
+
 $(document).ready(function() {
 
+  //event handler
   $('#s').on('input', filterScores);
   $('.list-group-item').on('click', updateScore);
+  $('#highlight-selection-button').on('click', highlightAllSelectedSamples);
+  $('#clear-highlighted-samples-button').on('click', clearHighlightedSamples);
 
+  highlightedSamples = [];
+  updateHighlightSample();
+
+  selectedSamples = [];
   selectedData = data['score1'];
-  var plotData = createPlot(selectedData);
+  var plotData = createPlot(selectedData, highlightedSamples);
   var layout = createPlotLayout();
   Plotly.newPlot('plot', plotData, layout, {
     displayModeBar: false

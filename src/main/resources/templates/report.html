@@ -26,13 +26,29 @@
 
 
   <!-- Image and text -->
-  <nav class="navbar fixed-top navbar-light bg-light border-bottom">
-    <a class="navbar-brand" href="#">
+  <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light border-bottom">
+    <a class="navbar-brand" href="https://github.com/lukfor/pgs-calc" target="_blank">
       <div class="d-inline-block align-top" alt="">
         {{>images/logo.svg}}
       </div>
       &nbsp;{{application_name}} {{version}}
     </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="highlight-samples-navigation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span id="highlight-samples-header">Highlighted Samples (0)</span>
+          </a>
+          <div class="dropdown-menu" aria-labelledby="highlight-samples-nav">
+            <a class="dropdown-item" id="clear-highlighted-samples-button" href="#">Clear</a>
+          </div>
+        </li>
+      </ul>
+    </div>
   </nav>
 
 
