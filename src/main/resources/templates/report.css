@@ -18,7 +18,8 @@
 }
 
 #sidebar-wrapper {
-  min-height: 100vh;
+  height: 100%;
+  position: fixed;
   margin-left: 0rem;
   -webkit-transition: margin .25s ease-out;
   -moz-transition: margin .25s ease-out;
@@ -26,19 +27,9 @@
   transition: margin .25s ease-out;
 }
 
-#sidebar-wrapper .sidebar-heading {
-  padding: 0.875rem 1.25rem;
-  font-size: 1.2rem;
-}
-
-#sidebar-wrapper .list-group {
-  width: 18rem;
-}
-
 #page-content-wrapper {
-  min-width: 100vw;
-  margin-left: 20rem;
-  margin-top: 60px;
+  margin-left: 270px;
+  margin-top: 90px;
 }
 
 #wrapper.toggled #sidebar-wrapper {
@@ -61,19 +52,18 @@
 }
 
 .sidebar-search {
-  position: fixed;
-  top: 80px;
-  bottom: 0px;
-  left: 0px;
-  width: 18rem;
+  margin-top: 80px;
+  width: 250px;
 }
 
 .sidebar-list {
-  overflow-y: scroll;
-  position: fixed;
+  width: 242px;
   top: 135px;
+  position: fixed;
+  overflow-y: scroll;
   bottom: 0px;
-  left: 0px;
+  padding-top: 0px;
+  padding-right: 8px;
 }
 
 .coverage-low {

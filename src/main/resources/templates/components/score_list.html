@@ -5,7 +5,7 @@
   <div class="list-group mx-2 sidebar-list" role="tablist">
     {{#scores}}
       <a data-toggle="list" href="#score{{-index}}" data-score="score{{-index}}" role="tab" data-meta="{{name}}, {{#meta}}{{trait_reported}}{{/meta}}"
-        class="list-group-item list-group-item-action {{#-first}}active{{/-first}} coverage-{{coverageLabel}}">{{name}}{{#meta}}<br><small>{{trait_reported}}</small>{{/meta}}</a>
+        class="list-group-item list-group-item-action my-1 {{#-first}}active{{/-first}} coverage-{{coverageLabel}}">{{name}}{{#meta}}<br><small>{{trait_reported}}</small>{{/meta}}</a>
     {{/scores}}
   </div>
 </div>
