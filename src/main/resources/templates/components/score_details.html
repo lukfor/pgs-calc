@@ -45,7 +45,15 @@
         <div class="card">
           <div class="card-header">
             <span id="selection-header">Selection (0)</span>
-            <button class="btn btn-sm btn-outline-secondary float-right" id="highlight-selection-button">Highlight all</button>
+            <div class="btn-group float-right" role="group">
+              <button id="btnGroupDrop1" type="button" class="btn btn-sm btn-secondary-outline dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Actions
+              </button>
+              <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <a class="dropdown-item" href="#" id="highlight-selection-button">Highlight all</a>
+                <a class="dropdown-item" href="#" id="unhighlight-selection-button">Un-highlight all</a>
+              </div>
+            </div>
           </div>
           <div class="card-body" style="padding: 0px;">
             <div style="height:300px; overflow-y: scroll;">

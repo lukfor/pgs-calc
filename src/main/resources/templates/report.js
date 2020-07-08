@@ -95,10 +95,48 @@ function highlightAllSelectedSamples() {
   updateHighlightSample();
 }
 
+function unHighlightAllSelectedSamples() {
+  for (var i = 0; i < selectedSamples.length; i++) {
+    var sample = selectedSamples[i];
+    var index = highlightedSamples.indexOf(sample);
+    if (index > -1) {
+      highlightedSamples.splice(index, 1);
+    }
+  }
+  updatePlots();
+  updateHighlightSample();
+}
+
 function clearHighlightedSamples() {
   highlightedSamples = [];
   updatePlots();
   updateHighlightSample();
+}
+
+function addHighlightedSamples() {
+
+  bootbox.prompt({
+    title: 'Samples',
+    message: '<p><small class="text-muted">To specify more than one sample ID, please separate the IDs with a new line.</small></p>',
+    inputType: 'textarea',
+    callback: function(result) {
+      if (result) {
+        var lines = result.match(/[^\r\n]+/g);
+        for (var i = 0; i < lines.length; i++) {
+          var sample = lines[i];
+          var index = samples.indexOf(sample);
+          if (index > -1) {
+            if (!highlightedSamples.includes(sample)) {
+              highlightedSamples.push(index);
+            }
+          }
+        }
+        updatePlots();
+        updateHighlightSample();
+      }
+    }
+  });
+
 }
 
 function updateHighlightSample() {
@@ -113,6 +151,7 @@ function updateScore(e) {
     //clear table
     var table = $('#selection-table tbody');
     table.html('');
+    selectedSamples = [];
     $('#selection-header').html('Selection (' + 0 + ')');
     updatePlots();
 
@@ -148,7 +187,9 @@ $(document).ready(function() {
   $('#s').on('input', filterScores);
   $('.list-group-item').on('click', updateScore);
   $('#highlight-selection-button').on('click', highlightAllSelectedSamples);
+  $('#unhighlight-selection-button').on('click', unHighlightAllSelectedSamples);
   $('#clear-highlighted-samples-button').on('click', clearHighlightedSamples);
+  $('#add-highlighted-samples-button').on('click', addHighlightedSamples);
 
   highlightedSamples = [];
   updateHighlightSample();
