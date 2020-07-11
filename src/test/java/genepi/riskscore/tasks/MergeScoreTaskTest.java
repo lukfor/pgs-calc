@@ -70,7 +70,7 @@ public class MergeScoreTaskTest {
 
 		assertEqualsScoreFiles("output.csv", "output.merged.txt", 0.0000001);
 
-		MergeJsonReportFileTask task2 = new MergeJsonReportFileTask();
+		MergeReportTask task2 = new MergeReportTask();
 		task2.setInputs(reportFiles);
 		task2.setOutput("report.merged.json");
 		task2.run();

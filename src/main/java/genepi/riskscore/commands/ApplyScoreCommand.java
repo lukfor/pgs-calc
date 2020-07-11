@@ -8,12 +8,14 @@ import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
-import genepi.riskscore.io.JsonReportFile;
+import genepi.riskscore.io.MetaFile;
+import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
+import genepi.riskscore.tasks.CreateHtmlReportTask;
 import htsjdk.samtools.util.StopWatch;
 import lukfor.progress.ProgressBarBuilder;
 import lukfor.progress.TaskService;
@@ -61,6 +63,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--report-json" }, description = "Write statistics to json file", required = false)
 	String reportJson = null;
+
+	@Option(names = { "--report-html" }, description = "Write statistics to html file", required = false)
+	String reportHtml = null;
+
+	@Option(names = { "--meta" }, description = "JSON file with meta data about scores", required = false)
+	String meta = null;
 
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
@@ -141,7 +149,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		TaskService.run(tasks, builder);
 
 		OutputFile output = null;
-		JsonReportFile report = null;
+		ReportFile report = null;
 		int samples = 0;
 		int variants = 0;
 
@@ -158,9 +166,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 
 			if (report == null) {
-				report = new JsonReportFile(task.getSummaries());
+				report = new ReportFile(task.getSummaries());
 			} else {
-				report.merge(new JsonReportFile(task.getSummaries()));
+				report.merge(new ReportFile(task.getSummaries()));
 			}
 
 			samples += task.getCountSamples();
@@ -171,12 +179,31 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		output.save(out);
 		System.out.println("Output written to '" + out + "'. Done!");
 
+		System.out.println();
+	
+		for (RiskScoreSummary summary: report.getSummaries()) {
+			summary.updateStatistics();
+		}
+		
+		
 		if (reportJson != null) {
 			report.save(reportJson);
-			System.out.println("Report written to '" + reportJson + "'. Done!");
+			System.out.println("Json Report written to '" + reportJson + "'. Done!");
 		}
 
-		System.out.println();
+		if (reportHtml != null) {
+			if (meta != null) {
+				MetaFile metaFile = MetaFile.load(meta);
+				report.mergeWithMeta(metaFile);
+			}
+			
+			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
+			htmlReportTask.setReport(report);
+			htmlReportTask.setOutput(reportHtml);
+			htmlReportTask.setData(output);
+			htmlReportTask.run();
+			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
+		}
 
 		System.out.println();
 		System.out.println("Summary");

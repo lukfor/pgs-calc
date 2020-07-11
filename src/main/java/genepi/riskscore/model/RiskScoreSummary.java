@@ -10,6 +10,8 @@ public class RiskScoreSummary {
 
 	private int variantsUsed = 0;
 
+	private double coverage = 0;
+
 	private int variantsSwitched = 0;
 
 	private int variantsMultiAllelic = 0;
@@ -21,6 +23,12 @@ public class RiskScoreSummary {
 	private int notFound = 0;
 
 	private int filtered = 0;
+
+	private Object meta;
+
+	private Object data;
+
+	private String coverageLabel;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -36,6 +44,7 @@ public class RiskScoreSummary {
 
 	public void incVariantsUsed() {
 		this.variantsUsed++;
+		coverage = getVariantsUsed() / getVariants();
 	}
 
 	public int getSwitched() {
@@ -76,6 +85,7 @@ public class RiskScoreSummary {
 
 	public void setVariants(int count) {
 		this.variants = count;
+		coverage = getVariantsUsed() / getVariants();
 	}
 
 	public int getNotFound() {
@@ -98,6 +108,52 @@ public class RiskScoreSummary {
 		return (variants - variantsUsed);
 	}
 
+	public void setCoverage(double coverage) {
+		// nothing to do. needed for gson.
+	}
+
+	public double getCoverage() {
+		return coverage;
+	}
+
+	public void setMeta(Object meta) {
+		this.meta = meta;
+	}
+
+	public Object getMeta() {
+		return meta;
+	}
+
+	public void setData(Object data) {
+		this.data = data;
+	}
+
+	public Object getData() {
+		return data;
+	}
+
+	public void setCoverageLabel(String coverageLabel) {
+		// nothing to do. needed for gson.
+	}
+
+	public String getCoverageLabel() {
+		return coverageLabel;
+	}
+
+	public void updateStatistics() {
+		coverage = (double) getVariantsUsed() / (double) getVariants();
+
+		if (getVariantsUsed() == 0) {
+			coverageLabel = "zero";
+		} else if (coverage <= 0.25) {
+			coverageLabel = "low";
+		} else if (coverage > 0.25 && coverage <= 0.75) {
+			coverageLabel = "medium";
+		} else {
+			coverageLabel = "high";
+		}
+	}
+
 	public void merge(RiskScoreSummary other) throws Exception {
 		if (!other.name.equals(name)) {
 			throw new Exception("Different score names: '" + name + "' vs. '" + other.name + "'.");
@@ -111,7 +167,7 @@ public class RiskScoreSummary {
 		r2Filtered += other.r2Filtered;
 		notFound += other.notFound;
 		filtered += other.filtered;
-
+		updateStatistics();
 	}
 
 	@Override
