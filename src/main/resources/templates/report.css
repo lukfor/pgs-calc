@@ -28,28 +28,13 @@
 }
 
 #page-content-wrapper {
-  margin-left: 30px;
+  padding-left: 250px;
   margin-top: 90px;
   width: 100%;
 }
 
 #wrapper.toggled #sidebar-wrapper {
   margin-left: 0;
-}
-
-@media (min-width: 768px) {
-  #sidebar-wrapper {
-    margin-left: 0;
-  }
-
-  #page-content-wrapper {
-    min-width: 0;
-    width: 100%;
-  }
-
-  #wrapper.toggled #sidebar-wrapper {
-    margin-left: -15rem;
-  }
 }
 
 .sidebar-search {
