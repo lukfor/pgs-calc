@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
+import genepi.riskscore.App;
 import picocli.CommandLine;
 
 public class ApplyScoreCommandTest {
@@ -54,6 +55,7 @@ public class ApplyScoreCommandTest {
 
 		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv",
 				"--report-html", "output.html", "--meta", "test-data/pgs-catalog-small.json" };
+		App.ARGS = args;
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 

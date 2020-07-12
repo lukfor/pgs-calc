@@ -14,6 +14,8 @@ public class App {
 	
 	public static final String COPYRIGHT = "(c) 2020 Lukas Forer";
 	
+	public static String[] ARGS = new String[0];
+	
 	public static void main(String[] args) {
 		
 		System.out.println();
@@ -25,6 +27,8 @@ public class App {
 			System.out.println(COPYRIGHT);
 		}
 		System.out.println();
+		
+		ARGS = args;
 		
 		new CommandLine(new ApplyScoreCommand()).execute(args);
 		
