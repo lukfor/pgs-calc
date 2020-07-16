@@ -28,8 +28,10 @@ import genepi.riskscore.tasks.report.CompressFunction;
 import genepi.riskscore.tasks.report.DecimalFormatFunction;
 import genepi.riskscore.tasks.report.PercentageFormatFunction;
 import genepi.riskscore.tasks.report.TemplateLoader;
+import lukfor.progress.tasks.ITaskRunnable;
+import lukfor.progress.tasks.monitors.ITaskMonitor;
 
-public class CreateHtmlReportTask {
+public class CreateHtmlReportTask implements ITaskRunnable {
 
 	public static final String TEMPLATE_DIRECTORY = "/templates";
 
@@ -53,7 +55,11 @@ public class CreateHtmlReportTask {
 		this.data = data;
 	}
 
-	public void run() throws Exception {
+	@Override
+	public void run(ITaskMonitor monitor) throws Exception {
+
+		monitor.beginTask("Create HTML Report", ITaskMonitor.UNKNOWN);
+		
 		assert (report != null);
 		assert (output != null);
 		assert (data != null);
@@ -67,7 +73,7 @@ public class CreateHtmlReportTask {
 		variables.put("application_name", "PGS-Calc");
 		
 		String args = String.join("\\<br>  ", App.ARGS);
-		System.out.println(args);
+
 		variables.put("application_args", args);
 		variables.put("url", App.URL);
 		variables.put("copyright", App.COPYRIGHT);
@@ -118,6 +124,8 @@ public class CreateHtmlReportTask {
 		FileWriter writer = new FileWriter(output);
 		tmpl.execute(variables, writer);
 		writer.close();
+		
+		monitor.done();
 
 	}
 

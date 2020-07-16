@@ -39,7 +39,7 @@ public class App {
 
 	}
 
-	public static ProgressBarBuilder getProgressBarBuilder() {
+	public static ProgressBarBuilder STYLE_LONG_TASK() {
 
 		if (TaskService.isAnsiSupport()) {
 
@@ -54,4 +54,19 @@ public class App {
 
 	}
 
+	public static ProgressBarBuilder STYLE_SHORT_TASK() {
+
+		if (TaskService.isAnsiSupport()) {
+
+			return new ProgressBarBuilder().components(new DefaultSpinner(), new TaskNameLabel());
+
+		} else {
+			
+			return new ProgressBarBuilder().animated(false);
+			
+		}
+
+	}
+
+	
 }

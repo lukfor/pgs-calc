@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.Chunk;
@@ -96,8 +94,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 			throw new Exception("Reference can not be null or empty.");
 		}
 
-		long start = System.currentTimeMillis();
-
 		if (outputVariantFilename != null) {
 			variantFile = new CsvTableWriter(outputVariantFilename, VariantFile.SEPARATOR);
 			variantFile.setColumns(new String[] { VariantFile.CHROMOSOME, VariantFile.POSITION });
@@ -115,10 +111,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (variantFile != null) {
 			variantFile.close();
 		}
-
-		long end = System.currentTimeMillis();
-
-		System.out.println("Execution Time: " + ((end - start) / 1000.0 / 60.0) + " min");
 
 	}
 
@@ -294,7 +286,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		vcfReader.close();
 
-		System.out.println("Loaded " + getRiskScores().length + " samples and " + countVariants + " variants.");
+		// System.out.println("Loaded " + getRiskScores().length + " samples and " + countVariants + " variants.");
 
 		monitor.done();
 

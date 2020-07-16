@@ -149,10 +149,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		}
 
-		ProgressBarBuilder builder = App.getProgressBarBuilder();
-
 		TaskService.getExecutor().setThreads(threads);
-		TaskService.run(tasks, builder);
+		TaskService.run(tasks, App.STYLE_LONG_TASK());
 
 		OutputFile output = null;
 		ReportFile report = null;
@@ -206,7 +204,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			htmlReportTask.setReport(report);
 			htmlReportTask.setOutput(reportHtml);
 			htmlReportTask.setData(output);
-			htmlReportTask.run();
+			TaskService.run(htmlReportTask, App.STYLE_SHORT_TASK());
 			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
 		}
 
