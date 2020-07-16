@@ -9,19 +9,15 @@ import java.util.concurrent.Callable;
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
-import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
+import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
 import htsjdk.samtools.util.StopWatch;
-import lukfor.progress.ProgressBarBuilder;
 import lukfor.progress.TaskService;
-import lukfor.progress.renderer.labels.TaskNameLabel;
-import lukfor.progress.renderer.labels.TimeLabel;
-import lukfor.progress.renderer.spinners.DefaultSpinner;
 import lukfor.progress.tasks.ITaskRunnable;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -208,7 +204,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
 		}
 
-		System.out.println();
+		/*System.out.println();
 		System.out.println("Summary");
 		System.out.println("-------");
 		System.out.println();
@@ -220,8 +216,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		for (RiskScoreSummary summary : report.getSummaries()) {
 			System.out.println(summary);
 			System.out.println();
-		}
-
+		}*/
+		
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();

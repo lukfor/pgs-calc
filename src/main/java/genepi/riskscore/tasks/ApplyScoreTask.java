@@ -109,8 +109,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 			vcfReader.close();
 			throw new Exception("VCF file is empty.");
 		}
-
-		String taskName = "Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome;
+	
+		String taskName = " [Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome + "]";
 		monitor.beginTask(taskName, new File(vcf).length());
 		monitor.worked(0);
 
