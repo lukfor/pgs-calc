@@ -19,7 +19,7 @@ public class ApplyScoreCommandTest {
 
 	@BeforeClass
 	public static void setup() {
-		TaskService.setAnsiSupport(true);
+		TaskService.setAnsiSupport(false);
 	}
 	
 	@Test

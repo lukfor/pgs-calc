@@ -5,15 +5,23 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.io.FileUtil;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.io.OutputFile;
+import lukfor.progress.TaskService;
 import picocli.CommandLine;
 
 public class MergeScoreTaskTest {
 
+	@BeforeClass
+	public static void setup() {
+		TaskService.setAnsiSupport(false);
+	}
+	
+	
 	@Test
 	public void testMerge() throws Exception {
 
