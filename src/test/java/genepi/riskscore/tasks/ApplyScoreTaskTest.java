@@ -2,6 +2,7 @@ package genepi.riskscore.tasks;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.riskscore.io.Chunk;
@@ -9,15 +10,21 @@ import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.model.RiskScore;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
+import lukfor.progress.TaskService;
 import lukfor.progress.tasks.monitors.TaskMonitorMock;
 
 public class ApplyScoreTaskTest {
 
 	public static final int EXPECTED_SAMPLES = 51;
 
+	@BeforeClass
+	public static void setup() {
+		TaskService.setAnsiSupport(false);
+	}
+	
 	@Test
 	public void testPerformance() throws Exception {
-
+		
 		ApplyScoreTask task = new ApplyScoreTask();
 		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");

@@ -124,8 +124,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private void processVCF(ITaskMonitor monitor, String vcfFilename, String... riskScoreFilenames) throws Exception {
 
-		monitor.beginTask("??", new File(vcf).length());
-
 		// read chromosome from first variant
 		String chromosome = null;
 		CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
@@ -139,7 +137,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 			throw new Exception("VCF file is empty.");
 		}
 
-		monitor.setTaskName("Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome);
+		String name = "Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome;
+		monitor.beginTask(name, new File(vcf).length());
 
 		VariantFile includeVariants = null;
 		if (includeVariantFilename != null) {

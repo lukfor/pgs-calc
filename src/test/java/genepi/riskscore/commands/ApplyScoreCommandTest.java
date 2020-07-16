@@ -4,17 +4,24 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.App;
+import lukfor.progress.TaskService;
 import picocli.CommandLine;
 
 public class ApplyScoreCommandTest {
 
 	public static final int EXPECTED_SAMPLES = 51;
 
+	@BeforeClass
+	public static void setup() {
+		TaskService.setAnsiSupport(true);
+	}
+	
 	@Test
 	public void testCall() {
 

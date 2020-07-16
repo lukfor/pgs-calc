@@ -73,6 +73,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
+	@Option(names = {
+			"--no-ansi" }, description = "Disable ANSI output", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean noAnsi = false;
+
 	@Option(names = { "--version" }, versionHelp = true)
 	boolean showVersion;
 
@@ -80,6 +84,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	Chunk chunk;
 
 	public Integer call() throws Exception {
+
+		if (noAnsi) {
+			TaskService.setAnsiSupport(false);
+		}
 
 		if (vcfs == null || vcfs.isEmpty()) {
 			System.out.println();
@@ -141,9 +149,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		}
 
-		ProgressBarBuilder builder = new ProgressBarBuilder();
-		builder.components(new DefaultSpinner(), new TaskNameLabel(), ProgressBarBuilder.DEFAULT_STYLE,
-				new TimeLabel());
+		ProgressBarBuilder builder = App.getProgressBarBuilder();
 
 		TaskService.getExecutor().setThreads(threads);
 		TaskService.run(tasks, builder);
@@ -180,12 +186,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println("Output written to '" + out + "'. Done!");
 
 		System.out.println();
-	
-		for (RiskScoreSummary summary: report.getSummaries()) {
+
+		for (RiskScoreSummary summary : report.getSummaries()) {
 			summary.updateStatistics();
 		}
-		
-		
+
 		if (reportJson != null) {
 			report.save(reportJson);
 			System.out.println("Json Report written to '" + reportJson + "'. Done!");
@@ -196,7 +201,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				MetaFile metaFile = MetaFile.load(meta);
 				report.mergeWithMeta(metaFile);
 			}
-			
+
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
 			htmlReportTask.setOutput(reportHtml);
