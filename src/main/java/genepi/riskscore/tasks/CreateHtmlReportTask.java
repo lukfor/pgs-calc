@@ -65,6 +65,10 @@ public class CreateHtmlReportTask {
 		variables.put("version", App.VERSION);
 		variables.put("application", App.APP);
 		variables.put("application_name", "PGS-Calc");
+		
+		String args = String.join("\\<br>  ", App.ARGS);
+		System.out.println(args);
+		variables.put("application_args", args);
 		variables.put("url", App.URL);
 		variables.put("copyright", App.COPYRIGHT);
 

@@ -180,6 +180,9 @@ function updatePlots() {
     displayModeBar: false
   });
 }
+function showCommand() {
+  bootbox.alert('<pre>pgs-calc {{application_args}}</pre>');
+}
 
 $(document).ready(function() {
 
@@ -190,6 +193,7 @@ $(document).ready(function() {
   $('#unhighlight-selection-button').on('click', unHighlightAllSelectedSamples);
   $('#clear-highlighted-samples-button').on('click', clearHighlightedSamples);
   $('#add-highlighted-samples-button').on('click', addHighlightedSamples);
+  $('#show-command-button').on('click', showCommand);
 
   highlightedSamples = [];
   updateHighlightSample();
