@@ -99,28 +99,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 			variantFile.setColumns(new String[] { VariantFile.CHROMOSOME, VariantFile.POSITION });
 		}
 
-		numberRiskScores = riskScoreFilenames.length;
-		summaries = new RiskScoreSummary[numberRiskScores];
-		for (int i = 0; i < numberRiskScores; i++) {
-			String name = RiskScoreFile.getName(riskScoreFilenames[i]);
-			summaries[i] = new RiskScoreSummary(name);
-		}
-
-		processVCF(monitor, vcf, riskScoreFilenames);
-
-		if (variantFile != null) {
-			variantFile.close();
-		}
-
-	}
-
-	private void processVCF(ITaskMonitor monitor, String vcfFilename, String... riskScoreFilenames) throws Exception {
-
 		// read chromosome from first variant
 		String chromosome = null;
-		CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
-
-		FastVCFFileReader vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
+		FastVCFFileReader vcfReader = new FastVCFFileReader(new FileInputStream(vcf), vcf);
 		if (vcfReader.next()) {
 			chromosome = vcfReader.getVariantContext().getContig();
 			vcfReader.close();
@@ -129,17 +110,32 @@ public class ApplyScoreTask implements ITaskRunnable {
 			throw new Exception("VCF file is empty.");
 		}
 
-		String name = "Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome;
-		monitor.beginTask(name, new File(vcf).length());
+		String taskName = "Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome;
+		monitor.beginTask(taskName, new File(vcf).length());
+		monitor.worked(0);
 
-		VariantFile includeVariants = null;
-		if (includeVariantFilename != null) {
-			// System.out.println("Loading file " + includeVariantFilename + "...");
-			includeVariants = new VariantFile(includeVariantFilename);
-			includeVariants.buildIndex(chromosome);
-			// System.out.println("Loaded " + includeVariants.getCacheSize() + " variants
-			// for chromosome " + chromosome);
+		numberRiskScores = riskScoreFilenames.length;
+		summaries = new RiskScoreSummary[numberRiskScores];
+		for (int i = 0; i < numberRiskScores; i++) {
+			String name = RiskScoreFile.getName(riskScoreFilenames[i]);
+			summaries[i] = new RiskScoreSummary(name);
 		}
+
+		RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, riskScoreFilenames);
+
+		processVCF(monitor, chromosome, vcf, riskscores);
+
+		if (variantFile != null) {
+			variantFile.close();
+		}
+
+		monitor.done();
+
+	}
+
+	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String... riskScoreFilenames)
+			throws Exception {
+
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
 
@@ -159,12 +155,29 @@ public class ApplyScoreTask implements ITaskRunnable {
 			// System.out.println("Loaded " + riskscore.getCacheSize() + " weights for
 			// chromosome " + chromosome);
 			riskscores[i] = riskscore;
+			monitor.worked(0);
 		}
+
+		return riskscores;
+
+	}
+
+	private void processVCF(ITaskMonitor monitor, String chromosome, String vcfFilename, RiskScoreFile[] riskscores)
+			throws Exception {
 
 		// System.out.println("Loading file " + vcfFilename + "...");
 
-		countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
-		vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
+		VariantFile includeVariants = null;
+		if (includeVariantFilename != null) {
+			// System.out.println("Loading file " + includeVariantFilename + "...");
+			includeVariants = new VariantFile(includeVariantFilename);
+			includeVariants.buildIndex(chromosome);
+			// System.out.println("Loaded " + includeVariants.getCacheSize() + " variants
+			// for chromosome " + chromosome);
+		}
+
+		CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
+		FastVCFFileReader vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
 		if (riskScores == null) {
@@ -286,9 +299,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		vcfReader.close();
 
-		// System.out.println("Loaded " + getRiskScores().length + " samples and " + countVariants + " variants.");
-
-		monitor.done();
+		// System.out.println("Loaded " + getRiskScores().length + " samples and " +
+		// countVariants + " variants.");
 
 	}
 
