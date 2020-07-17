@@ -59,7 +59,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 	public void run(ITaskMonitor monitor) throws Exception {
 
 		monitor.beginTask("Create HTML Report", ITaskMonitor.UNKNOWN);
-		
+
 		assert (report != null);
 		assert (output != null);
 		assert (data != null);
@@ -71,7 +71,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		variables.put("version", App.VERSION);
 		variables.put("application", App.APP);
 		variables.put("application_name", "PGS-Calc");
-		
+
 		String args = String.join("\\<br>  ", App.ARGS);
 
 		variables.put("application_args", args);
@@ -80,15 +80,14 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 		variables.put("samples", data.getSamples());
 
-		
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
-		    DecimalFormat df = new DecimalFormat("#.########");
-		    df.setRoundingMode(RoundingMode.CEILING);
-		    return new JsonPrimitive(Double.parseDouble(df.format(src)));
+			DecimalFormat df = new DecimalFormat("#.########");
+			df.setRoundingMode(RoundingMode.CEILING);
+			return new JsonPrimitive(Double.parseDouble(df.format(src)));
 		});
 		Gson gson = builder.create();
-		
+
 		Type type = new TypeToken<List<String>>() {
 		}.getType();
 		String jsonArray = gson.toJson(data.getSamples(), type);
@@ -124,7 +123,8 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		FileWriter writer = new FileWriter(output);
 		tmpl.execute(variables, writer);
 		writer.close();
-		
+
+		monitor.setTaskName("Html Report created and written to '" + output + "'");
 		monitor.done();
 
 	}

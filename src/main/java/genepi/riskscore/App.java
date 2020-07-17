@@ -3,7 +3,7 @@ package genepi.riskscore;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import lukfor.progress.ProgressBarBuilder;
 import lukfor.progress.TaskService;
-import lukfor.progress.renderer.StaticProgressRenderer;
+import lukfor.progress.renderer.labels.StringLabel;
 import lukfor.progress.renderer.labels.TaskNameLabel;
 import lukfor.progress.renderer.labels.TimeLabel;
 import lukfor.progress.renderer.spinners.DefaultSpinner;
@@ -43,13 +43,13 @@ public class App {
 
 		if (TaskService.isAnsiSupport()) {
 
-			return new ProgressBarBuilder().components(new DefaultSpinner(), new TaskNameLabel(),
+			return new ProgressBarBuilder().components(new StringLabel(" "), new DefaultSpinner(), new TaskNameLabel(),
 					ProgressBarBuilder.DEFAULT_STYLE, new TimeLabel());
 
 		} else {
-			
+
 			return new ProgressBarBuilder().animated(false);
-			
+
 		}
 
 	}
@@ -58,15 +58,14 @@ public class App {
 
 		if (TaskService.isAnsiSupport()) {
 
-			return new ProgressBarBuilder().components(new DefaultSpinner(), new TaskNameLabel());
+			return new ProgressBarBuilder().components(new StringLabel(" "), new DefaultSpinner(), new StringLabel(" "), new TaskNameLabel());
 
 		} else {
-			
+
 			return new ProgressBarBuilder().animated(false);
-			
+
 		}
 
 	}
 
-	
 }

@@ -16,6 +16,8 @@ import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
+import genepi.riskscore.tasks.MergeReportTask;
+import genepi.riskscore.tasks.MergeScoreTask;
 import htsjdk.samtools.util.StopWatch;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.ITaskRunnable;
@@ -110,7 +112,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
-		List<ITaskRunnable> tasks = new Vector<ITaskRunnable>();
+		List<ApplyScoreTask> tasks = new Vector<ApplyScoreTask>();
 
 		for (String vcf : vcfs) {
 
@@ -148,49 +150,27 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		TaskService.getExecutor().setThreads(threads);
 		TaskService.run(tasks, App.STYLE_LONG_TASK());
 
-		OutputFile output = null;
-		ReportFile report = null;
-		int samples = 0;
-		int variants = 0;
-
-		// merge scores and statistics
-
-		for (ITaskRunnable t : tasks) {
-
-			ApplyScoreTask task = (ApplyScoreTask) t;
-			OutputFile outputChunk = new OutputFile(task.getRiskScores(), task.getSummaries());
-			if (output == null) {
-				output = outputChunk;
-			} else {
-				output.merge(outputChunk);
-			}
-
-			if (report == null) {
-				report = new ReportFile(task.getSummaries());
-			} else {
-				report.merge(new ReportFile(task.getSummaries()));
-			}
-
-			samples += task.getCountSamples();
-			variants += task.getCountVariants();
-
-		}
-
-		output.save(out);
-		System.out.println("Output written to '" + out + "'. Done!");
+		// TODO: error handling, stop when 1 task fails
 
 		System.out.println();
+		
+		// merge results
 
-		for (RiskScoreSummary summary : report.getSummaries()) {
-			summary.updateStatistics();
-		}
+		MergeScoreTask mergeScore = new MergeScoreTask();
+		mergeScore.setInputs(tasks);
+		mergeScore.setOutput(out);
+		TaskService.run(mergeScore, App.STYLE_SHORT_TASK());
 
-		if (reportJson != null) {
-			report.save(reportJson);
-			System.out.println("Json Report written to '" + reportJson + "'. Done!");
-		}
+		MergeReportTask mergeReport = new MergeReportTask();
+		mergeReport.setInputs(tasks);
+		mergeReport.setOutput(reportJson);
+		TaskService.run(mergeReport, App.STYLE_SHORT_TASK());
+
+		OutputFile output = mergeScore.getResult();
+		ReportFile report = mergeReport.getResult();
 
 		if (reportHtml != null) {
+
 			if (meta != null) {
 				MetaFile metaFile = MetaFile.load(meta);
 				report.mergeWithMeta(metaFile);
@@ -198,26 +178,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
-			htmlReportTask.setOutput(reportHtml);
 			htmlReportTask.setData(output);
+			htmlReportTask.setOutput(reportHtml);
 			TaskService.run(htmlReportTask, App.STYLE_SHORT_TASK());
-			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
 		}
 
-		/*System.out.println();
-		System.out.println("Summary");
-		System.out.println("-------");
-		System.out.println();
-		System.out.println("  Target VCF file(s):");
-		System.out.println("    - Samples: " + number(samples));
-		System.out.println("    - Variants: " + number(variants));
-		System.out.println();
-
-		for (RiskScoreSummary summary : report.getSummaries()) {
-			System.out.println(summary);
-			System.out.println();
-		}*/
-		
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();
