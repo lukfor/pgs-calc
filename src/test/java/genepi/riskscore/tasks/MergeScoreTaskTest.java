@@ -5,14 +5,22 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.io.FileUtil;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.io.OutputFile;
+import lukfor.progress.TaskService;
+import lukfor.progress.tasks.monitors.TaskMonitorMock;
 import picocli.CommandLine;
 
 public class MergeScoreTaskTest {
+
+	@BeforeClass
+	public static void setup() {
+		TaskService.setAnsiSupport(false);
+	}
 
 	@Test
 	public void testMerge() throws Exception {
@@ -20,7 +28,7 @@ public class MergeScoreTaskTest {
 		MergeScoreTask task = new MergeScoreTask();
 		task.setInputs("test-data/scores.chunk1.txt", "test-data/scores.chunk2.txt");
 		task.setOutput("merged.task.txt");
-		task.run();
+		task.run(new TaskMonitorMock());
 
 		assertEquals(FileUtil.readFileAsString("test-data/merged.expected.txt"),
 				FileUtil.readFileAsString("merged.task.txt"));
@@ -66,14 +74,14 @@ public class MergeScoreTaskTest {
 		MergeScoreTask task = new MergeScoreTask();
 		task.setInputs(chunkFiles);
 		task.setOutput("output.merged.txt");
-		task.run();
+		task.run(new TaskMonitorMock());
 
 		assertEqualsScoreFiles("output.csv", "output.merged.txt", 0.0000001);
 
 		MergeReportTask task2 = new MergeReportTask();
 		task2.setInputs(reportFiles);
 		task2.setOutput("report.merged.json");
-		task2.run();
+		task2.run(new TaskMonitorMock());
 
 		assertEqualsScoreFiles("report.json", "report.merged.json", 0.0000001);
 

@@ -40,6 +40,12 @@ public class ReportFile {
 
 	}
 
+	public static ReportFile loadFromFile(String filename) throws IOException {
+		ReportFile reportFile = new ReportFile();
+		reportFile.load(filename);
+		return reportFile;
+	}
+
 	public void load(String filename) throws IOException {
 
 		Gson gson = new Gson();
@@ -65,8 +71,7 @@ public class ReportFile {
 		}
 
 	}
-	
-	
+
 	public void mergeWithMeta(MetaFile meta) {
 		for (RiskScoreSummary summary : summaries) {
 			Object data = meta.getDataById(summary.getName());

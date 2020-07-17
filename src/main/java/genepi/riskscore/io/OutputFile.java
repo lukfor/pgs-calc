@@ -72,6 +72,12 @@ public class OutputFile {
 
 	}
 
+	public static OutputFile loadFromFile(String filename) throws IOException {
+		OutputFile file = new OutputFile();
+		file.load(filename);
+		return file;
+	}
+
 	public void load(String filename) throws IOException {
 
 		ITableReader reader = new CsvTableReader(filename, SEPARATOR);
