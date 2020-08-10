@@ -58,7 +58,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		monitor.beginTask("Create HTML Report", ITaskMonitor.UNKNOWN);
+		monitor.begin("Create HTML Report", ITaskMonitor.UNKNOWN);
 
 		assert (report != null);
 		assert (output != null);
@@ -124,7 +124,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		tmpl.execute(variables, writer);
 		writer.close();
 
-		monitor.setTaskName("Html Report created and written to '" + output + "'");
+		monitor.update("Html Report created and written to '" + output + "'");
 		monitor.done();
 
 	}

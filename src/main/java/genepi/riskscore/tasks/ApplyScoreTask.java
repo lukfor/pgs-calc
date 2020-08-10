@@ -109,9 +109,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 			vcfReader.close();
 			throw new Exception("VCF file is empty.");
 		}
-	
-		String taskName = " [Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome + "]";
-		monitor.beginTask(taskName, new File(vcf).length());
+
+		String taskName = "[Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome + "]";
+		monitor.begin(taskName, new File(vcf).length());
 		monitor.worked(0);
 
 		numberRiskScores = riskScoreFilenames.length;
@@ -199,6 +199,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		while (vcfReader.next() && !outOfChunk) {
 
+			if (monitor.isCanceled()) {
+				return;
+			}
+			
 			MinimalVariantContext variant = vcfReader.getVariantContext();
 
 			countVariants++;

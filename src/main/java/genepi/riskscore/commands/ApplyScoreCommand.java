@@ -84,7 +84,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	public Integer call() throws Exception {
 
 		if (noAnsi) {
-			TaskService.setAnsiSupport(false);
+			TaskService.setAnimated(false);
+			TaskService.setAnsiColors(false);
 		}
 
 		if (vcfs == null || vcfs.isEmpty()) {
@@ -147,24 +148,24 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		}
 
-		TaskService.getExecutor().setThreads(threads);
-		TaskService.run(tasks, App.STYLE_LONG_TASK());
+		TaskService.setThreads(threads);
+		TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
 		// TODO: error handling, stop when 1 task fails
 
 		System.out.println();
-		
+
 		// merge results
 
 		MergeScoreTask mergeScore = new MergeScoreTask();
 		mergeScore.setInputs(tasks);
 		mergeScore.setOutput(out);
-		TaskService.run(mergeScore, App.STYLE_SHORT_TASK());
+		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore);
 
 		MergeReportTask mergeReport = new MergeReportTask();
 		mergeReport.setInputs(tasks);
 		mergeReport.setOutput(reportJson);
-		TaskService.run(mergeReport, App.STYLE_SHORT_TASK());
+		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport);
 
 		OutputFile output = mergeScore.getResult();
 		ReportFile report = mergeReport.getResult();
@@ -180,7 +181,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			htmlReportTask.setReport(report);
 			htmlReportTask.setData(output);
 			htmlReportTask.setOutput(reportHtml);
-			TaskService.run(htmlReportTask, App.STYLE_SHORT_TASK());
+			TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask);
 		}
 
 		System.out.println();
