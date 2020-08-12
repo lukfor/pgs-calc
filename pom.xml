@@ -71,9 +71,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>lukfor</groupId>
+			<groupId>com.github.lukfor</groupId>
 			<artifactId>magic-progress</artifactId>
-			<version>0.2.2</version>
+			<version>0.3.0</version>
 		</dependency>
 			
 		<dependency>

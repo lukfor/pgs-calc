@@ -38,7 +38,7 @@ public class MergeScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		monitor.beginTask("Merge score files");
+		monitor.begin("Merge score files");
 
 		assert (inputs != null);
 		assert (inputs.length > 0);
@@ -51,9 +51,9 @@ public class MergeScoreTask implements ITaskRunnable {
 
 		if (output != null) {
 			result.save(output);
-			monitor.setTaskName("Score files merged and written to '" + output + "'");
+			monitor.update("Score files merged and written to '" + output + "'");
 		} else {
-			monitor.setTaskName("Score files merged");
+			monitor.update("Score files merged");
 		}
 
 		monitor.done();

@@ -1,12 +1,13 @@
 package genepi.riskscore;
 
+import static lukfor.progress.Components.PROGRESS_BAR;
+import static lukfor.progress.Components.SPACE;
+import static lukfor.progress.Components.SPINNER;
+import static lukfor.progress.Components.TASK_NAME;
+import static lukfor.progress.Components.TIME;
+
 import genepi.riskscore.commands.ApplyScoreCommand;
-import lukfor.progress.ProgressBarBuilder;
-import lukfor.progress.TaskService;
-import lukfor.progress.renderer.labels.StringLabel;
-import lukfor.progress.renderer.labels.TaskNameLabel;
-import lukfor.progress.renderer.labels.TimeLabel;
-import lukfor.progress.renderer.spinners.DefaultSpinner;
+import lukfor.progress.renderer.ProgressIndicatorGroup;
 import picocli.CommandLine;
 
 public class App {
@@ -39,33 +40,10 @@ public class App {
 
 	}
 
-	public static ProgressBarBuilder STYLE_LONG_TASK() {
+	public static ProgressIndicatorGroup STYLE_LONG_TASK = new ProgressIndicatorGroup(SPACE, SPINNER, SPACE, TASK_NAME,
+			PROGRESS_BAR, TIME);
 
-		if (TaskService.isAnsiSupport()) {
-
-			return new ProgressBarBuilder().components(new StringLabel(" "), new DefaultSpinner(), new TaskNameLabel(),
-					ProgressBarBuilder.DEFAULT_STYLE, new TimeLabel());
-
-		} else {
-
-			return new ProgressBarBuilder().animated(false);
-
-		}
-
-	}
-
-	public static ProgressBarBuilder STYLE_SHORT_TASK() {
-
-		if (TaskService.isAnsiSupport()) {
-
-			return new ProgressBarBuilder().components(new StringLabel(" "), new DefaultSpinner(), new StringLabel(" "), new TaskNameLabel());
-
-		} else {
-
-			return new ProgressBarBuilder().animated(false);
-
-		}
-
-	}
+	public static ProgressIndicatorGroup STYLE_SHORT_TASK = new ProgressIndicatorGroup(SPACE, SPINNER, SPACE,
+			TASK_NAME);
 
 }

@@ -39,13 +39,13 @@ public class MergeReportTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		monitor.beginTask("Merge report files");
+		monitor.begin("Merge report files");
 
 		assert (inputs != null);
 		assert (inputs.length > 0);
 
 		result = inputs[0];
-		
+
 		for (int i = 1; i < inputs.length; i++) {
 			result.merge(inputs[i]);
 		}
@@ -57,9 +57,9 @@ public class MergeReportTask implements ITaskRunnable {
 
 		if (output != null) {
 			result.save(output);
-			monitor.setTaskName("Report files merged and written to '" + output + "'");
+			monitor.update("Report files merged and written to '" + output + "'");
 		} else {
-			monitor.setTaskName("Report files merged");
+			monitor.update("Report files merged");
 		}
 		monitor.done();
 
