@@ -1,8 +1,8 @@
 data = [];
-{{#scores}}
-  {{#data}}
-  data['score{{-index}}']={{.}};
-  {{/data}}
-{{/scores}}
+{{for index,score in scores}}
+  {{if score.data != null}}
+    data['score{{index}}']= {{json(score.data)}};
+  {{end}}
+{{end}}
 
-samples = {{samplesData}};
+samples = {{json(samples)}};

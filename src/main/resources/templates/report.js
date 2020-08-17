@@ -180,6 +180,7 @@ function updatePlots() {
     displayModeBar: false
   });
 }
+
 function showCommand() {
   bootbox.alert('<pre>pgs-calc {{application_args}}</pre>');
 }
@@ -199,14 +200,18 @@ $(document).ready(function() {
   updateHighlightSample();
 
   selectedSamples = [];
-  selectedData = data['score1'];
-  var plotData = createPlot(selectedData, highlightedSamples);
-  var layout = createPlotLayout();
-  Plotly.newPlot('plot', plotData, layout, {
-    displayModeBar: false
-  });
+  selectedData = data['score0'];
+  if (selectedData) {
+    var plotData = createPlot(selectedData, highlightedSamples);
+    var layout = createPlotLayout();
+    Plotly.newPlot('plot', plotData, layout, {
+      displayModeBar: false
+    });
 
-  var myPlot = document.getElementById('plot');
-  var hoverInfo = myPlot.on('plotly_selected', updateSelection);
-
+    var myPlot = document.getElementById('plot');
+    var hoverInfo = myPlot.on('plotly_selected', updateSelection);
+  } else {
+    $('#row-plots').hide();
+  }
+  
 });
