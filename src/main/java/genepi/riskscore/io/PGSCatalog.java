@@ -24,7 +24,7 @@ public class PGSCatalog {
 		String filename = FileUtil.path(CACHE_DIR, id + ".txt.gz");
 
 		if ((new File(filename)).exists()) {
-			System.out.println("Score '" + id + "' found in local cache " + filename);
+			//System.out.println("Score '" + id + "' found in local cache " + filename);
 			return filename;
 		}
 
@@ -33,7 +33,7 @@ public class PGSCatalog {
 		MessageFormat format = new MessageFormat(FILE_URL);
 		String url = format.format(new Object[] { id });
 
-		System.out.println("Downloading score '" + id + "' from " + url + "...");
+		//System.out.println("Downloading score '" + id + "' from " + url + "...");
 
 		InputStream in = new URL(url).openStream();
 		Files.copy(in, Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);

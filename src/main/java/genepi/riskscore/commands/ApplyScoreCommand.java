@@ -3,19 +3,24 @@ package genepi.riskscore.commands;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
-import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
+import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
+import genepi.riskscore.tasks.MergeReportTask;
+import genepi.riskscore.tasks.MergeScoreTask;
 import htsjdk.samtools.util.StopWatch;
+import lukfor.progress.TaskService;
+import lukfor.progress.tasks.ITaskRunnable;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
@@ -45,6 +50,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--format" }, description = "Reference weights format file", required = false)
 	String format = null;
 
+	@Option(names = { "--threads" }, description = "Number of threads", required = false)
+	int threads = 1;
+
 	@Option(names = { "--writeVariants" }, description = "Write csv file with all used variants", required = false)
 	String outputVariantFilename = null;
 
@@ -63,6 +71,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
+	@Option(names = {
+			"--no-ansi" }, description = "Disable ANSI output", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean noAnsi = false;
+
 	@Option(names = { "--version" }, versionHelp = true)
 	boolean showVersion;
 
@@ -70,6 +82,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	Chunk chunk;
 
 	public Integer call() throws Exception {
+
+		if (noAnsi) {
+			TaskService.setAnimated(false);
+			TaskService.setAnsiColors(false);
+		}
 
 		if (vcfs == null || vcfs.isEmpty()) {
 			System.out.println();
@@ -93,90 +110,86 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		}
 		System.out.println();
 
-		ApplyScoreTask task = new ApplyScoreTask();
-
-		String[] refs = parseRef(ref);
-		task.setRiskScoreFilenames(refs);
-		if (format != null) {
-			RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
-			for (String file : refs) {
-				task.setRiskScoreFormat(file, riskScoreFormat);
-			}
-		} else {
-			for (String file : refs) {
-				String autoFormat = file + ".format";
-				if (new File(autoFormat).exists()) {
-					RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
-					task.setRiskScoreFormat(file, riskScoreFormat);
-				}
-			}
-		}
-
-		if (chunk != null) {
-			task.setChunk(chunk);
-		}
-		task.setVcfFilenames(vcfs);
-		task.setMinR2(minR2);
-		task.setGenotypeFormat(genotypeFormat);
-		task.setOutputVariantFilename(outputVariantFilename);
-		task.setIncludeVariantFilename(includeVariantFilename);
-
 		StopWatch watch = new StopWatch();
 		watch.start();
 
-		task.run();
+		List<ApplyScoreTask> tasks = new Vector<ApplyScoreTask>();
 
-		OutputFile output = new OutputFile(task.getRiskScores(), task.getSummaries());
-		output.save(out);
-		watch.stop();
+		for (String vcf : vcfs) {
 
-		System.out.println("Output written to '" + out + "'. Done!");
+			ApplyScoreTask task = new ApplyScoreTask();
+
+			String[] refs = parseRef(ref);
+			task.setRiskScoreFilenames(refs);
+			if (format != null) {
+				RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
+				for (String file : refs) {
+					task.setRiskScoreFormat(file, riskScoreFormat);
+				}
+			} else {
+				for (String file : refs) {
+					String autoFormat = file + ".format";
+					if (new File(autoFormat).exists()) {
+						RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
+						task.setRiskScoreFormat(file, riskScoreFormat);
+					}
+				}
+			}
+
+			if (chunk != null) {
+				task.setChunk(chunk);
+			}
+			task.setVcfFilename(vcf);
+			task.setMinR2(minR2);
+			task.setGenotypeFormat(genotypeFormat);
+			task.setOutputVariantFilename(outputVariantFilename);
+			task.setIncludeVariantFilename(includeVariantFilename);
+			tasks.add(task);
+
+		}
+
+		TaskService.setThreads(threads);
+		TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
+
+		// TODO: error handling, stop when 1 task fails
+
 		System.out.println();
 
-		//update statistics
-		for(RiskScoreSummary summary: task.getSummaries()) {
-			summary.updateStatistics();
-		}
-		
-		if (reportJson != null) {
-			ReportFile report = new ReportFile(task.getSummaries());
-			report.save(reportJson);
-			System.out.println("Json Report written to '" + reportJson + "'. Done!");
-		}
+		// merge results
+
+		MergeScoreTask mergeScore = new MergeScoreTask();
+		mergeScore.setInputs(tasks);
+		mergeScore.setOutput(out);
+		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore);
+
+		MergeReportTask mergeReport = new MergeReportTask();
+		mergeReport.setInputs(tasks);
+		mergeReport.setOutput(reportJson);
+		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport);
+
+		OutputFile output = mergeScore.getResult();
+		ReportFile report = mergeReport.getResult();
 
 		if (reportHtml != null) {
-			ReportFile report = new ReportFile(task.getSummaries());			
+
 			if (meta != null) {
 				MetaFile metaFile = MetaFile.load(meta);
 				report.mergeWithMeta(metaFile);
 			}
-			
+
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
-			htmlReportTask.setOutput(reportHtml);
 			htmlReportTask.setData(output);
-			htmlReportTask.run();
-			System.out.println("Html Report written to '" + reportHtml + "'. Done!");
+			htmlReportTask.setOutput(reportHtml);
+			TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask);
 		}
 
-		System.out.println();
-		System.out.println("Summary");
-		System.out.println("-------");
-		System.out.println();
-		System.out.println("  Target VCF file(s):");
-		System.out.println("    - Samples: " + number(task.getCountSamples()));
-		System.out.println("    - Variants: " + number(task.getCountVariants()));
-		System.out.println();
-
-		for (RiskScoreSummary summary : task.getSummaries()) {
-			System.out.println(summary);
-			System.out.println();
-		}
-
-		// System.out.println(" - Not found in target: " + number(notFound));
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();
+
+		watch.stop();
+
 		return 0;
 
 	}

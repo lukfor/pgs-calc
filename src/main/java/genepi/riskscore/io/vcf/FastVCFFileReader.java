@@ -1,7 +1,9 @@
 package genepi.riskscore.io.vcf;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Vector;
 
@@ -23,9 +25,9 @@ public class FastVCFFileReader extends LineReader {
 
 	private VCFLineParser parser;
 
-	public FastVCFFileReader(String vcfFilename) throws IOException {
+	public FastVCFFileReader(InputStream stream, String vcfFilename) throws IOException {
 
-		super(vcfFilename);
+		super(new DataInputStream(stream));
 		// load header
 		VCFFileReader reader = new VCFFileReader(new File(vcfFilename), false);
 		VCFHeader header = reader.getFileHeader();
