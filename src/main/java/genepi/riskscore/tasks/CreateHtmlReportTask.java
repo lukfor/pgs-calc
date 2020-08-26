@@ -6,7 +6,7 @@ import java.util.Date;
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
-import lukfor.magic.reports.HtmlReport;
+import lukfor.reports.HtmlReport;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
 
