@@ -7,9 +7,11 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -42,6 +44,14 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 	private ReportFile report;
 
 	private OutputFile data;
+
+	private DecimalFormat df;
+
+	public CreateHtmlReportTask() {
+		NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+		df = (DecimalFormat) nf;
+		df.applyPattern("#.########");
+	}
 
 	public void setOutput(String output) {
 		this.output = output;
@@ -82,7 +92,6 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(Double.class, (JsonSerializer<Double>) (src, typeOfSrc, context) -> {
-			DecimalFormat df = new DecimalFormat("#.########");
 			df.setRoundingMode(RoundingMode.CEILING);
 			return new JsonPrimitive(Double.parseDouble(df.format(src)));
 		});
