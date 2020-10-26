@@ -43,7 +43,7 @@ public class MinimalVariantContext {
 	private Map<String, String> infos;
 
 	private boolean dirtyGenotypes = true;
-	
+
 	public MinimalVariantContext(int samples) {
 		genotypes = new boolean[samples];
 		genotypesParsed = new float[samples];
@@ -237,43 +237,89 @@ public class MinimalVariantContext {
 		if (dirtyGenotypes) {
 
 			String tiles[] = rawLine.split("\t", 10);
-			String[] formats = tiles[8].split(":");
-			int index = -1;
-			for (int i = 0; i < formats.length; i++) {
-				if (formats[i].equals(field)) {
-					index = i;
-				}
-			}
+			String format = tiles[8];
+			String[] formats = format.split(":");
 
-			if (index == -1) {
-				throw new IOException("field '" + field + "' not found in FORMAT");
-			}
 			String[] values = tiles[9].split("\t");
-			for (int i = 0; i < genotypesParsed.length; i++) {
-				String value = values[i];
-				String[] tiles2 = value.split(":");
-				String genotype = tiles2[index];
 
-				float dosage = 0;
-				// genotypes
-				if (genotype.equals("0|0")) {
-					dosage = 0;
-				} else if (genotype.equals("0|1") || genotype.equals("1|0")) {
-					dosage = 1;
-				} else if (genotype.equals("1|1")) {
-					dosage = 2;
+			if (field.equals("DS")) {
+				int indexDS = findField(formats, "DS");
+				int indexGT = findField(formats, "GT");
+				if (indexDS != -1) {
+					parseDosages(values, indexDS, indexGT);
 				} else {
-					// dosage
-					dosage = Float.parseFloat(genotype);
+					System.out.println("Variant '" + this + "': Field 'DS' not found in FORMAT. Try 'GT'");
+					if (indexGT == -1) {
+						throw new IOException(
+								"Variant '" + this + "': Field 'GT' not found in FORMAT. Available: " + format);
+					}
+					parseGenotypes(values, indexGT);
 				}
-				genotypesParsed[i] = dosage;
 
+			} else {
+				int indexGT = findField(formats, "GT");
+				if (indexGT == -1) {
+					throw new IOException(
+							"Variant '" + this + "': Field 'GT' not found in FORMAT. Available: " + format);
+				}
+				parseGenotypes(values, indexGT);
 			}
-			
+
 			dirtyGenotypes = false;
 
 		}
 		return genotypesParsed;
+	}
+
+	protected int findField(String[] formats, String field) {
+		for (int i = 0; i < formats.length; i++) {
+			if (formats[i].equals(field)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	protected void parseGenotypes(String[] values, int indexGT) {
+		for (int i = 0; i < genotypesParsed.length; i++) {
+			String value = values[i];
+			String[] tiles2 = value.split(":");
+			String genotype = tiles2[indexGT];
+			float dosage = toDosage(genotype);
+			genotypesParsed[i] = dosage;
+		}
+	}
+
+	protected void parseDosages(String[] values, int indexDS, int indexGT) {
+		for (int i = 0; i < genotypesParsed.length; i++) {
+			String value = values[i];
+			String[] tiles2 = value.split(":");
+			String dosage = tiles2[indexDS];
+			if (dosage.equals(".")) {
+				// use genotype instead
+				String genotype = tiles2[indexGT];
+				genotypesParsed[i] = toDosage(genotype);
+			} else {
+				try {
+					genotypesParsed[i] = Float.parseFloat(dosage);
+				} catch (Exception e) {
+					genotypesParsed[i] = -1;
+				}
+			}
+		}
+	}
+
+	protected float toDosage(String genotype) {
+		if (genotype.equals("0|0") || genotype.equals("0/0")) {
+			return 0;
+		} else if (genotype.equals("0|1") || genotype.equals("1|0") || genotype.equals("0/1")
+				|| genotype.equals("1/0")) {
+			return 1;
+		} else if (genotype.equals("1|1") || genotype.equals("1/1")) {
+			return 2;
+		} else {
+			return -1;
+		}
 	}
 
 }

@@ -202,7 +202,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			if (monitor.isCanceled()) {
 				return;
 			}
-			
+
 			MinimalVariantContext variant = vcfReader.getVariantContext();
 
 			countVariants++;
@@ -292,8 +292,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				for (int i = 0; i < countSamples; i++) {
 					float dosage = dosages[i];
-					double effect = dosage * effectWeight;
-					riskScores[i].incScore(j, effect);
+					if (dosage >= 0) {
+						double effect = dosage * effectWeight;
+						riskScores[i].incScore(j, effect);
+					}
 				}
 
 				summary.incVariantsUsed();
