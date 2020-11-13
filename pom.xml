@@ -43,6 +43,11 @@
 			<name>bintray</name>
 			<url>https://dl.bintray.com/genepi/maven</url>
 		</repository>
+		<repository>
+			<id>bintray-lukfor-maven</id>
+			<name>bintray</name>
+			<url>https://dl.bintray.com/lukfor/maven</url>
+		</repository>		
 	</repositories>
 
 
