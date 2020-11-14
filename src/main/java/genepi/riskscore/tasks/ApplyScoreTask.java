@@ -2,13 +2,15 @@ package genepi.riskscore.tasks;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
@@ -23,7 +25,7 @@ import lukfor.progress.util.CountingInputStream;
 
 public class ApplyScoreTask implements ITaskRunnable {
 
-	private RiskScore[] riskScores;
+	private List<RiskScore> riskScores;
 
 	private String vcf = null;
 
@@ -40,6 +42,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private String outputVariantFilename = null;
 
 	private String includeVariantFilename = null;
+
+	private String includeSamplesFilename = null;
 
 	private CsvTableWriter variantFile;
 
@@ -78,6 +82,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public void setIncludeVariantFilename(String includeVariantFilename) {
 		this.includeVariantFilename = includeVariantFilename;
+	}
+
+	public void setIncludeSamplesFilename(String includeSamplesFilename) {
+		this.includeSamplesFilename = includeSamplesFilename;
 	}
 
 	public void setGenotypeFormat(String genotypeFormat) {
@@ -176,22 +184,22 @@ public class ApplyScoreTask implements ITaskRunnable {
 			// for chromosome " + chromosome);
 		}
 
+		SamplesFile samplesFile = null;
+		if (includeSamplesFilename != null) {
+			samplesFile = new SamplesFile(includeSamplesFilename);
+			samplesFile.buildIndex();
+		}
+
 		CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
 		FastVCFFileReader vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
 		countSamples = vcfReader.getGenotypedSamples().size();
 
-		if (riskScores == null) {
-			riskScores = new RiskScore[countSamples];
-			for (int i = 0; i < countSamples; i++) {
-				riskScores[i] = new RiskScore(chromosome, vcfReader.getGenotypedSamples().get(i),
-						riskScoreFilenames.length);
-
-			}
-		} else {
-			if (riskScores.length != countSamples) {
-				vcfReader.close();
-				throw new IOException("Different number of samples in file '" + vcfFilename + "'. Expected "
-						+ riskScores.length + " samples but found " + countSamples + " samples.");
+		riskScores = new Vector<RiskScore>();
+		for (int i = 0; i < countSamples; i++) {
+			String sample = vcfReader.getGenotypedSamples().get(i);
+			if (samplesFile == null || samplesFile.contains(sample)) {
+				RiskScore riskScore = new RiskScore(chromosome, sample, riskScoreFilenames.length);
+				riskScores.add(riskScore);
 			}
 		}
 
@@ -290,11 +298,16 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				float[] dosages = variant.getGenotypeDosages(genotypeFormat);
 
+				int indexSample = 0;
 				for (int i = 0; i < countSamples; i++) {
-					float dosage = dosages[i];
-					if (dosage >= 0) {
-						double effect = dosage * effectWeight;
-						riskScores[i].incScore(j, effect);
+					String sample = vcfReader.getGenotypedSamples().get(i);
+					if (samplesFile == null || samplesFile.contains(sample)) {
+						float dosage = dosages[i];
+						if (dosage >= 0) {
+							double effect = dosage * effectWeight;
+							riskScores.get(indexSample).incScore(j, effect);
+							indexSample++;
+						}
 					}
 				}
 
@@ -332,7 +345,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 	}
 
 	public RiskScore[] getRiskScores() {
-		return riskScores;
+		return riskScores.toArray(new RiskScore[0]);
 	}
 
 	public RiskScoreSummary[] getSummaries() {

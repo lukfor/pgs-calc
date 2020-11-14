@@ -21,7 +21,7 @@ public class ApplyScoreCommandTest {
 	public static void setup() {
 		TaskService.setAnsiSupport(false);
 	}
-	
+
 	@Test
 	public void testCall() {
 
@@ -187,6 +187,38 @@ public class ApplyScoreCommandTest {
 
 		assertEquals(false, reader.next());
 		reader.close();
+	}
+
+	@Test
+	public void testCallWithSampleFilter() throws IOException {
+
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/test.scores.csv",
+				"--out", "output.csv", "--samples", "test-data/samples.txt" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+
+		assertEquals(true, reader.next());
+
+		double score = reader.getDouble("test.scores");
+		String sample = reader.getString("sample");
+		score = reader.getDouble("test.scores");
+		sample = reader.getString("sample");
+		assertEquals("LF002", sample);
+		assertEquals(-(3 + 7), score, 0.0000001);
+
+		assertEquals(false, reader.next());
+		reader.close();
+	}
+
+	@Test
+	public void testCallWithSampleFilterMissingFile() throws IOException {
+
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/test.scores.csv",
+				"--out", "output.csv", "--samples", "test-data/samples2.txt" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(1, result);
 	}
 
 	@Test

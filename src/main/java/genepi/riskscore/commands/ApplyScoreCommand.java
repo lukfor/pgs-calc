@@ -13,14 +13,13 @@ import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreFormat;
-import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
 import genepi.riskscore.tasks.MergeReportTask;
 import genepi.riskscore.tasks.MergeScoreTask;
 import htsjdk.samtools.util.StopWatch;
 import lukfor.progress.TaskService;
-import lukfor.progress.tasks.ITaskRunnable;
+import lukfor.progress.tasks.Task;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Help.Visibility;
@@ -58,6 +57,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--includeVariants" }, description = "Include only variants from this file", required = false)
 	String includeVariantFilename = null;
+
+	@Option(names = { "--samples" }, description = "Include only samples from this file", required = false)
+	String includeSamplesFilename = null;
 
 	@Option(names = { "--report-json" }, description = "Write statistics to json file", required = false)
 	String reportJson = null;
@@ -144,15 +146,21 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setGenotypeFormat(genotypeFormat);
 			task.setOutputVariantFilename(outputVariantFilename);
 			task.setIncludeVariantFilename(includeVariantFilename);
+			task.setIncludeSamplesFilename(includeSamplesFilename);
 			tasks.add(task);
 
 		}
 
 		TaskService.setThreads(threads);
-		TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
+		List<Task> results = TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
-		// TODO: error handling, stop when 1 task fails
-
+		// stop when 1 task fails
+		for (Task result: results) {
+			if (!result.getStatus().isSuccess()) {
+				return 1;
+			}
+		}
+		
 		System.out.println();
 
 		// merge results
