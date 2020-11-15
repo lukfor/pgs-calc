@@ -1,4 +1,4 @@
-function createPlot(selectedData, highlightedSamples) {
+function createPlot(selectedData, referenceData, highlightedSamples) {
 
   //histogram of score
   var plotData = [];
@@ -15,6 +15,17 @@ function createPlot(selectedData, highlightedSamples) {
       }
     }
   });
+  
+  if (referenceData){
+  for (ref in referenceData){
+    plotData.push({
+    x: referenceData[ref],
+    type: 'histogram',
+    name: ref,
+    orientation: 'v'
+  });
+  }
+  }
 
   //scatter plot of selected samples
   if (highlightedSamples && highlightedSamples.length > 0) {
@@ -45,7 +56,7 @@ function createPlot(selectedData, highlightedSamples) {
 
 function createPlotLayout() {
   return {
-    showlegend: false,
+    showlegend: true,
     dragmode: 'select',
     hovermode: 'x',
     margin: {
@@ -146,6 +157,7 @@ function updateHighlightSample() {
 function updateScore(e) {
   var score = $(this).data('score');
   selectedData = data[score];
+  referenceData = reference[score];
   if (selectedData) {
     $('#row-plots').show();
     //clear table
@@ -174,7 +186,7 @@ function filterScores(e) {
 }
 
 function updatePlots() {
-  var plotData = createPlot(selectedData, highlightedSamples);
+  var plotData = createPlot(selectedData, referenceData, highlightedSamples);
   var layout = createPlotLayout();
   Plotly.react('plot', plotData, layout, {
     displayModeBar: false
@@ -201,8 +213,9 @@ $(document).ready(function() {
 
   selectedSamples = [];
   selectedData = data['score0'];
+  referenceData = reference['score0'];
   if (selectedData) {
-    var plotData = createPlot(selectedData, highlightedSamples);
+    var plotData = createPlot(selectedData, referenceData, highlightedSamples);
     var layout = createPlotLayout();
     Plotly.newPlot('plot', plotData, layout, {
       displayModeBar: false

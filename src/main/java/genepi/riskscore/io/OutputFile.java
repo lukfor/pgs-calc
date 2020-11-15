@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.io.table.writer.CsvTableWriter;
@@ -22,6 +23,8 @@ public class OutputFile {
 	private List<Double>[] data;
 
 	private List<String> scores;
+
+	private String filename;
 
 	public OutputFile() {
 
@@ -107,6 +110,8 @@ public class OutputFile {
 		}
 		reader.close();
 
+		this.filename = filename;
+
 	}
 
 	public void merge(OutputFile file) throws IOException {
@@ -123,7 +128,7 @@ public class OutputFile {
 
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].size(); j++) {
-				double sum = data[i].get(j) + file.getData()[i].get(j);
+				double sum = data[i].get(j) + file.getData(i).get(j);
 				data[i].set(j, sum);
 			}
 		}
@@ -137,8 +142,29 @@ public class OutputFile {
 		return samples;
 	}
 
-	public List<Double>[] getData() {
-		return data;
+	public List<Double> getData(int index) {
+		return data[index];
+	}
+
+	public List<Double> getData(String score) {
+		int index = scores.indexOf(score);
+		return data[index];
+	}
+
+	public String getName() {
+
+		if (filename == null) {
+			return "unknown";
+		}
+
+		// Cleanup filename and use it as name (remove extension etc..)
+		String name = FileUtil.getFilename(filename);
+		name = name.replaceAll(".txt.gz", "");
+		name = name.replaceAll(".txt", "");
+		name = name.replaceAll(".csv.gz", "");
+		name = name.replaceAll(".csv", "");
+		return name;
+
 	}
 
 	@Override

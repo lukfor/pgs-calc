@@ -23,7 +23,7 @@ public class MetaFile {
 		
 	}
 	
-	public static MetaFile load(String filename) throws JsonIOException, JsonSyntaxException, FileNotFoundException {
+	public static MetaFile loadFromFile(String filename) throws JsonIOException, JsonSyntaxException, FileNotFoundException {
 		MetaFile file = new MetaFile();
 		//file.data
 		Gson gson = new Gson();

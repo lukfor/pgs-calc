@@ -4,9 +4,11 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import genepi.riskscore.App;
+import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
 import lukfor.progress.tasks.ITaskRunnable;
@@ -21,9 +23,13 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	private String output;
 
+	private MetaFile metaFile;
+
 	private ReportFile report;
 
 	private OutputFile data;
+
+	private OutputFile[] referenceData;
 
 	private DecimalFormat df;
 
@@ -45,6 +51,14 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		this.data = data;
 	}
 
+	public void setReferenceData(OutputFile... referenceData) {
+		this.referenceData = referenceData;
+	}
+
+	public void setMetaFile(MetaFile metaFile) {
+		this.metaFile = metaFile;
+	}
+
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
@@ -53,6 +67,10 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		assert (report != null);
 		assert (output != null);
 		assert (data != null);
+
+		if (metaFile != null) {
+			report.mergeWithMeta(metaFile);
+		}
 
 		HtmlReport report = new HtmlReport(TEMPLATE_DIRECTORY);
 		report.setMainFilename(REPORT_TEMPLATE);
@@ -75,7 +93,14 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		for (int i = 0; i < this.report.getSummaries().size(); i++) {
 			// ignore empty scores
 			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
-				this.report.getSummaries().get(i).setData(data.getData()[i]);
+				this.report.getSummaries().get(i).setData(data.getData(i));
+				String name = this.report.getSummaries().get(i).getName();
+				if (referenceData != null) {
+					for (OutputFile refData : referenceData) {
+						List<Double> reference = refData.getData(name);
+						this.report.getSummaries().get(i).setReferenceData(refData.getName(), reference);
+					}
+				}
 			}
 			this.report.getSummaries().get(i).updateStatistics();
 		}

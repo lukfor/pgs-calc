@@ -78,6 +78,48 @@ public class ApplyScoreCommandTest {
 	}
 
 	@Test
+	public void testCallWithMultiplePGSIDsAndSamples() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv",
+				"--report-html", "output.html", "--meta", "test-data/pgs-catalog-small.json", "--samples",
+				"test-data/chr20.samples.txt" };
+		App.ARGS = args;
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(3, reader.getColumns().length);
+		assertEquals(5, samples);
+		reader.close();
+	}
+
+	@Test
+	public void testCallWithMultiplePGSIDsAndSamplesAdnReferenceData() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "output.csv",
+				"--report-html", "output.html", "--meta", "test-data/pgs-catalog-small.json", "--samples",
+				"test-data/chr20.samples.txt","--ref-data","/Users/lukas/Askimed Dropbox/Lukas Forer/Genepi/Projekte/riskscores/2020_11_14_1000_Genomes/output/1000_genomes_AFR.txt,/Users/lukas/Askimed Dropbox/Lukas Forer/Genepi/Projekte/riskscores/2020_11_14_1000_Genomes/output/1000_genomes_AMR.txt"};
+		App.ARGS = args;
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(3, reader.getColumns().length);
+		assertEquals(5, samples);
+		reader.close();
+	}
+	
+	@Test
 	public void testCallWithPGSCatalogIDFile() {
 
 		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/pgs-ids.txt", "--out", "output.csv" };

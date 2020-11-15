@@ -99,8 +99,8 @@ public class MergeScoreTaskTest {
 		assertEquals(file1.getScores().size(), file2.getScores().size());
 		for (int i = 0; i < file1.getScores().size(); i++) {
 			assertEquals(file1.getScores().get(i), file2.getScores().get(i));
-			List<Double> values1 = file1.getData()[i];
-			List<Double> values2 = file2.getData()[i];
+			List<Double> values1 = file1.getData(i);
+			List<Double> values2 = file2.getData(i);
 			assertEquals(values1.size(), values2.size());
 			assertEquals(values1.size(), file1.getSamples().size());
 			for (int j = 0; j < values1.size(); j++) {

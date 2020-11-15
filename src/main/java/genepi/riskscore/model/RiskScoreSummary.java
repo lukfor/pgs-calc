@@ -1,6 +1,8 @@
 package genepi.riskscore.model;
 
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RiskScoreSummary {
 
@@ -27,6 +29,8 @@ public class RiskScoreSummary {
 	private Object meta;
 
 	private Object data;
+
+	private Map<String, Object> referenceData;
 
 	private String coverageLabel;
 
@@ -130,6 +134,17 @@ public class RiskScoreSummary {
 
 	public Object getData() {
 		return data;
+	}
+
+	public void setReferenceData(String name, Object referenceData) {
+		if (this.referenceData == null) {
+			this.referenceData = new HashMap<String, Object>();
+		}
+		this.referenceData.put(name, referenceData);
+	}
+
+	public Object getReferenceData() {
+		return referenceData;
 	}
 
 	public void setCoverageLabel(String coverageLabel) {

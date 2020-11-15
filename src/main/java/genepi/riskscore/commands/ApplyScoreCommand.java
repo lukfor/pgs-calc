@@ -70,6 +70,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--meta" }, description = "JSON file with meta data about scores", required = false)
 	String meta = null;
 
+	@Option(names = {
+			"--ref-data" }, description = "Reference data that should be included in reports", required = false)
+	String refData = null;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -155,12 +159,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		List<Task> results = TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
 		// stop when 1 task fails
-		for (Task result: results) {
+		for (Task result : results) {
 			if (!result.getStatus().isSuccess()) {
 				return 1;
 			}
 		}
-		
+
 		System.out.println();
 
 		// merge results
@@ -180,14 +184,21 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 		if (reportHtml != null) {
 
-			if (meta != null) {
-				MetaFile metaFile = MetaFile.load(meta);
-				report.mergeWithMeta(metaFile);
-			}
-
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
 			htmlReportTask.setData(output);
+			if (meta != null) {
+				MetaFile metaFile = MetaFile.loadFromFile(meta);
+				htmlReportTask.setMetaFile(metaFile);
+			}
+			if (refData != null) {
+				String[] refDataFilename = parseRefData(refData);
+				OutputFile[] referenceData = new OutputFile[refDataFilename.length];
+				for (int i = 0; i < referenceData.length; i++) {
+					referenceData[i] = OutputFile.loadFromFile(refDataFilename[i]);
+				}
+				htmlReportTask.setReferenceData(referenceData);
+			}
 			htmlReportTask.setOutput(reportHtml);
 			TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask);
 		}
@@ -218,6 +229,14 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 			return refs;
 		}
+	}
+
+	private String[] parseRefData(String refData) {
+		String[] tiles = refData.split(",");
+		for (int i = 0; i < tiles.length; i++) {
+			tiles[i] = tiles[i].trim();
+		}
+		return tiles;
 	}
 
 	public static String number(long number) {
