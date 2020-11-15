@@ -90,22 +90,26 @@ public class RiskScoreFile {
 		while (reader.next()) {
 			String chromsomeVariant = reader.getString(format.getChromosome());
 			if (chromsomeVariant.equals(chromosome)) {
-				
+
 				if (reader.getString(format.getPosition()).isEmpty()) {
 					continue;
 				}
-				
-				int position = reader.getInteger(format.getPosition());
 
-				if (position >= chunk.getStart() && position <= chunk.getEnd()) {
+				try {
+					int position = reader.getInteger(format.getPosition());
 
-					float effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
-					char alleleA = reader.getString(format.getAllele_a()).charAt(0);
-					char alleleB = reader.getString(format.getAllele_b()).charAt(0);
-					char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
+					if (position >= chunk.getStart() && position <= chunk.getEnd()) {
 
-					ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
-					variants.put(position, variant);
+						float effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
+						char alleleA = reader.getString(format.getAllele_a()).charAt(0);
+						char alleleB = reader.getString(format.getAllele_b()).charAt(0);
+						char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
+
+						ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
+						variants.put(position, variant);
+					}
+				} catch (NumberFormatException e) {
+					// ignore variants with wrong positions
 				}
 			}
 			totalVariants++;
