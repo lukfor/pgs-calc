@@ -17,7 +17,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	public static final String TEMPLATE_DIRECTORY = "/templates";
 
-	public static final String REPORT_TEMPLATE = "/report.html";
+	public static final String REPORT_TEMPLATE = "report.html";
 
 	private String output;
 
