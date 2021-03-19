@@ -294,16 +294,22 @@ public class MinimalVariantContext {
 		for (int i = 0; i < genotypesParsed.length; i++) {
 			String value = values[i];
 			String[] tiles2 = value.split(":");
-			String dosage = tiles2[indexDS];
-			if (dosage.equals(".")) {
+			if (tiles2.length == 1) {
 				// use genotype instead
 				String genotype = tiles2[indexGT];
 				genotypesParsed[i] = toDosage(genotype);
 			} else {
-				try {
-					genotypesParsed[i] = Float.parseFloat(dosage);
-				} catch (Exception e) {
-					genotypesParsed[i] = -1;
+				String dosage = tiles2[indexDS];
+				if (dosage.equals(".")) {
+					// use genotype instead
+					String genotype = tiles2[indexGT];
+					genotypesParsed[i] = toDosage(genotype);
+				} else {
+					try {
+						genotypesParsed[i] = Float.parseFloat(dosage);
+					} catch (Exception e) {
+						genotypesParsed[i] = -1;
+					}
 				}
 			}
 		}
