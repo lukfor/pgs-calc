@@ -27,9 +27,9 @@
 
 	<distributionManagement>
 		<repository>
-			<id>bintray-lukfor-maven</id>
-			<name>lukfor-maven</name>
-			<url>https://api.bintray.com/maven/lukfor/maven/pgs-calc/;publish=1</url>
+			<id>jfrog-genepi-maven</id>
+			<name>jfrog-genepi-maven</name>
+			<url>https://genepi.jfrog.io/artifactory/maven/</url>
 		</repository>
 	</distributionManagement>
 
@@ -39,15 +39,10 @@
 
 	<repositories>
 		<repository>
-			<id>bintray-genepi-maven</id>
-			<name>bintray</name>
-			<url>https://dl.bintray.com/genepi/maven</url>
+			<id>jfrog-genepi-maven</id>
+			<name>jfrog-genepi-maven</name>
+			<url>https://genepi.jfrog.io/artifactory/maven/</url>
 		</repository>
-		<repository>
-			<id>bintray-lukfor-maven</id>
-			<name>bintray</name>
-			<url>https://dl.bintray.com/lukfor/maven</url>
-		</repository>		
 	</repositories>
 
 
