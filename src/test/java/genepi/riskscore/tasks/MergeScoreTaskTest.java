@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.io.FileUtil;
+import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.io.OutputFile;
 import lukfor.progress.TaskService;
@@ -84,6 +85,41 @@ public class MergeScoreTaskTest {
 		task2.run(new TaskMonitorMock());
 
 		assertEqualsScoreFiles("report.json", "report.merged.json", 0.0000001);
+
+	}
+
+	@Test
+	public void testMergeHugeFiles() throws Exception {
+
+		int chunks = 3;
+		int samples = 10;
+		int scores = 10;
+
+		// simulate huge files
+		String[] files = new String[chunks];
+		for (int i = 0; i < chunks; i++) {
+			files[i] = "huge.chunk." + i + ".txt";
+			CsvTableWriter writer = new CsvTableWriter(files[i], OutputFile.SEPARATOR);
+			String[] columns = new String[scores + 1];
+			columns[0] = OutputFile.COLUMN_SAMPLE;
+			for (int j = 1; j <= scores; j++) {
+				columns[j] = "score_" + j;
+			}
+			writer.setColumns(columns);
+			for (int j = 1; j <= samples; j++) {
+				writer.setString(OutputFile.COLUMN_SAMPLE, "sample_" + j);
+				for (int k = 1; k <= scores; k++) {
+					writer.setDouble("score_" + k, Math.random());
+				}
+				writer.next();
+			}
+			writer.close();
+		}
+
+		MergeScoreTask task = new MergeScoreTask();
+		task.setInputs(files);
+		task.setOutput("merged.huge.task.txt");
+		task.run(new TaskMonitorMock());
 
 	}
 
