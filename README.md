@@ -1,9 +1,7 @@
 # PGS Calculator
 
-[![Build Status](https://travis-ci.org/lukfor/pgs-calc.svg?branch=master)](https://travis-ci.org/lukfor/pgs-calc)
-[![codecov](https://codecov.io/gh/lukfor/pgs-calc/branch/master/graph/badge.svg)](https://codecov.io/gh/lukfor/pgs-calc)
+[![Java CI with Maven](https://github.com/lukfor/pgs-calc/actions/workflows/maven.yml/badge.svg)](https://github.com/lukfor/pgs-calc/actions/workflows/maven.yml)[![codecov](https://codecov.io/gh/lukfor/pgs-calc/branch/master/graph/badge.svg)](https://codecov.io/gh/lukfor/pgs-calc)
 [![GitHub release](https://img.shields.io/github/release/lukfor/pgs-calc.svg)](https://GitHub.com/lukfor/pgs-calc/releases/)
-[ ![Download](https://api.bintray.com/packages/lukfor/maven/pgs-calc/images/download.svg) ](https://bintray.com/lukfor/maven/pgs-calc/_latestVersion)
 
 > Applying polygenic risk scores (PGS) on imputed genotypes
 
