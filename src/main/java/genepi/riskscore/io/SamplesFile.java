@@ -33,15 +33,15 @@ public class SamplesFile {
 	}
 
 	private void checkFileFormat(ITableReader reader, String filename) throws Exception {
-		if (!reader.hasColumn(OutputFile.COLUMN_SAMPLE)) {
-			throw new Exception("Column '" + OutputFile.COLUMN_SAMPLE + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(OutputFileWriter.COLUMN_SAMPLE)) {
+			throw new Exception("Column '" + OutputFileWriter.COLUMN_SAMPLE + "' not found in '" + filename + "'");
 		}
 	}
 
 	public void buildIndex() throws IOException {
 		ITableReader reader = new CsvTableReader(filename, SEPARATOR);
 		while (reader.next()) {
-			String sample = reader.getString(OutputFile.COLUMN_SAMPLE);
+			String sample = reader.getString(OutputFileWriter.COLUMN_SAMPLE);
 			samples.add(sample);
 			totalSamples++;
 		}

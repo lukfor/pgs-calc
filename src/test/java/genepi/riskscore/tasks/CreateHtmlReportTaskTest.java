@@ -12,7 +12,7 @@ public class CreateHtmlReportTaskTest {
 	public void testReport() throws Exception {
 
 		ReportFile report = ReportFile.loadFromFile("test-data/report.json");
-		OutputFile data = OutputFile.loadFromFile("test-data/output.csv");
+		OutputFile data = new OutputFile("test-data/output.csv");
 
 		CreateHtmlReportTask task = new CreateHtmlReportTask();
 		task.setData(data);
