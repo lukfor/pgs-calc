@@ -55,7 +55,7 @@ public class OutputFileReader {
 	}
 
 	public void close() {
-
+		reader.close();
 	}
 
 	public List<String> getScores() {
