@@ -1,5 +1,6 @@
 package genepi.riskscore.io;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
@@ -49,7 +50,7 @@ public class OutputFileReader {
 		return data;
 	}
 
-	public String getSample() {
+	public String getSample() throws IOException {
 		return reader.getString(COLUMN_SAMPLE);
 	}
 
