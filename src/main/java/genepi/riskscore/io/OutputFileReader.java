@@ -1,6 +1,5 @@
 package genepi.riskscore.io;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
@@ -19,11 +18,11 @@ public class OutputFileReader {
 
 	private ITableReader reader;
 
-	public OutputFileReader(String filename) throws IOException {
+	public OutputFileReader(String filename) {
 		init(filename);
 	}
 
-	public void init(String filename) throws IOException {
+	public void init(String filename) {
 
 		reader = new CsvTableReader(filename, SEPARATOR);
 
