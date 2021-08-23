@@ -9,6 +9,8 @@ public class ReferenceVariant {
 	private char alleleB;
 
 	private char effectAllele;
+	
+	private boolean used = false;
 
 	public ReferenceVariant(char alleleA, char alleleB, char effectAllele, float effectWeight) {
 		this.alleleA = alleleA;
@@ -39,6 +41,14 @@ public class ReferenceVariant {
 
 	public boolean hasAllele(char allele) {
 		return ((alleleA == allele) || (alleleB == allele));
+	}
+	
+	public void setUsed(boolean used) {
+		this.used = used;
+	}
+	
+	public boolean isUsed() {
+		return used;
 	}
 
 }

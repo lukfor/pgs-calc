@@ -286,7 +286,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 					continue;
 				}
 
-				float effectWeight = -referenceVariant.getEffectWeight();
+				float effectWeight = referenceVariant.getEffectWeight();
 
 				char referenceAllele = variant.getReferenceAllele().charAt(0);
 
@@ -298,15 +298,26 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				char alternateAllele = variant.getAlternateAllele().charAt(0);
 
-				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
+				/*if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
 					summary.incAlleleMissmatch();
 					continue;
-				}
+				}*/
 
-				if (!referenceVariant.isEffectAllele(referenceAllele)) {
-					effectWeight = -effectWeight;
-					summary.incSwitched();
+				if (!referenceVariant.isEffectAllele(alternateAllele)) {
+					if (referenceVariant.isEffectAllele(referenceAllele)) {
+						effectWeight = -effectWeight;
+						summary.incSwitched();
+					} else {
+						summary.incAlleleMissmatch();
+						continue;
+					}
 				}
+				
+				if (referenceVariant.isUsed()) {
+					//System.out.println(variant.getContig() + " " + variant.getStart());
+				}
+				
+				referenceVariant.setUsed(true);
 
 				if (variantFile != null) {
 					variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
