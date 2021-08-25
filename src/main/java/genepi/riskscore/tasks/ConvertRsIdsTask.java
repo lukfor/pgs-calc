@@ -16,7 +16,13 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 	private String dbsnpVersion = "150";
 
-	public ConvertRsIdsTask(String input, String output, String dbsnpVersion) {
+	private String dbsnpBuild = "hg19";
+
+	private int found = 0;
+
+	private int total = 0;
+
+	public ConvertRsIdsTask(String input, String output, String dbsnpVersion, String dbsnpBuild) {
 		this.input = input;
 		this.output = output;
 		this.dbsnpVersion = dbsnpVersion;
@@ -26,14 +32,12 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 	public void run(ITaskMonitor monitor) throws Exception {
 
 		System.out.println("Converting score file " + input + "...");
-		int found = 0;
-		int total = 0;
 		CsvTableReader reader = new CsvTableReader(input, '\t');
 		CsvTableWriter writer = new CsvTableWriter(output, '\t', false);
 
 		PGSCatalogFormat format = new PGSCatalogFormat();
 
-		String dbsnpFilename = DbSnp.getFilename(dbsnpVersion);
+		String dbsnpFilename = DbSnp.getFilename(dbsnpVersion, dbsnpBuild);
 
 		DbSnpReader dbSnpReader = new DbSnpReader(dbsnpFilename);
 
@@ -68,6 +72,14 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 		System.out.println("File converted. Snps found: " + found + "/" + total);
 
+	}
+
+	public int getTotal() {
+		return total;
+	}
+
+	public int getFound() {
+		return found;
 	}
 
 }

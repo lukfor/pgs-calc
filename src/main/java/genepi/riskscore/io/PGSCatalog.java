@@ -20,7 +20,6 @@ import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ConvertRsIdsTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
-import lukfor.progress.tasks.monitors.TaskMonitor;
 
 public class PGSCatalog {
 
@@ -31,6 +30,8 @@ public class PGSCatalog {
 	public static String FILE_URL = "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/{0}/ScoringFiles/{0}.txt.gz";
 
 	public static String DBSNP_VERSION = "150";
+
+	public static String DBSNP_BUILD = "hg19";
 
 	public static String getFilenameById(String id) throws IOException {
 
@@ -55,14 +56,15 @@ public class PGSCatalog {
 		if (fileFormat == PGSCatalogFileFormat.RS_ID) {
 			String originalFilename = filename.replaceAll(".txt.gz", ".original.txt.gz");
 			new File(filename).renameTo(new File(originalFilename));
-			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, filename, DBSNP_VERSION);
+			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, filename, DBSNP_VERSION,
+					DBSNP_BUILD);
 			TaskService.setAnsiSupport(false);
 			TaskService.setAnimated(false);
 			List<Task> result = TaskService.run(convertRsIds);
 			if (!result.get(0).getStatus().isSuccess()) {
 				throw new IOException(result.get(0).getStatus().getThrowable());
 			}
-			//TODO: delete original score file
+			// TODO: delete original score file
 		}
 
 		return filename;
@@ -104,11 +106,11 @@ public class PGSCatalog {
 		if (!reader.hasColumn(format.getEffect_allele())) {
 			return PGSCatalogFileFormat.UNKNOWN;
 		}
-		
+
 		if (reader.hasColumn(format.getChromosome()) && reader.hasColumn(format.getPosition())) {
 			return PGSCatalogFileFormat.COORDINATES;
 		}
-		
+
 		return PGSCatalogFileFormat.RS_ID;
 
 	}
