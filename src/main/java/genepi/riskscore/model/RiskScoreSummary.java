@@ -29,6 +29,8 @@ public class RiskScoreSummary {
 	private Object data;
 
 	private String coverageLabel;
+	
+	private int samples;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;

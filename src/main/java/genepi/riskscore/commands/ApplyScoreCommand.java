@@ -10,6 +10,7 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
+import genepi.riskscore.io.OutputFileWriter;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreFormat;
@@ -147,6 +148,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setOutputVariantFilename(outputVariantFilename);
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
+			task.setOutput(out + ".task_" + tasks.size());
 			tasks.add(task);
 
 		}
@@ -155,16 +157,17 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		List<Task> results = TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
 		// stop when 1 task fails
-		for (Task result: results) {
+		for (Task result : results) {
 			if (!result.getStatus().isSuccess()) {
 				return 1;
 			}
 		}
-		
+
 		System.out.println();
 
 		// merge results
-
+		// TODO: if only one task -> no merge needed, rename task.getoutput to out.
+		// delete all temp files.
 		MergeScoreTask mergeScore = new MergeScoreTask();
 		mergeScore.setInputs(tasks);
 		mergeScore.setOutput(out);
@@ -175,7 +178,6 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		mergeReport.setOutput(reportJson);
 		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport);
 
-		OutputFile output = mergeScore.getResult();
 		ReportFile report = mergeReport.getResult();
 
 		if (reportHtml != null) {
@@ -185,9 +187,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				report.mergeWithMeta(metaFile);
 			}
 
+			OutputFile data = new OutputFile(out);
+
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
-			htmlReportTask.setData(output);
+			htmlReportTask.setData(data);
 			htmlReportTask.setOutput(reportHtml);
 			TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask);
 		}

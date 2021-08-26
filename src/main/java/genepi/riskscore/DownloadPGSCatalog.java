@@ -10,14 +10,14 @@ import genepi.riskscore.io.formats.PGSCatalogFormat;
 public class DownloadPGSCatalog {
 
 	public static void main(String[] args) throws IOException {
-		int max = 400;
+		int max = 320;
 		String formatId = "PGS%06d";
 
 		LineWriter writer = new LineWriter("pgs-catalog.txt");
 		writer.write("PGSID");
 
 		int count = 0;
-		for (int i = 1; i <= max; i++) {
+		for (int i = 320; i <= max; i++) {
 			String id = String.format(formatId, i);
 			try {
 				String filename = PGSCatalog.getFilenameById(id);
@@ -26,6 +26,7 @@ public class DownloadPGSCatalog {
 				writer.write(id);
 				count++;
 			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 		writer.close();

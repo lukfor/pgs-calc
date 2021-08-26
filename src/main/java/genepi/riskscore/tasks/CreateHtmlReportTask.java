@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
+import genepi.riskscore.io.OutputFileWriter;
 import genepi.riskscore.io.ReportFile;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
@@ -75,7 +76,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		for (int i = 0; i < this.report.getSummaries().size(); i++) {
 			// ignore empty scores
 			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
-				this.report.getSummaries().get(i).setData(data.getData()[i]);
+				this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
 			}
 			this.report.getSummaries().get(i).updateStatistics();
 		}

@@ -9,6 +9,8 @@ import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.Chunk;
+import genepi.riskscore.io.OutputFileWriter;
+import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.io.VariantFile;
@@ -57,6 +59,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private RiskScoreSummary[] summaries;
 
+	private String output;
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -92,10 +96,18 @@ public class ApplyScoreTask implements ITaskRunnable {
 		this.genotypeFormat = genotypeFormat;
 	}
 
+	public void setOutput(String output) {
+		this.output = output;
+	}
+
 	public void run(ITaskMonitor monitor) throws Exception {
 
 		if (vcf == null || vcf.isEmpty()) {
 			throw new Exception("Please specify a vcf file.");
+		}
+
+		if (output == null || output.isEmpty()) {
+			throw new Exception("Please specify a output filename.");
 		}
 
 		if (riskScoreFilenames == null || riskScoreFilenames.length == 0) {
@@ -136,6 +148,12 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (variantFile != null) {
 			variantFile.close();
 		}
+
+		OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
+		outputFile.save(output);
+
+		ReportFile reportFile = new ReportFile(summaries);
+		reportFile.save(output + ".report");
 
 		monitor.done();
 
@@ -268,7 +286,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 					continue;
 				}
 
-				float effectWeight = -referenceVariant.getEffectWeight();
+				float effectWeight = referenceVariant.getEffectWeight();
 
 				char referenceAllele = variant.getReferenceAllele().charAt(0);
 
@@ -280,15 +298,29 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				char alternateAllele = variant.getAlternateAllele().charAt(0);
 
+				// check if alleles (ref and alt) are present
 				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
 					summary.incAlleleMissmatch();
 					continue;
 				}
 
-				if (!referenceVariant.isEffectAllele(referenceAllele)) {
-					effectWeight = -effectWeight;
-					summary.incSwitched();
+				// check if alleles are switched and update effect weight (effect_allele !=
+				// alternate_allele)
+				if (!referenceVariant.isEffectAllele(alternateAllele)) {
+					if (referenceVariant.isEffectAllele(referenceAllele)) {
+						effectWeight = -effectWeight;
+						summary.incSwitched();
+					} else {
+						summary.incAlleleMissmatch();
+						continue;
+					}
 				}
+
+				if (referenceVariant.isUsed()) {
+					System.out.println(variant.getContig() + " " + variant.getStart());
+				}
+
+				referenceVariant.setUsed(true);
 
 				if (variantFile != null) {
 					variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
@@ -344,9 +376,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 		return countSamples;
 	}
 
-	public RiskScore[] getRiskScores() {
-		return riskScores.toArray(new RiskScore[0]);
-	}
+	/*
+	 * public RiskScore[] getRiskScores() { return riskScores.toArray(new
+	 * RiskScore[0]); }
+	 */
 
 	public RiskScoreSummary[] getSummaries() {
 		return summaries;
@@ -354,5 +387,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public int getCountVariants() {
 		return countVariants;
+	}
+
+	public String getOutput() {
+		return output;
 	}
 }
