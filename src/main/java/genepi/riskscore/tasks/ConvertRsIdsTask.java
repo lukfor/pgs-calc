@@ -24,11 +24,13 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 	public ConvertRsIdsTask(String input, String output, String dbsnpVersion, String dbsnpBuild) throws IOException {
 		this.input = input;
+		this.output = output;
 		this.dbsnpFilename = DbSnp.getFilename(dbsnpVersion, dbsnpBuild);
 	}
 
 	public ConvertRsIdsTask(String input, String output, String dbsnpFilename) {
 		this.input = input;
+		this.output = output;
 		this.dbsnpFilename = dbsnpFilename;
 	}
 
