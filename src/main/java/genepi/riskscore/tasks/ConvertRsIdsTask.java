@@ -1,5 +1,7 @@
 package genepi.riskscore.tasks;
 
+import java.io.IOException;
+
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.dbsnp.DbSnp;
@@ -14,18 +16,20 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 	private String output = null;
 
-	private String dbsnpVersion = "150";
-
-	private String dbsnpBuild = "hg19";
-
 	private int found = 0;
 
 	private int total = 0;
 
-	public ConvertRsIdsTask(String input, String output, String dbsnpVersion, String dbsnpBuild) {
+	private String dbsnpFilename;
+
+	public ConvertRsIdsTask(String input, String output, String dbsnpVersion, String dbsnpBuild) throws IOException {
 		this.input = input;
-		this.output = output;
-		this.dbsnpVersion = dbsnpVersion;
+		this.dbsnpFilename = DbSnp.getFilename(dbsnpVersion, dbsnpBuild);
+	}
+
+	public ConvertRsIdsTask(String input, String output, String dbsnpFilename) {
+		this.input = input;
+		this.dbsnpFilename = dbsnpFilename;
 	}
 
 	@Override
@@ -36,8 +40,6 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 		CsvTableWriter writer = new CsvTableWriter(output, '\t', false);
 
 		PGSCatalogFormat format = new PGSCatalogFormat();
-
-		String dbsnpFilename = DbSnp.getFilename(dbsnpVersion, dbsnpBuild);
 
 		DbSnpReader dbSnpReader = new DbSnpReader(dbsnpFilename);
 
