@@ -298,11 +298,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				char alternateAllele = variant.getAlternateAllele().charAt(0);
 
-				/*if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
+				// check if alleles (ref and alt) are present
+				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
 					summary.incAlleleMissmatch();
 					continue;
-				}*/
+				}
 
+				// check if alleles are switched and update effect weight (effect_allele !=
+				// alternate_allele)
 				if (!referenceVariant.isEffectAllele(alternateAllele)) {
 					if (referenceVariant.isEffectAllele(referenceAllele)) {
 						effectWeight = -effectWeight;
@@ -312,11 +315,11 @@ public class ApplyScoreTask implements ITaskRunnable {
 						continue;
 					}
 				}
-				
+
 				if (referenceVariant.isUsed()) {
-					//System.out.println(variant.getContig() + " " + variant.getStart());
+					System.out.println(variant.getContig() + " " + variant.getStart());
 				}
-				
+
 				referenceVariant.setUsed(true);
 
 				if (variantFile != null) {

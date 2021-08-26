@@ -42,7 +42,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
-		assertEquals(1, summary.getSwitched());
+		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(0, summary.getAlleleMissmatch());
@@ -64,7 +64,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
-		assertEquals(1, summary.getSwitched());
+		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(1, summary.getAlleleMissmatch());
@@ -92,7 +92,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
-		assertEquals(1, summary.getSwitched());
+		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(0, summary.getAlleleMissmatch());
@@ -117,7 +117,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
-		assertEquals(1, summary.getSwitched());
+		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(1, summary.getAlleleMissmatch());
@@ -145,7 +145,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
-		assertEquals(0, summary.getSwitched());
+		assertEquals(3, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(1, summary.getAlleleMissmatch());
@@ -174,7 +174,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(1, summary.getVariantsUsed());
-		assertEquals(0, summary.getSwitched());
+		assertEquals(1, summary.getSwitched());
 		assertEquals(3, summary.getVariantsNotUsed());
 		assertEquals(3, summary.getR2Filtered());
 		assertEquals(0, summary.getMultiAllelic());
@@ -204,7 +204,7 @@ public class ApplyScoreTaskTest {
 
 		RiskScoreSummary summary = task.getSummaries()[0];
 		assertEquals(2, summary.getVariantsUsed());
-		assertEquals(0, summary.getSwitched());
+		assertEquals(2, summary.getSwitched());
 		assertEquals(2, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(0, summary.getAlleleMissmatch());
