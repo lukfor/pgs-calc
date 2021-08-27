@@ -189,6 +189,35 @@ public class ApplyScoreCommandTest {
 		reader.close();
 	}
 
+	
+	@Test
+	public void testCallMultipleFilesAndEmptyChromosomesAndCheckOutputFile() throws IOException {
+
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/test.scores2.csv",
+				"--out", "output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		ITableReader reader = new CsvTableReader("output.csv", ',');
+
+		assertEquals(true, reader.next());
+
+		double score = reader.getDouble("test.scores2");
+		String sample = reader.getString("sample");
+		assertEquals("LF001", sample);
+		assertEquals(-(1 + 3), score, 0.0000001);
+
+		assertEquals(true, reader.next());
+
+		score = reader.getDouble("test.scores2");
+		sample = reader.getString("sample");
+		assertEquals("LF002", sample);
+		assertEquals(-(3 + 7), score, 0.0000001);
+
+		assertEquals(false, reader.next());
+		reader.close();
+	}
+
 	@Test
 	public void testCallWithSampleFilter() throws IOException {
 

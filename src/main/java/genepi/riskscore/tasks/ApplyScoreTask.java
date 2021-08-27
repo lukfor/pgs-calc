@@ -143,17 +143,29 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, riskScoreFilenames);
 
-		processVCF(monitor, chromosome, vcf, riskscores);
-
-		if (variantFile != null) {
-			variantFile.close();
+		boolean empty = true;
+		for (RiskScoreFile riskscore : riskscores) {
+			if (riskscore.getCacheSize() > 0) {
+				empty = false;
+				break;
+			}
 		}
 
-		OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
-		outputFile.save(output);
+		if (!empty) {
 
-		ReportFile reportFile = new ReportFile(summaries);
-		reportFile.save(output + ".report");
+			processVCF(monitor, chromosome, vcf, riskscores);
+
+			if (variantFile != null) {
+				variantFile.close();
+			}
+
+			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
+			outputFile.save(output);
+
+			ReportFile reportFile = new ReportFile(summaries);
+			reportFile.save(output + ".report");
+
+		}
 
 		monitor.done();
 
