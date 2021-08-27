@@ -18,7 +18,7 @@ public class App {
 
 	public static final String URL = "https://github.com/lukfor/pgs-calc";
 
-	public static final String COPYRIGHT = "(c) 2020 Lukas Forer";
+	public static final String COPYRIGHT = "(c) 2020 - 2021 Lukas Forer";
 
 	public static String[] ARGS = new String[0];
 
