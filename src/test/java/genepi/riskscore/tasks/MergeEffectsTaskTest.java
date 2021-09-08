@@ -2,6 +2,7 @@ package genepi.riskscore.tasks;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,24 +19,31 @@ public class MergeEffectsTaskTest {
 		TaskService.setAnsiSupport(false);
 	}
 
+	@Before
+	public void beforeTest() {
+		System.out.println("Clean up output directory");
+		FileUtil.deleteDirectory("test-data-output");
+		FileUtil.createDirectory("test-data-output");
+	}
+	
 	@Test
 	public void testMerge() throws Exception {
 
 		MergeEffectsTask task = new MergeEffectsTask();
 		task.setInputs("test-data/effects.chunk1.txt", "test-data/effects.chunk2.txt");
-		task.setOutput("effects.task.txt");
+		task.setOutput("test-data-output/effects.task.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(FileUtil.readFileAsString("test-data/effects.expected.txt"),
-				FileUtil.readFileAsString("effects.task.txt"));
+				FileUtil.readFileAsString("test-data-output/effects.task.txt"));
 	}
 
 	@Test
 	public void testMergingChunks() throws Exception {
 
 		// Whole file
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "output.csv",
-				"--report-json", "report.json", "--writeEffects", "effects.txt" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "test-data-output/output.csv",
+				"--report-json", "test-data-output/report.json", "--writeEffects", "test-data-output/effects.txt" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -56,9 +64,9 @@ public class MergeEffectsTaskTest {
 		for (int i = 1; i <= lengthChr20; i += chunkSize) {
 			int start = i;
 			int end = i + chunkSize - 1;
-			String chunk = "output" + start + "_" + end + ".csv";
-			String report = "output" + start + "_" + end + ".json";
-			String effects = "effects" + start + "_" + end + ".txt";
+			String chunk = "test-data-output/output" + start + "_" + end + ".csv";
+			String report = "test-data-output/output" + start + "_" + end + ".json";
+			String effects = "test-data-output/effects" + start + "_" + end + ".txt";
 			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--start", start + "",
 					"--end", end + "", "--out", chunk, "--report-json", report, "--writeEffects", effects };
 			result = new CommandLine(new ApplyScoreCommand()).execute(args);
@@ -72,10 +80,10 @@ public class MergeEffectsTaskTest {
 
 		MergeEffectsTask task = new MergeEffectsTask();
 		task.setInputs(effectsFiles);
-		task.setOutput("effects.merged.txt");
+		task.setOutput("test-data-output/effects.merged.txt");
 		task.run(new TaskMonitorMock());
 
-		assertEquals(FileUtil.readFileAsString("effects.txt"), FileUtil.readFileAsString("effects.merged.txt"));
+		assertEquals(FileUtil.readFileAsString("test-data-output/effects.txt"), FileUtil.readFileAsString("test-data-output/effects.merged.txt"));
 
 	}
 

@@ -47,6 +47,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String includeSamplesFilename = null;
 
+	private String outputReportFilename = null;
+
 	private CsvTableWriter variantFile;
 
 	private RiskScoreFormat defaultFormat = new PGSCatalogFormat();
@@ -100,6 +102,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public void setOutputReportFilename(String outputReportFilename) {
+		this.outputReportFilename = outputReportFilename;
 	}
 
 	public void setOutputEffectsFilename(String outputEffectsFilename) {
@@ -168,8 +174,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
 			outputFile.save(output);
 
-			ReportFile reportFile = new ReportFile(summaries);
-			reportFile.save(output + ".report");
+			if (outputReportFilename != null) {
+				ReportFile reportFile = new ReportFile(summaries);
+				reportFile.save(outputReportFilename);
+			}
 
 		}
 
@@ -413,24 +421,24 @@ public class ApplyScoreTask implements ITaskRunnable {
 		return countSamples;
 	}
 
-	/*
-	 * public RiskScore[] getRiskScores() { return riskScores.toArray(new
-	 * RiskScore[0]); }
-	 */
-
 	public RiskScoreSummary[] getSummaries() {
 		return summaries;
 	}
 
-	public int getCountVariants() {
+	int getCountVariants() {
 		return countVariants;
 	}
 
 	public String getOutput() {
 		return output;
 	}
-	
+
+	public String getOutputReportFilename() {
+		return outputReportFilename;
+	}
+
 	public String getOutputEffectsFilename() {
 		return outputEffectsFilename;
 	}
+
 }

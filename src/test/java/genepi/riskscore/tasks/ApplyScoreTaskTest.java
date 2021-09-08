@@ -25,9 +25,11 @@ public class ApplyScoreTaskTest {
 
 	@Before
 	public void beforeTest() {
-		FileUtil.deleteFile("output.txt");
+		System.out.println("Clean up output directory");
+		FileUtil.deleteDirectory("test-data-output");
+		FileUtil.createDirectory("test-data-output");
 	}
-
+	
 	@Test
 	public void testPerformance() throws Exception {
 
@@ -35,7 +37,7 @@ public class ApplyScoreTaskTest {
 		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(63480, task.getCountVariants());
@@ -57,7 +59,7 @@ public class ApplyScoreTaskTest {
 		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
 		task.setVcfFilename("test-data/small.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(4, task.getCountVariants());
@@ -83,7 +85,7 @@ public class ApplyScoreTaskTest {
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv", "test-data/chr20.scores.csv",
 				"test-data/chr20.scores.csv");
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(63480, task.getCountVariants());
@@ -110,7 +112,7 @@ public class ApplyScoreTaskTest {
 		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
 		task.setVcfFilename("test-data/single.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(5, task.getCountVariants());
@@ -138,7 +140,7 @@ public class ApplyScoreTaskTest {
 		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
 		task.setVcfFilename("test-data/single.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(5, task.getCountVariants());
@@ -167,7 +169,7 @@ public class ApplyScoreTaskTest {
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setMinR2(0.6f);
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(5, task.getCountVariants());
@@ -197,7 +199,7 @@ public class ApplyScoreTaskTest {
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(0.5f);
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(5, task.getCountVariants());
@@ -227,7 +229,7 @@ public class ApplyScoreTaskTest {
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(1f);
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(5, task.getCountVariants());
@@ -258,7 +260,7 @@ public class ApplyScoreTaskTest {
 		task.setVcfFilename("test-data/single.wrong_chr.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(1f);
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 	}
@@ -274,7 +276,7 @@ public class ApplyScoreTaskTest {
 		chunk.setStart(61795);
 		chunk.setEnd(63231);
 		task.setChunk(chunk);
-		task.setOutput("output.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		// assertEquals(63480, task.getCountVariants());
@@ -296,8 +298,8 @@ public class ApplyScoreTaskTest {
 		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
-		task.setOutputEffectsFilename("output.effects.txt");
-		task.setOutput("output.txt");
+		task.setOutputEffectsFilename("test-data-output/output.effects.txt");
+		task.setOutput("test-data-output/output.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(63480, task.getCountVariants());

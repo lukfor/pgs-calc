@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
+import genepi.io.FileUtil;
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
@@ -118,8 +119,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
-		List<ApplyScoreTask> tasks = new Vector<ApplyScoreTask>();
+		String outParent = new File(out).getParent();
+		String tempFolder = FileUtil.path(outParent, "temp");
+		File tempFolderFile = new File(tempFolder);
+		tempFolderFile.mkdirs();
 
+		List<ApplyScoreTask> tasks = new Vector<ApplyScoreTask>();
 		for (String vcf : vcfs) {
 
 			ApplyScoreTask task = new ApplyScoreTask();
@@ -144,14 +149,17 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			if (chunk != null) {
 				task.setChunk(chunk);
 			}
+
+			String taskPrefix = FileUtil.path(tempFolder, "task_" + tasks.size());
+
 			task.setVcfFilename(vcf);
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
 			task.setOutputVariantFilename(outputVariantFilename);
-			task.setOutputEffectsFilename(outputEffectsFilename + ".task_" + tasks.size());
+			task.setOutputEffectsFilename(taskPrefix + ".effects.txt");
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
-			task.setOutput(out + ".task_" + tasks.size());
+			task.setOutput(taskPrefix + ".scores.txt");
 			tasks.add(task);
 
 		}
@@ -160,18 +168,17 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		List<Task> results = TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
 		if (isFailed(results)) {
+			cleanUp();
 			return 1;
 		}
 
 		System.out.println();
 
-		// merge results
-		// TODO: if only one task -> no merge needed, rename task.getoutput to out.
-		// delete all temp files.
 		MergeScoreTask mergeScore = new MergeScoreTask();
 		mergeScore.setInputs(tasks);
 		mergeScore.setOutput(out);
 		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore))) {
+			cleanUp();
 			return 1;
 		}
 
@@ -180,6 +187,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			mergeEffectsTask.setInputs(tasks);
 			mergeEffectsTask.setOutput(outputEffectsFilename);
 			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeEffectsTask))) {
+				cleanUp();
 				return 1;
 			}
 		}
@@ -188,6 +196,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		mergeReport.setInputs(tasks);
 		mergeReport.setOutput(reportJson);
 		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport))) {
+			cleanUp();
 			return 1;
 		}
 
@@ -207,6 +216,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			htmlReportTask.setData(data);
 			htmlReportTask.setOutput(reportHtml);
 			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {
+				cleanUp();
 				return 1;
 			}
 		}
@@ -216,6 +226,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println();
 
 		watch.stop();
+
+		cleanUp();
 
 		return 0;
 
@@ -250,6 +262,16 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 		}
 		return false;
+	}
+
+	public void cleanUp() {
+		String outParent = new File(out).getParent();
+		String tempFolder = FileUtil.path(outParent, "temp");
+		File tempFolderFile = new File(tempFolder);
+		if (tempFolderFile.exists()) {
+			FileUtil.deleteDirectory(tempFolderFile);
+		}
+
 	}
 
 }
