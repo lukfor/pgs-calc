@@ -250,77 +250,6 @@ public class ApplyScoreTaskTest {
 
 	}
 
-	/*
-	 * @Test public void testMultipleFiles() throws Exception {
-	 * 
-	 * ApplyScoreTask task = new ApplyScoreTask();
-	 * task.setDefaultRiskScoreFormat(new RiskScoreFormat());
-	 * task.setVcfFilenames("test-data/test.chr1.vcf", "test-data/test.chr2.vcf");
-	 * task.setRiskScoreFilenames("test-data/test.scores.csv"); task.run(new
-	 * TaskMonitorMock());
-	 * 
-	 * assertEquals(10, task.getCountVariants());
-	 * 
-	 * RiskScoreSummary summary = task.getSummaries()[0]; assertEquals(11,
-	 * summary.getVariants()); assertEquals(7, summary.getVariantsUsed());
-	 * assertEquals(4, summary.getVariantsNotUsed()); assertEquals(0,
-	 * summary.getSwitched()); assertEquals(0, summary.getR2Filtered());
-	 * assertEquals(0, summary.getMultiAllelic()); assertEquals(0,
-	 * summary.getAlleleMissmatch()); assertEquals(2, task.getCountSamples());
-	 * 
-	 * assertEquals(2, task.getRiskScores().length);
-	 * 
-	 * RiskScore first = task.getRiskScores()[0]; assertEquals("LF001",
-	 * first.getSample()); assertEquals(-(1 + 3), first.getScore(0), 0.0000001);
-	 * 
-	 * RiskScore second = task.getRiskScores()[1]; assertEquals("LF002",
-	 * second.getSample()); assertEquals(-(3 + 7), second.getScore(0), 0.0000001);
-	 * 
-	 * }
-	 * 
-	 * @Test public void testWriteVariantFile() throws Exception {
-	 * 
-	 * ApplyScoreTask task = new ApplyScoreTask();
-	 * task.setDefaultRiskScoreFormat(new RiskScoreFormat());
-	 * task.setVcfFilenames("test-data/test.chr1.vcf", "test-data/test.chr2.vcf");
-	 * task.setRiskScoreFilenames("test-data/test.scores.csv");
-	 * task.setOutputVariantFilename("variants.txt"); task.run(new
-	 * TaskMonitorMock());
-	 * 
-	 * assertEquals(10, task.getCountVariants());
-	 * 
-	 * RiskScoreSummary summary = task.getSummaries()[0]; assertEquals(11,
-	 * summary.getVariants()); assertEquals(7, summary.getVariantsUsed());
-	 * 
-	 * VariantFile variants = new VariantFile("variants.txt");
-	 * variants.buildIndex("1"); assertEquals(4, variants.getCacheSize());
-	 * 
-	 * variants = new VariantFile("variants.txt"); variants.buildIndex("2");
-	 * variants.getCacheSize(); assertEquals(3, variants.getCacheSize());
-	 * 
-	 * }
-	 * 
-	 * @Test public void testReadVariantsFile() throws Exception {
-	 * 
-	 * ApplyScoreTask task = new ApplyScoreTask();
-	 * task.setDefaultRiskScoreFormat(new RiskScoreFormat());
-	 * task.setVcfFilenames("test-data/test.chr1.vcf", "test-data/test.chr2.vcf");
-	 * task.setRiskScoreFilenames("test-data/test.scores.csv");
-	 * task.setIncludeVariantFilename("test-data/variants.txt"); task.run(new
-	 * TaskMonitorMock());
-	 * 
-	 * assertEquals(10, task.getCountVariants());
-	 * 
-	 * RiskScoreSummary summary = task.getSummaries()[0]; assertEquals(11,
-	 * summary.getVariants()); assertEquals(5, summary.getVariantsUsed());
-	 * assertEquals(0, summary.getSwitched()); assertEquals(0,
-	 * summary.getR2Filtered()); assertEquals(0, summary.getMultiAllelic());
-	 * assertEquals(0, summary.getAlleleMissmatch()); assertEquals(2,
-	 * task.getCountSamples()); assertEquals(2, task.getRiskScores().length);
-	 * 
-	 * }
-	 */
-
 	@Test(expected = Exception.class)
 	public void testWrongChromosome() throws Exception {
 
@@ -333,20 +262,6 @@ public class ApplyScoreTaskTest {
 		task.run(new TaskMonitorMock());
 
 	}
-
-	/*
-	 * @Test(expected = Exception.class) public void testDifferentSamples() throws
-	 * Exception {
-	 * 
-	 * ApplyScoreTask task = new ApplyScoreTask();
-	 * task.setDefaultRiskScoreFormat(new RiskScoreFormat());
-	 * task.setVcfFilenames("test-data/test.chr1.vcf",
-	 * "test-data/test.chr2.wrong.vcf");
-	 * task.setRiskScoreFilenames("test-data/test.scores.csv"); task.setMinR2(1f);
-	 * task.run(new TaskMonitorMock());
-	 * 
-	 * }
-	 */
 
 	@Test
 	public void testWithChunk() throws Exception {
@@ -373,7 +288,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(EXPECTED_SAMPLES, task.getCountSamples());
 
 	}
-	
+
 	@Test
 	public void testWithEffectsFile() throws Exception {
 

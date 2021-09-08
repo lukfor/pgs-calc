@@ -189,7 +189,6 @@ public class ApplyScoreCommandTest {
 		reader.close();
 	}
 
-	
 	@Test
 	public void testCallMultipleFilesAndEmptyChromosomesAndCheckOutputFile() throws IOException {
 
@@ -313,6 +312,15 @@ public class ApplyScoreCommandTest {
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(2, result);
 
+	}
+
+	@Test
+	public void testDifferentSamples() throws Exception {
+
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.wrong.vcf", "--ref",
+				"test-data/chr20.scores.csv", "--out", "output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(1, result);
 	}
 
 }

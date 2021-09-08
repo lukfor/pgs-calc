@@ -1,14 +1,10 @@
 package genepi.riskscore.tasks;
 
 import java.io.File;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
-import genepi.riskscore.io.OutputFileWriter;
 import genepi.riskscore.io.ReportFile;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
@@ -26,12 +22,8 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	private OutputFile data;
 
-	private DecimalFormat df;
-
 	public CreateHtmlReportTask() {
-		NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
-		df = (DecimalFormat) nf;
-		df.applyPattern("#.########");
+
 	}
 
 	public void setOutput(String output) {

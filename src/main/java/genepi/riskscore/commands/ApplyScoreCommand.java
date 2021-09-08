@@ -1,7 +1,6 @@
 package genepi.riskscore.commands;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -149,7 +148,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
 			task.setOutputVariantFilename(outputVariantFilename);
-			task.setOutputEffectsFilename(outputEffectsFilename);
+			task.setOutputEffectsFilename(outputEffectsFilename + ".task_" + tasks.size());
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
 			task.setOutput(out + ".task_" + tasks.size());
@@ -160,11 +159,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		TaskService.setThreads(threads);
 		List<Task> results = TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
-		// stop when 1 task fails
-		for (Task result : results) {
-			if (!result.getStatus().isSuccess()) {
-				return 1;
-			}
+		if (isFailed(results)) {
+			return 1;
 		}
 
 		System.out.println();
@@ -175,19 +171,25 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		MergeScoreTask mergeScore = new MergeScoreTask();
 		mergeScore.setInputs(tasks);
 		mergeScore.setOutput(out);
-		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore);
+		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore))) {
+			return 1;
+		}
 
 		if (outputEffectsFilename != null) {
 			MergeEffectsTask mergeEffectsTask = new MergeEffectsTask();
 			mergeEffectsTask.setInputs(tasks);
 			mergeEffectsTask.setOutput(outputEffectsFilename);
-			TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeEffectsTask);
+			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeEffectsTask))) {
+				return 1;
+			}
 		}
 
 		MergeReportTask mergeReport = new MergeReportTask();
 		mergeReport.setInputs(tasks);
 		mergeReport.setOutput(reportJson);
-		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport);
+		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport))) {
+			return 1;
+		}
 
 		ReportFile report = mergeReport.getResult();
 
@@ -204,7 +206,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			htmlReportTask.setReport(report);
 			htmlReportTask.setData(data);
 			htmlReportTask.setOutput(reportHtml);
-			TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask);
+			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {
+				return 1;
+			}
 		}
 
 		System.out.println();
@@ -235,19 +239,17 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		}
 	}
 
-	public static String number(long number) {
-		DecimalFormat formatter = new DecimalFormat("###,###,###");
-		return formatter.format(number);
-	}
-
-	public static String percentage(double obtained, double total) {
-		double percentage = (obtained / total) * 100;
-		DecimalFormat df = new DecimalFormat("###.##'%'");
-		return df.format(percentage);
-	}
-
 	public String formatTime(long timeInSeconds) {
 		return String.format("%d min, %d sec", (timeInSeconds / 60), (timeInSeconds % 60));
+	}
+
+	private boolean isFailed(List<Task> tasks) {
+		for (Task result : tasks) {
+			if (!result.getStatus().isSuccess()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
