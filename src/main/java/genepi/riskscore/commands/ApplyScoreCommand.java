@@ -10,12 +10,12 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
-import genepi.riskscore.io.OutputFileWriter;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
+import genepi.riskscore.tasks.MergeEffectsTask;
 import genepi.riskscore.tasks.MergeReportTask;
 import genepi.riskscore.tasks.MergeScoreTask;
 import htsjdk.samtools.util.StopWatch;
@@ -70,6 +70,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--meta" }, description = "JSON file with meta data about scores", required = false)
 	String meta = null;
+
+	@Option(names = { "--writeEffects" }, description = "Write file with effects per snp and sample", required = false)
+	String outputEffectsFilename = null;
 
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
@@ -146,6 +149,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
 			task.setOutputVariantFilename(outputVariantFilename);
+			task.setOutputEffectsFilename(outputEffectsFilename);
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
 			task.setOutput(out + ".task_" + tasks.size());
@@ -172,6 +176,13 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		mergeScore.setInputs(tasks);
 		mergeScore.setOutput(out);
 		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore);
+
+		if (outputEffectsFilename != null) {
+			MergeEffectsTask mergeEffectsTask = new MergeEffectsTask();
+			mergeEffectsTask.setInputs(tasks);
+			mergeEffectsTask.setOutput(outputEffectsFilename);
+			TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeEffectsTask);
+		}
 
 		MergeReportTask mergeReport = new MergeReportTask();
 		mergeReport.setInputs(tasks);

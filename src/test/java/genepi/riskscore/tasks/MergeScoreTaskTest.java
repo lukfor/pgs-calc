@@ -3,7 +3,6 @@ package genepi.riskscore.tasks;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

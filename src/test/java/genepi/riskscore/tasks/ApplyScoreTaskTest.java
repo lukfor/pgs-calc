@@ -373,5 +373,28 @@ public class ApplyScoreTaskTest {
 		assertEquals(EXPECTED_SAMPLES, task.getCountSamples());
 
 	}
+	
+	@Test
+	public void testWithEffectsFile() throws Exception {
+
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
+		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
+		task.setOutputEffectsFilename("output.effects.txt");
+		task.setOutput("output.txt");
+		task.run(new TaskMonitorMock());
+
+		assertEquals(63480, task.getCountVariants());
+
+		RiskScoreSummary summary = task.getSummaries()[0];
+		assertEquals(3, summary.getVariantsUsed());
+		assertEquals(2, summary.getSwitched());
+		assertEquals(1, summary.getVariantsNotUsed());
+		assertEquals(0, summary.getMultiAllelic());
+		assertEquals(0, summary.getAlleleMissmatch());
+		assertEquals(EXPECTED_SAMPLES, task.getCountSamples());
+
+	}
 
 }

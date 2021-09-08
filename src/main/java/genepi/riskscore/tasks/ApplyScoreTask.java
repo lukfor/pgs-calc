@@ -61,6 +61,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String output;
 
+	private String outputEffectsFilename;
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -98,6 +100,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public void setOutputEffectsFilename(String outputEffectsFilename) {
+		this.outputEffectsFilename = outputEffectsFilename;
 	}
 
 	public void run(ITaskMonitor monitor) throws Exception {
@@ -235,6 +241,13 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		boolean outOfChunk = false;
 
+		CsvTableWriter effectsWriter = null;
+		if (outputEffectsFilename != null) {
+			effectsWriter = new CsvTableWriter(outputEffectsFilename, MergeEffectsTask.EFFECTS_FILE_SEPARATOR);
+			effectsWriter.setColumns(
+					new String[] { "score", "sample", VariantFile.CHROMOSOME, VariantFile.POSITION, "effect" });
+		}
+
 		while (vcfReader.next() && !outOfChunk) {
 
 			if (monitor.isCanceled()) {
@@ -351,6 +364,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 							double effect = dosage * effectWeight;
 							riskScores.get(indexSample).incScore(j, effect);
 							indexSample++;
+							if (effectsWriter != null) {
+								effectsWriter.setString("score", summary.getName());
+								effectsWriter.setString("sample", sample);
+								effectsWriter.setString(VariantFile.CHROMOSOME, variant.getContig());
+								effectsWriter.setInteger(VariantFile.POSITION, variant.getStart());
+								effectsWriter.setDouble("effect", effect);
+								effectsWriter.next();
+							}
 						}
 					}
 				}
@@ -358,6 +379,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 				summary.incVariantsUsed();
 
 			}
+		}
+
+		if (effectsWriter != null) {
+			effectsWriter.close();
 		}
 
 		vcfReader.close();
@@ -403,5 +428,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public String getOutput() {
 		return output;
+	}
+	
+	public String getOutputEffectsFilename() {
+		return outputEffectsFilename;
 	}
 }
