@@ -3,8 +3,8 @@ package genepi.riskscore.tasks;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.List;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,24 +24,32 @@ public class MergeScoreTaskTest {
 		TaskService.setAnsiSupport(false);
 	}
 
+
+	@Before
+	public void beforeTest() {
+		System.out.println("Clean up output directory");
+		FileUtil.deleteDirectory("test-data-output");
+		FileUtil.createDirectory("test-data-output");
+	}
+	
 	@Test
 	public void testMerge() throws Exception {
 
 		MergeScoreTask task = new MergeScoreTask();
 		task.setInputs("test-data/scores.chunk1.txt", "test-data/scores.chunk2.txt");
-		task.setOutput("merged.task.txt");
+		task.setOutput("test-data-output/merged.task.txt");
 		task.run(new TaskMonitorMock());
 
 		assertEquals(FileUtil.readFileAsString("test-data/merged.expected.txt"),
-				FileUtil.readFileAsString("merged.task.txt"));
+				FileUtil.readFileAsString("test-data-output/merged.task.txt"));
 	}
 
 	@Test
 	public void testMergingChunks() throws Exception {
 
 		// Whole file
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "output.csv",
-				"--report-json", "report.json" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "test-data-output/output.csv",
+				"--report-json", "test-data-output/report.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -61,8 +69,8 @@ public class MergeScoreTaskTest {
 		for (int i = 1; i <= lengthChr20; i += chunkSize) {
 			int start = i;
 			int end = i + chunkSize - 1;
-			String chunk = "output" + start + "_" + end + ".csv";
-			String report = "output" + start + "_" + end + ".json";
+			String chunk = "test-data-output/output" + start + "_" + end + ".csv";
+			String report = "test-data-output/output" + start + "_" + end + ".json";
 			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--start", start + "",
 					"--end", end + "", "--out", chunk, "--report-json", report };
 			result = new CommandLine(new ApplyScoreCommand()).execute(args);
@@ -75,17 +83,17 @@ public class MergeScoreTaskTest {
 
 		MergeScoreTask task = new MergeScoreTask();
 		task.setInputs(chunkFiles);
-		task.setOutput("output.merged.txt");
+		task.setOutput("test-data-output/output.merged.txt");
 		task.run(new TaskMonitorMock());
 
-		assertEqualsScoreFiles("output.csv", "output.merged.txt", 0.0000001);
+		assertEqualsScoreFiles("test-data-output/output.csv", "test-data-output/output.merged.txt", 0.0000001);
 
 		MergeReportTask task2 = new MergeReportTask();
 		task2.setInputs(reportFiles);
-		task2.setOutput("report.merged.json");
+		task2.setOutput("test-data-output/report.merged.json");
 		task2.run(new TaskMonitorMock());
 
-		assertEqualsScoreFiles("report.json", "report.merged.json", 0.0000001);
+		assertEqualsScoreFiles("test-data-output/report.json", "test-data-output/report.merged.json", 0.0000001);
 
 	}
 
@@ -99,7 +107,7 @@ public class MergeScoreTaskTest {
 		// simulate huge files
 		String[] files = new String[chunks];
 		for (int i = 0; i < chunks; i++) {
-			files[i] = "huge.chunk." + i + ".txt";
+			files[i] = "test-data-output/huge.chunk." + i + ".txt";
 			CsvTableWriter writer = new CsvTableWriter(files[i], OutputFileWriter.SEPARATOR);
 			String[] columns = new String[scores + 1];
 			columns[0] = OutputFileWriter.COLUMN_SAMPLE;
@@ -119,7 +127,7 @@ public class MergeScoreTaskTest {
 
 		MergeScoreTask task = new MergeScoreTask();
 		task.setInputs(files);
-		task.setOutput("merged.huge.task.txt");
+		task.setOutput("test-data-output/merged.huge.task.txt");
 		task.run(new TaskMonitorMock());
 
 	}

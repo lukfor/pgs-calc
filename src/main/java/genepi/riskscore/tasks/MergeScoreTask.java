@@ -1,7 +1,9 @@
 package genepi.riskscore.tasks;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.io.table.writer.ITableWriter;
@@ -14,21 +16,27 @@ public class MergeScoreTask implements ITaskRunnable {
 
 	private String output;
 
-	private String[] inputs;
+	private List<String> inputs = new Vector<>();
 
 	public void setOutput(String output) {
 		this.output = output;
 	}
 
 	public void setInputs(String... filenames) throws IOException {
-		this.inputs = filenames;
+		for (String filename : filenames) {
+			if (new File(filename).exists()) {
+				inputs.add(filename);
+			}
+		}
 	}
 
 	public void setInputs(List<ApplyScoreTask> tasks) {
-		this.inputs = new String[tasks.size()];
-		for (int i = 0; i < inputs.length; i++) {
+		for (int i = 0; i < tasks.size(); i++) {
 			ApplyScoreTask task = tasks.get(i);
-			this.inputs[i] = task.getOutput();
+			String filename = task.getOutput();
+			if (new File(filename).exists()) {
+				inputs.add(filename);
+			}
 		}
 	}
 
@@ -38,13 +46,15 @@ public class MergeScoreTask implements ITaskRunnable {
 		monitor.begin("Merge score files");
 
 		assert (output != null);
-		assert (inputs != null);
-		assert (inputs.length > 0);
 
-		OutputFileReader[] files = new OutputFileReader[inputs.length];
+		if (inputs.isEmpty()) {
+			throw new Exception("No chunks found to merge.");
+		}
 
-		for (int i = 0; i < inputs.length; i++) {
-			files[i] = new OutputFileReader(inputs[i]);
+		OutputFileReader[] files = new OutputFileReader[inputs.size()];
+
+		for (int i = 0; i < inputs.size(); i++) {
+			files[i] = new OutputFileReader(inputs.get(i));
 		}
 
 		List<String> scores = files[0].getScores();
@@ -62,7 +72,9 @@ public class MergeScoreTask implements ITaskRunnable {
 
 			double[] values = files[0].getValues();
 			for (int i = 1; i < files.length; i++) {
-				files[i].next();
+				if (!files[i].next()) {
+					throw new Exception("Not all vcf files have the same number of samples.");
+				}
 				double[] data = files[i].getValues();
 				for (int j = 0; j < data.length; j++) {
 					values[j] += data[j];

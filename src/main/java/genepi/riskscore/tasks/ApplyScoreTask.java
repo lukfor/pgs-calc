@@ -47,6 +47,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String includeSamplesFilename = null;
 
+	private String outputReportFilename = null;
+
 	private CsvTableWriter variantFile;
 
 	private RiskScoreFormat defaultFormat = new PGSCatalogFormat();
@@ -60,6 +62,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private RiskScoreSummary[] summaries;
 
 	private String output;
+
+	private String outputEffectsFilename;
 
 	public static final String INFO_R2 = "R2";
 
@@ -98,6 +102,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public void setOutputReportFilename(String outputReportFilename) {
+		this.outputReportFilename = outputReportFilename;
+	}
+
+	public void setOutputEffectsFilename(String outputEffectsFilename) {
+		this.outputEffectsFilename = outputEffectsFilename;
 	}
 
 	public void run(ITaskMonitor monitor) throws Exception {
@@ -162,8 +174,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
 			outputFile.save(output);
 
-			ReportFile reportFile = new ReportFile(summaries);
-			reportFile.save(output + ".report");
+			if (outputReportFilename != null) {
+				ReportFile reportFile = new ReportFile(summaries);
+				reportFile.save(outputReportFilename);
+			}
 
 		}
 
@@ -234,6 +248,13 @@ public class ApplyScoreTask implements ITaskRunnable {
 		}
 
 		boolean outOfChunk = false;
+
+		CsvTableWriter effectsWriter = null;
+		if (outputEffectsFilename != null) {
+			effectsWriter = new CsvTableWriter(outputEffectsFilename, MergeEffectsTask.EFFECTS_FILE_SEPARATOR);
+			effectsWriter.setColumns(
+					new String[] { "score", "sample", VariantFile.CHROMOSOME, VariantFile.POSITION, "effect" });
+		}
 
 		while (vcfReader.next() && !outOfChunk) {
 
@@ -351,6 +372,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 							double effect = dosage * effectWeight;
 							riskScores.get(indexSample).incScore(j, effect);
 							indexSample++;
+							if (effectsWriter != null) {
+								effectsWriter.setString("score", summary.getName());
+								effectsWriter.setString("sample", sample);
+								effectsWriter.setString(VariantFile.CHROMOSOME, variant.getContig());
+								effectsWriter.setInteger(VariantFile.POSITION, variant.getStart());
+								effectsWriter.setDouble("effect", effect);
+								effectsWriter.next();
+							}
 						}
 					}
 				}
@@ -358,6 +387,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 				summary.incVariantsUsed();
 
 			}
+		}
+
+		if (effectsWriter != null) {
+			effectsWriter.close();
 		}
 
 		vcfReader.close();
@@ -388,20 +421,24 @@ public class ApplyScoreTask implements ITaskRunnable {
 		return countSamples;
 	}
 
-	/*
-	 * public RiskScore[] getRiskScores() { return riskScores.toArray(new
-	 * RiskScore[0]); }
-	 */
-
 	public RiskScoreSummary[] getSummaries() {
 		return summaries;
 	}
 
-	public int getCountVariants() {
+	int getCountVariants() {
 		return countVariants;
 	}
 
 	public String getOutput() {
 		return output;
 	}
+
+	public String getOutputReportFilename() {
+		return outputReportFilename;
+	}
+
+	public String getOutputEffectsFilename() {
+		return outputEffectsFilename;
+	}
+
 }

@@ -1,7 +1,9 @@
 package genepi.riskscore.tasks;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Vector;
 
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreSummary;
@@ -12,7 +14,7 @@ public class MergeReportTask implements ITaskRunnable {
 
 	private String output;
 
-	private ReportFile[] inputs;
+	private List<ReportFile> inputs = new Vector<ReportFile>();
 
 	private ReportFile result;
 
@@ -21,18 +23,20 @@ public class MergeReportTask implements ITaskRunnable {
 	}
 
 	public void setInputs(String... filenames) throws IOException {
-		this.inputs = new ReportFile[filenames.length];
-		for (int i = 0; i < inputs.length; i++) {
-			String filename = filenames[i];
-			this.inputs[i] = ReportFile.loadFromFile(filename);
+		for (String filename : filenames) {
+			if (new File(filename).exists()) {
+				inputs.add(ReportFile.loadFromFile(filename));
+			}
 		}
 	}
 
 	public void setInputs(List<ApplyScoreTask> tasks) {
-		this.inputs = new ReportFile[tasks.size()];
-		for (int i = 0; i < inputs.length; i++) {
+		for (int i = 0; i < tasks.size(); i++) {
 			ApplyScoreTask task = tasks.get(i);
-			this.inputs[i] = new ReportFile(task.getSummaries());
+			String filename = task.getOutput();
+			if (new File(filename).exists()) {
+				inputs.add(new ReportFile(task.getSummaries()));
+			}
 		}
 	}
 
@@ -41,13 +45,13 @@ public class MergeReportTask implements ITaskRunnable {
 
 		monitor.begin("Merge report files");
 
-		assert (inputs != null);
-		assert (inputs.length > 0);
+		if (inputs.isEmpty()) {
+			throw new Exception("No chunks found to merge.");
+		}
+		result = inputs.get(0);
 
-		result = inputs[0];
-
-		for (int i = 1; i < inputs.length; i++) {
-			result.merge(inputs[i]);
+		for (int i = 1; i < inputs.size(); i++) {
+			result.merge(inputs.get(i));
 		}
 
 		// update statistics
@@ -62,6 +66,8 @@ public class MergeReportTask implements ITaskRunnable {
 			monitor.update("Report files merged");
 		}
 		monitor.done();
+		
+		inputs = null;
 
 	}
 

@@ -1,21 +1,21 @@
 package genepi.riskscore.commands;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
+import genepi.io.FileUtil;
 import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
-import genepi.riskscore.io.OutputFileWriter;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
+import genepi.riskscore.tasks.MergeEffectsTask;
 import genepi.riskscore.tasks.MergeReportTask;
 import genepi.riskscore.tasks.MergeScoreTask;
 import htsjdk.samtools.util.StopWatch;
@@ -71,6 +71,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--meta" }, description = "JSON file with meta data about scores", required = false)
 	String meta = null;
 
+	@Option(names = { "--writeEffects" }, description = "Write file with effects per snp and sample", required = false)
+	String outputEffectsFilename = null;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -116,8 +119,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		StopWatch watch = new StopWatch();
 		watch.start();
 
-		List<ApplyScoreTask> tasks = new Vector<ApplyScoreTask>();
+		String outParent = new File(out).getParent();
+		String tempFolder = FileUtil.path(outParent, "temp");
+		File tempFolderFile = new File(tempFolder);
+		tempFolderFile.mkdirs();
 
+		List<ApplyScoreTask> tasks = new Vector<ApplyScoreTask>();
 		for (String vcf : vcfs) {
 
 			ApplyScoreTask task = new ApplyScoreTask();
@@ -142,13 +149,17 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			if (chunk != null) {
 				task.setChunk(chunk);
 			}
+
+			String taskPrefix = FileUtil.path(tempFolder, "task_" + tasks.size());
+
 			task.setVcfFilename(vcf);
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
 			task.setOutputVariantFilename(outputVariantFilename);
+			task.setOutputEffectsFilename(taskPrefix + ".effects.txt");
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
-			task.setOutput(out + ".task_" + tasks.size());
+			task.setOutput(taskPrefix + ".scores.txt");
 			tasks.add(task);
 
 		}
@@ -156,27 +167,38 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		TaskService.setThreads(threads);
 		List<Task> results = TaskService.monitor(App.STYLE_LONG_TASK).run(tasks);
 
-		// stop when 1 task fails
-		for (Task result : results) {
-			if (!result.getStatus().isSuccess()) {
-				return 1;
-			}
+		if (isFailed(results)) {
+			cleanUp();
+			return 1;
 		}
 
 		System.out.println();
 
-		// merge results
-		// TODO: if only one task -> no merge needed, rename task.getoutput to out.
-		// delete all temp files.
 		MergeScoreTask mergeScore = new MergeScoreTask();
 		mergeScore.setInputs(tasks);
 		mergeScore.setOutput(out);
-		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore);
+		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeScore))) {
+			cleanUp();
+			return 1;
+		}
+
+		if (outputEffectsFilename != null) {
+			MergeEffectsTask mergeEffectsTask = new MergeEffectsTask();
+			mergeEffectsTask.setInputs(tasks);
+			mergeEffectsTask.setOutput(outputEffectsFilename);
+			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeEffectsTask))) {
+				cleanUp();
+				return 1;
+			}
+		}
 
 		MergeReportTask mergeReport = new MergeReportTask();
 		mergeReport.setInputs(tasks);
 		mergeReport.setOutput(reportJson);
-		TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport);
+		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeReport))) {
+			cleanUp();
+			return 1;
+		}
 
 		ReportFile report = mergeReport.getResult();
 
@@ -193,7 +215,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			htmlReportTask.setReport(report);
 			htmlReportTask.setData(data);
 			htmlReportTask.setOutput(reportHtml);
-			TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask);
+			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {
+				cleanUp();
+				return 1;
+			}
 		}
 
 		System.out.println();
@@ -201,6 +226,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		System.out.println();
 
 		watch.stop();
+
+		cleanUp();
 
 		return 0;
 
@@ -224,19 +251,27 @@ public class ApplyScoreCommand implements Callable<Integer> {
 		}
 	}
 
-	public static String number(long number) {
-		DecimalFormat formatter = new DecimalFormat("###,###,###");
-		return formatter.format(number);
-	}
-
-	public static String percentage(double obtained, double total) {
-		double percentage = (obtained / total) * 100;
-		DecimalFormat df = new DecimalFormat("###.##'%'");
-		return df.format(percentage);
-	}
-
 	public String formatTime(long timeInSeconds) {
 		return String.format("%d min, %d sec", (timeInSeconds / 60), (timeInSeconds % 60));
+	}
+
+	private boolean isFailed(List<Task> tasks) {
+		for (Task result : tasks) {
+			if (!result.getStatus().isSuccess()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void cleanUp() {
+		String outParent = new File(out).getParent();
+		String tempFolder = FileUtil.path(outParent, "temp");
+		File tempFolderFile = new File(tempFolder);
+		if (tempFolderFile.exists()) {
+			FileUtil.deleteDirectory(tempFolderFile);
+		}
+
 	}
 
 }
