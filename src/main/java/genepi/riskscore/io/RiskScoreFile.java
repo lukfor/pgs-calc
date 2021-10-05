@@ -84,37 +84,75 @@ public class RiskScoreFile {
 
 	public void buildIndex(String chromosome, Chunk chunk) throws IOException {
 
-		DataInputStream in = openTxtOrGzipStream(filename);
+		assert (chromosome != null);
 
-		ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
-		while (reader.next()) {
-			String chromsomeVariant = reader.getString(format.getChromosome());
-			if (chromsomeVariant.equals(chromosome)) {
+		try {
+			DataInputStream in = openTxtOrGzipStream(filename);
 
-				if (reader.getString(format.getPosition()).isEmpty()) {
-					continue;
-				}
+			ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
+			int row = 0;
+			while (reader.next()) {
+				row++;
+				String chromsomeVariant = reader.getString(format.getChromosome());
+				if (chromsomeVariant.equals(chromosome)) {
+					if (reader.getString(format.getPosition()).isEmpty()) {
+						throw new Exception("Row " + row + ": Position is empty");
+					}
 
-				try {
-					int position = reader.getInteger(format.getPosition());
+					int position = 0;
+					try {
+						position = reader.getInteger(format.getPosition());
+
+					} catch (NumberFormatException e) {
+						throw new Exception("Row " + row + ": '" + reader.getString(format.getPosition())
+								+ "' is an invalid position");
+					}
 
 					if (position >= chunk.getStart() && position <= chunk.getEnd()) {
 
-						float effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
-						char alleleA = reader.getString(format.getAllele_a()).charAt(0);
-						char alleleB = reader.getString(format.getAllele_b()).charAt(0);
-						char effectAllele = reader.getString(format.getEffect_allele()).charAt(0);
+						float effectWeight = 0;
+						try {
+
+							effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
+
+						} catch (NumberFormatException e) {
+							throw new Exception("Row " + row + ": '" + reader.getString(format.getEffect_weight())
+									+ "' is an invalid weight");
+						}
+
+						String rawAlleleA = reader.getString(format.getAllele_a());
+						if (rawAlleleA.isEmpty()) {
+							throw new Exception("Row " + row + ": Allele A is empty");
+						}
+						char alleleA = rawAlleleA.charAt(0);
+
+						String rawAlleleB = reader.getString(format.getAllele_b());
+						if (rawAlleleB.isEmpty()) {
+							throw new Exception("Row " + row + ": Allele B is empty");
+						}
+						char alleleB = rawAlleleB.charAt(0);
+
+						String rawEffectAllele = reader.getString(format.getEffect_allele());
+						if (rawEffectAllele.isEmpty()) {
+							throw new Exception("Row " + row + ": Effect allele is empty");
+						}
+						char effectAllele = rawEffectAllele.charAt(0);
 
 						ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
 						variants.put(position, variant);
+
 					}
-				} catch (NumberFormatException e) {
-					// ignore variants with wrong positions
 				}
+				totalVariants++;
 			}
-			totalVariants++;
+			reader.close();
+		} catch (
+
+		Exception e) {
+			e.printStackTrace();
+			throw new IOException("Build Index for " + filename
+					+ (chromosome != null ? " chr " + chromosome == null : "") + " failed: " + e.getMessage(), e);
 		}
-		reader.close();
 	}
 
 	public boolean contains(int position) {

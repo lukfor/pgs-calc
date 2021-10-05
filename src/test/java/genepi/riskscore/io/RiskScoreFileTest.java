@@ -4,8 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
+import genepi.riskscore.io.formats.PGSCatalogFormat;
 import genepi.riskscore.model.RiskScoreFormat;
 
 public class RiskScoreFileTest {
@@ -43,4 +46,16 @@ public class RiskScoreFileTest {
 		assertEquals("filename.weights", RiskScoreFile.getName("folder/path/filename.weights"));
 	}
 
+	public void testLoadTextFileMissingAlleleInOtherChromosome() throws Exception {
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", new PGSCatalogFormat());
+		file.buildIndex("1");
+		assertEquals(17, file.getCacheSize());
+		assertEquals(176, file.getTotalVariants());
+	}
+	
+	@Test(expected = IOException.class)
+	public void testLoadTextFileMissingAllele() throws Exception {
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", new PGSCatalogFormat());
+		file.buildIndex("11");
+	}
 }
