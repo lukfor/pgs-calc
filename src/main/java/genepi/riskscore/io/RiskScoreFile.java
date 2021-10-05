@@ -150,8 +150,7 @@ public class RiskScoreFile {
 
 		Exception e) {
 			e.printStackTrace();
-			throw new IOException("Build Index for " + filename
-					+ (chromosome != null ? " chr " + chromosome == null : "") + " failed: " + e.getMessage(), e);
+			throw new IOException("Build Index for '" + filename + "' and chr '" + chromosome + "' failed: " + e.getMessage(), e);
 		}
 	}
 
