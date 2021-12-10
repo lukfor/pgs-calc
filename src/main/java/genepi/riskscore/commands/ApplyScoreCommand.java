@@ -156,7 +156,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
 			task.setOutputVariantFilename(outputVariantFilename);
-			task.setOutputEffectsFilename(taskPrefix + ".effects.txt");
+			if (outputEffectsFilename != null) {
+				task.setOutputEffectsFilename(taskPrefix + ".effects.txt");
+			}
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
 			task.setOutput(taskPrefix + ".scores.txt");
