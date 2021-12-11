@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import genepi.io.FileUtil;
 import genepi.io.table.writer.CsvTableWriter;
+import genepi.riskscore.App.DefaultCommand;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.OutputFileWriter;
@@ -24,14 +25,13 @@ public class MergeScoreTaskTest {
 		TaskService.setAnsiSupport(false);
 	}
 
-
 	@Before
 	public void beforeTest() {
 		System.out.println("Clean up output directory");
 		FileUtil.deleteDirectory("test-data-output");
 		FileUtil.createDirectory("test-data-output");
 	}
-	
+
 	@Test
 	public void testMerge() throws Exception {
 
@@ -48,8 +48,8 @@ public class MergeScoreTaskTest {
 	public void testMergingChunks() throws Exception {
 
 		// Whole file
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "test-data-output/output.csv",
-				"--report-json", "test-data-output/report.json" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out",
+				"test-data-output/output.csv", "--report-json", "test-data-output/report.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -81,17 +81,25 @@ public class MergeScoreTaskTest {
 			count++;
 		}
 
-		MergeScoreTask task = new MergeScoreTask();
-		task.setInputs(chunkFiles);
-		task.setOutput("test-data-output/output.merged.txt");
-		task.run(new TaskMonitorMock());
-
+		args = new String[3 + chunkFiles.length];
+		args[0] = "merge-scores";
+		args[1] = "--out";
+		args[2] = "test-data-output/output.merged.txt";
+		for (int i = 0; i < chunkFiles.length; i++) {
+			args[i + 3] = chunkFiles[i];
+		}
+		result = new CommandLine(new DefaultCommand()).execute(args);
+		assertEquals(0, result);
 		assertEqualsScoreFiles("test-data-output/output.csv", "test-data-output/output.merged.txt", 0.0000001);
 
-		MergeReportTask task2 = new MergeReportTask();
-		task2.setInputs(reportFiles);
-		task2.setOutput("test-data-output/report.merged.json");
-		task2.run(new TaskMonitorMock());
+		args = new String[3 + reportFiles.length];
+		args[0] = "merge-reports";
+		args[1] = "--out";
+		args[2] = "test-data-output/report.merged.json";
+		for (int i = 0; i < reportFiles.length; i++) {
+			args[i + 3] = reportFiles[i];
+		}
+		result = new CommandLine(new DefaultCommand()).execute(args);
 
 		assertEqualsScoreFiles("test-data-output/report.json", "test-data-output/report.merged.json", 0.0000001);
 

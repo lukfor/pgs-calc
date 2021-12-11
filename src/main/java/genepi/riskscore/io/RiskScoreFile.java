@@ -52,7 +52,7 @@ public class RiskScoreFile {
 
 			}
 		}
-System.out.println(this.filename);
+
 		this.format = RiskScoreFormatFactory.buildFormat(this.filename, format);
 
 		if (this.format.hasRsIds()) {

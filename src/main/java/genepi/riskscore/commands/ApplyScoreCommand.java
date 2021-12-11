@@ -27,7 +27,7 @@ import picocli.CommandLine.Help.Visibility;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = App.APP, version = App.VERSION)
+@Command(name = "apply", version = App.VERSION)
 public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Parameters(description = "VCF files")

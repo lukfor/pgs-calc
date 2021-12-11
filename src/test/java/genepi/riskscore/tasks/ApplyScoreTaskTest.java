@@ -9,7 +9,6 @@ import org.junit.Test;
 import genepi.io.FileUtil;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
-import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.TaskService;

@@ -6,9 +6,14 @@ import static lukfor.progress.Components.SPINNER;
 import static lukfor.progress.Components.TASK_NAME;
 import static lukfor.progress.Components.TIME;
 
+import java.util.concurrent.Callable;
+
 import genepi.riskscore.commands.ApplyScoreCommand;
+import genepi.riskscore.commands.MergeReportCommand;
+import genepi.riskscore.commands.MergeScoreCommand;
 import lukfor.progress.renderer.ProgressIndicatorGroup;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 public class App {
 
@@ -36,7 +41,19 @@ public class App {
 
 		ARGS = args;
 
-		new CommandLine(new ApplyScoreCommand()).execute(args);
+		new CommandLine(new DefaultCommand()).execute(args);
+
+	}
+
+	@Command(name = App.APP, version = App.VERSION, subcommands = { ApplyScoreCommand.class, MergeScoreCommand.class,
+			MergeReportCommand.class })
+	public static class DefaultCommand implements Callable<Integer> {
+
+		@Override
+		public Integer call() throws Exception {
+			// TODO Auto-generated method stub
+			return null;
+		}
 
 	}
 
