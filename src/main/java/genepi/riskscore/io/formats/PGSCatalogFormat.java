@@ -105,4 +105,9 @@ public class PGSCatalogFormat extends RiskScoreFormatImpl {
 		InputStream in2 = FileUtil.decompressStream(inputStream);
 		return new DataInputStream(in2);
 	}
+	
+	@Override
+	public boolean hasRsIds() {
+		return format == PGSCatalogVariantsFormat.RS_ID;
+	}
 }

@@ -1,8 +1,6 @@
 package genepi.riskscore.io;
 
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -10,17 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
-import java.util.List;
 
 import genepi.io.FileUtil;
-import genepi.io.table.reader.CsvTableReader;
-import genepi.io.table.reader.ITableReader;
-import genepi.riskscore.io.formats.PGSCatalogVariantsFormat;
-import genepi.riskscore.io.formats.PGSCatalogFormat;
-import genepi.riskscore.io.formats.RiskScoreFormatImpl;
-import genepi.riskscore.tasks.ConvertRsIdsTask;
-import lukfor.progress.TaskService;
-import lukfor.progress.tasks.Task;
 
 public class PGSCatalog {
 
@@ -32,7 +21,7 @@ public class PGSCatalog {
 
 	public static String FILE_URL = "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/{0}/ScoringFiles/{0}.txt.gz";
 
-	public static String getFilenameById(String id, String dbsnp) throws IOException {
+	public static String getFilenameById(String id) throws IOException {
 
 		String filename = FileUtil.path(CACHE_DIR, id + ".txt.gz");
 
@@ -53,23 +42,6 @@ public class PGSCatalog {
 
 		InputStream in = new URL(url).openStream();
 		Files.copy(in, Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);
-
-		PGSCatalogFormat fileFormat = new PGSCatalogFormat(filename);
-		if (fileFormat.getFormat() == PGSCatalogVariantsFormat.RS_ID) {
-			if (dbsnp == null) {
-				throw new IOException("Score " + id + " is in RS_ID format. Please specify dbsnp index.");
-			}
-			String originalFilename = filename.replaceAll(".txt.gz", ".original.txt.gz");
-			new File(filename).renameTo(new File(originalFilename));
-			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, filename, dbsnp);
-			TaskService.setAnsiSupport(false);
-			TaskService.setAnimated(false);
-			List<Task> result = TaskService.run(convertRsIds);
-			if (!result.get(0).getStatus().isSuccess()) {
-				throw new IOException(result.get(0).getStatus().getThrowable());
-			}
-			// TODO: delete original score file
-		}
 
 		return filename;
 

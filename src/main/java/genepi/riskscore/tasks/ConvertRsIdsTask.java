@@ -40,8 +40,8 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 				format.getEffectWeight(), format.getOtherAllele(), "rsId" });
 		while (reader.next()) {
 			String rsId = reader.getString("rsId");
-			String effectAllele = reader.getString("effect_allele");
-			String effectWeight = reader.getString("effect_weight");
+			String effectAllele = reader.getString(format.getEffectAllele());
+			String effectWeight = reader.getString(format.getEffectWeight());
 			DbSnpReader.Snp snp = dbSnpReader.getByRsId(rsId);
 			if (snp != null) {
 				found++;
@@ -49,6 +49,8 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 				writer.setString(format.getPosition(), snp.getPosition() + "");
 				writer.setString(format.getEffectAllele(), effectAllele);
 				writer.setString(format.getEffectWeight(), effectWeight);
+				// TODO: check if snp.getReference is ALLWAYS the other allele!! or if we need
+				// the alt allele also in snp index!
 				writer.setString(format.getOtherAllele(), snp.getReference());
 				writer.setString("rsId", rsId);
 				writer.next();

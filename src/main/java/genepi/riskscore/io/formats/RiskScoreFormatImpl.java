@@ -79,4 +79,8 @@ public class RiskScoreFormatImpl {
 		return format;
 	}
 
+	public boolean hasRsIds() {
+		return false;
+	}
+
 }

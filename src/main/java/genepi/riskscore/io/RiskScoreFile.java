@@ -6,15 +6,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
-import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.model.ReferenceVariant;
+import genepi.riskscore.tasks.ConvertRsIdsTask;
+import lukfor.progress.TaskService;
+import lukfor.progress.tasks.Task;
 
 public class RiskScoreFile {
 
@@ -41,17 +45,31 @@ public class RiskScoreFile {
 			// check if filename is a PGS id
 			if (PGSCatalog.isValidId(filename)) {
 				String id = filename;
-				this.filename = PGSCatalog.getFilenameById(id, dbsnp);
+				this.filename = PGSCatalog.getFilenameById(id);
 			} else {
 
 				throw new Exception("File '" + filename + "' not found.");
 
 			}
 		}
-
+System.out.println(this.filename);
 		this.format = RiskScoreFormatFactory.buildFormat(this.filename, format);
 
-		
+		if (this.format.hasRsIds()) {
+			if (dbsnp == null) {
+				throw new IOException("File " + this.filename + " is in RS_ID format. Please specify dbsnp index.");
+			}
+			String originalFilename = this.filename;
+			this.filename = originalFilename + ".positions";
+			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, this.filename, dbsnp);
+			TaskService.setAnsiSupport(false);
+			TaskService.setAnimated(false);
+			List<Task> result = TaskService.run(convertRsIds);
+			if (!result.get(0).getStatus().isSuccess()) {
+				throw new IOException(result.get(0).getStatus().getThrowable());
+			}
+		}
+
 		DataInputStream in = openTxtOrGzipStream(this.filename);
 		ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
 		checkFileFormat(reader, this.filename);

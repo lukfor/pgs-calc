@@ -66,8 +66,16 @@ public class RiskScoreFileTest {
 	}
 
 	@Test
-	public void testLoadRsIdFormat() throws Exception {
+	public void testLoadRsIdFormatFromPGSCatalog() throws Exception {
 		RiskScoreFile file = new RiskScoreFile("PGS000001", DBSNP_INDEX);
+		file.buildIndex("1");
+		assertEquals(5, file.getCacheSize());
+		assertEquals(77, file.getTotalVariants());
+	}
+	
+	@Test
+	public void testLoadRsIdFormatFromFile() throws Exception {
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000001.txt.gz", DBSNP_INDEX);
 		file.buildIndex("1");
 		assertEquals(5, file.getCacheSize());
 		assertEquals(77, file.getTotalVariants());
