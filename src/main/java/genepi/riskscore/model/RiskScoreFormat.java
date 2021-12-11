@@ -17,9 +17,7 @@ public class RiskScoreFormat {
 
 	public static final String EFFECT_WEIGHT = "effect_weight";
 
-	public static final String ALLELE_A = "A1";
-
-	public static final String ALLELE_B = "A2";
+	public static final String OTHER_ALLELE = "A2";
 
 	public static final String EFFECT_ALLELE = "effect_allele";
 
@@ -29,11 +27,9 @@ public class RiskScoreFormat {
 
 	private String effect_weight = EFFECT_WEIGHT;
 
-	private String allele_a = ALLELE_A;
+	private String otherAllele = OTHER_ALLELE;
 
-	private String allele_b = ALLELE_B;
-
-	private String effect_allele = EFFECT_ALLELE;
+	private String effectAllele = EFFECT_ALLELE;
 
 	public String getChromosome() {
 		return chromosome;
@@ -51,36 +47,28 @@ public class RiskScoreFormat {
 		this.position = position;
 	}
 
-	public String getEffect_weight() {
+	public String getEffectWeight() {
 		return effect_weight;
 	}
 
-	public void setEffect_weight(String effect_weight) {
+	public void setEffectWeight(String effect_weight) {
 		this.effect_weight = effect_weight;
 	}
 
-	public String getAllele_a() {
-		return allele_a;
+	public void setOtherAllele(String otherAllele) {
+		this.otherAllele = otherAllele;
 	}
 
-	public void setAllele_a(String allele_a) {
-		this.allele_a = allele_a;
+	public String getOtherAllele() {
+		return otherAllele;
 	}
 
-	public String getAllele_b() {
-		return allele_b;
+	public void setEffectAllele(String effectAllele) {
+		this.effectAllele = effectAllele;
 	}
 
-	public void setAllele_b(String allele_b) {
-		this.allele_b = allele_b;
-	}
-
-	public String getEffect_allele() {
-		return effect_allele;
-	}
-
-	public void setEffect_allele(String effect_allele) {
-		this.effect_allele = effect_allele;
+	public String getEffectAllele() {
+		return effectAllele;
 	}
 
 	public static RiskScoreFormat load(String filename)

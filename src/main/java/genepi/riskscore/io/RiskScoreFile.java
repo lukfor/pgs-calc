@@ -63,17 +63,14 @@ public class RiskScoreFile {
 		if (!reader.hasColumn(format.getPosition())) {
 			throw new Exception("Column '" + format.getPosition() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(format.getEffect_weight())) {
-			throw new Exception("Column '" + format.getEffect_weight() + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getEffectWeight())) {
+			throw new Exception("Column '" + format.getEffectWeight() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(format.getAllele_a())) {
-			throw new Exception("Column '" + format.getAllele_a() + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getOtherAllele())) {
+			throw new Exception("Column '" + format.getOtherAllele() + "' not found in '" + filename + "'");
 		}
-		if (!reader.hasColumn(format.getAllele_b())) {
-			throw new Exception("Column '" + format.getAllele_b() + "' not found in '" + filename + "'");
-		}
-		if (!reader.hasColumn(format.getEffect_allele())) {
-			throw new Exception("Column '" + format.getEffect_allele() + "' not found in '" + filename + "'");
+		if (!reader.hasColumn(format.getEffectAllele())) {
+			throw new Exception("Column '" + format.getEffectAllele() + "' not found in '" + filename + "'");
 		}
 
 	}
@@ -113,32 +110,26 @@ public class RiskScoreFile {
 						float effectWeight = 0;
 						try {
 
-							effectWeight = ((Double) (reader.getDouble(format.getEffect_weight()))).floatValue();
+							effectWeight = ((Double) (reader.getDouble(format.getEffectWeight()))).floatValue();
 
 						} catch (NumberFormatException e) {
-							throw new Exception("Row " + row + ": '" + reader.getString(format.getEffect_weight())
+							throw new Exception("Row " + row + ": '" + reader.getString(format.getEffectWeight())
 									+ "' is an invalid weight");
 						}
 
-						String rawAlleleA = reader.getString(format.getAllele_a());
-						if (rawAlleleA.isEmpty()) {
-							throw new Exception("Row " + row + ": Allele A is empty");
+						String rawOtherA = reader.getString(format.getOtherAllele());
+						if (rawOtherA.isEmpty()) {
+							throw new Exception("Row " + row + ": Other allele is empty");
 						}
-						char alleleA = rawAlleleA.charAt(0);
+						char alleleA = rawOtherA.charAt(0);
 
-						String rawAlleleB = reader.getString(format.getAllele_b());
-						if (rawAlleleB.isEmpty()) {
-							throw new Exception("Row " + row + ": Allele B is empty");
-						}
-						char alleleB = rawAlleleB.charAt(0);
-
-						String rawEffectAllele = reader.getString(format.getEffect_allele());
+						String rawEffectAllele = reader.getString(format.getEffectAllele());
 						if (rawEffectAllele.isEmpty()) {
 							throw new Exception("Row " + row + ": Effect allele is empty");
 						}
 						char effectAllele = rawEffectAllele.charAt(0);
 
-						ReferenceVariant variant = new ReferenceVariant(alleleA, alleleB, effectAllele, effectWeight);
+						ReferenceVariant variant = new ReferenceVariant(alleleA, effectAllele, effectWeight);
 						variants.put(position, variant);
 
 					}
@@ -150,7 +141,8 @@ public class RiskScoreFile {
 
 		Exception e) {
 			e.printStackTrace();
-			throw new IOException("Build Index for '" + filename + "' and chr '" + chromosome + "' failed: " + e.getMessage(), e);
+			throw new IOException(
+					"Build Index for '" + filename + "' and chr '" + chromosome + "' failed: " + e.getMessage(), e);
 		}
 	}
 

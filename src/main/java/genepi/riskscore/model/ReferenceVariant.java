@@ -4,17 +4,14 @@ public class ReferenceVariant {
 
 	private float effectWeight;
 
-	private char alleleA;
-
-	private char alleleB;
+	private char otherAllele;
 
 	private char effectAllele;
-	
+
 	private boolean used = false;
 
-	public ReferenceVariant(char alleleA, char alleleB, char effectAllele, float effectWeight) {
-		this.alleleA = alleleA;
-		this.alleleB = alleleB;
+	public ReferenceVariant(char otherAllele, char effectAllele, float effectWeight) {
+		this.otherAllele = otherAllele;
 		this.effectAllele = effectAllele;
 		this.effectWeight = effectWeight;
 	}
@@ -23,12 +20,8 @@ public class ReferenceVariant {
 		return effectWeight;
 	}
 
-	public char getAlleleA() {
-		return alleleA;
-	}
-
-	public char getAlleleB() {
-		return alleleB;
+	public char getOtherAllele() {
+		return otherAllele;
 	}
 
 	public char getEffectAllele() {
@@ -40,13 +33,13 @@ public class ReferenceVariant {
 	}
 
 	public boolean hasAllele(char allele) {
-		return ((alleleA == allele) || (alleleB == allele));
+		return ((otherAllele == allele) || (effectAllele == allele));
 	}
-	
+
 	public void setUsed(boolean used) {
 		this.used = used;
 	}
-	
+
 	public boolean isUsed() {
 		return used;
 	}

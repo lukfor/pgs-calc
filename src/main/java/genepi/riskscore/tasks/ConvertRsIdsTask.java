@@ -36,8 +36,8 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 		DbSnpReader dbSnpReader = new DbSnpReader(dbsnpFilename);
 
-		writer.setColumns(new String[] { format.getChromosome(), format.getPosition(), format.getEffect_allele(),
-				format.getEffect_weight(), format.getAllele_b(), "rsId" });
+		writer.setColumns(new String[] { format.getChromosome(), format.getPosition(), format.getEffectAllele(),
+				format.getEffectWeight(), format.getOtherAllele(), "rsId" });
 		while (reader.next()) {
 			String rsId = reader.getString("rsId");
 			String effectAllele = reader.getString("effect_allele");
@@ -47,17 +47,17 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 				found++;
 				writer.setString(format.getChromosome(), snp.getChromosome().replaceAll("chr", ""));
 				writer.setString(format.getPosition(), snp.getPosition() + "");
-				writer.setString(format.getEffect_allele(), effectAllele);
-				writer.setString(format.getEffect_weight(), effectWeight);
-				writer.setString(format.getAllele_b(), snp.getReference());
+				writer.setString(format.getEffectAllele(), effectAllele);
+				writer.setString(format.getEffectWeight(), effectWeight);
+				writer.setString(format.getOtherAllele(), snp.getReference());
 				writer.setString("rsId", rsId);
 				writer.next();
 			} else {
 				writer.setString(format.getChromosome(), "-");
 				writer.setString(format.getPosition(), "");
-				writer.setString(format.getEffect_allele(), "-");
-				writer.setString(format.getEffect_weight(), "-");
-				writer.setString(format.getAllele_b(), "-");
+				writer.setString(format.getEffectAllele(), "-");
+				writer.setString(format.getEffectWeight(), "-");
+				writer.setString(format.getOtherAllele(), "-");
 				writer.setString("rsId", rsId);
 			}
 			total++;

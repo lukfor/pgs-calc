@@ -15,22 +15,17 @@ public class PGSCatalogFormat extends RiskScoreFormat {
 	}
 
 	@Override
-	public String getEffect_allele() {
+	public String getEffectAllele() {
 		return "effect_allele";
 	}
 
 	@Override
-	public String getEffect_weight() {
+	public String getEffectWeight() {
 		return "effect_weight";
 	}
 
 	@Override
-	public String getAllele_a() {
-		return "effect_allele";
-	}
-
-	@Override
-	public String getAllele_b() {
+	public String getOtherAllele() {
 		return "reference_allele";
 	}
 

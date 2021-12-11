@@ -95,18 +95,15 @@ public class PGSCatalog {
 				return PGSCatalogFileFormat.UNKNOWN;
 			}
 
-			if (!reader.hasColumn(format.getAllele_a())) {
-				return PGSCatalogFileFormat.UNKNOWN;
-			}
-			if (!reader.hasColumn(format.getAllele_b())) {
+			if (!reader.hasColumn(format.getOtherAllele())) {
 				return PGSCatalogFileFormat.UNKNOWN;
 			}
 			return PGSCatalogFileFormat.COORDINATES;
 		}
-		if (!reader.hasColumn(format.getEffect_weight())) {
+		if (!reader.hasColumn(format.getEffectWeight())) {
 			return PGSCatalogFileFormat.UNKNOWN;
 		}
-		if (!reader.hasColumn(format.getEffect_allele())) {
+		if (!reader.hasColumn(format.getEffectAllele())) {
 			return PGSCatalogFileFormat.UNKNOWN;
 		}
 
