@@ -6,6 +6,7 @@ import genepi.io.text.LineWriter;
 import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 
 public class DownloadPGSCatalog {
 
@@ -21,7 +22,7 @@ public class DownloadPGSCatalog {
 			String id = String.format(formatId, i);
 			try {
 				String filename = PGSCatalog.getFilenameById(id, null);
-				new RiskScoreFile(filename, new PGSCatalogFormat(), null);
+				new RiskScoreFile(filename, RiskScoreFormat.PGS_CATALOG, null);
 				System.out.println(id);
 				writer.write(id);
 				count++;

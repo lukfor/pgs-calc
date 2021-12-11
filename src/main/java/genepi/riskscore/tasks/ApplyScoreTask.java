@@ -15,11 +15,12 @@ import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatImpl;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
-import genepi.riskscore.model.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
@@ -51,7 +52,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private CsvTableWriter variantFile;
 
-	private RiskScoreFormat defaultFormat = new PGSCatalogFormat();
+	private RiskScoreFormat defaultFormat = RiskScoreFormat.PGS_CATALOG;
 
 	private Map<String, RiskScoreFormat> formats = new HashMap<String, RiskScoreFormat>();
 

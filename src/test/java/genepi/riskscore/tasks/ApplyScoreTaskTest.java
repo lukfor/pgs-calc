@@ -9,7 +9,8 @@ import org.junit.Test;
 import genepi.io.FileUtil;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
-import genepi.riskscore.model.RiskScoreFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatImpl;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.monitors.TaskMonitorMock;
@@ -29,12 +30,12 @@ public class ApplyScoreTaskTest {
 		FileUtil.deleteDirectory("test-data-output");
 		FileUtil.createDirectory("test-data-output");
 	}
-	
+
 	@Test
 	public void testPerformance() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -56,7 +57,7 @@ public class ApplyScoreTaskTest {
 	public void testMultiPostion() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/small.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -81,7 +82,7 @@ public class ApplyScoreTaskTest {
 	public void testMultipleScores() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv", "test-data/chr20.scores.csv",
 				"test-data/chr20.scores.csv");
@@ -109,7 +110,7 @@ public class ApplyScoreTaskTest {
 	public void testScore() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -137,7 +138,7 @@ public class ApplyScoreTaskTest {
 	public void testScoreSwitchEffectAllele() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -165,7 +166,7 @@ public class ApplyScoreTaskTest {
 	public void testMinR2_06() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setMinR2(0.6f);
@@ -195,7 +196,7 @@ public class ApplyScoreTaskTest {
 	public void testMinR2_05() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(0.5f);
@@ -225,7 +226,7 @@ public class ApplyScoreTaskTest {
 	public void testMinR2_1() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(1f);
@@ -256,7 +257,7 @@ public class ApplyScoreTaskTest {
 	public void testWrongChromosome() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.wrong_chr.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(1f);
@@ -269,7 +270,7 @@ public class ApplyScoreTaskTest {
 	public void testWithChunk() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		Chunk chunk = new Chunk();
@@ -295,7 +296,7 @@ public class ApplyScoreTaskTest {
 	public void testWithEffectsFile() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(new RiskScoreFormat());
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutputEffectsFilename("test-data-output/output.effects.txt");

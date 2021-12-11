@@ -9,8 +9,7 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import genepi.riskscore.io.formats.PGSCatalogFormat;
-import genepi.riskscore.model.RiskScoreFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 
 public class RiskScoreFileTest {
 
@@ -23,8 +22,7 @@ public class RiskScoreFileTest {
 
 	@Test
 	public void testLoadTextFile() throws Exception {
-		RiskScoreFormat format = RiskScoreFormat.load("test-data/chr20.scores.csv.format");
-		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv", format, DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv", RiskScoreFormat.MAPPING_FILE, DBSNP_INDEX);
 		file.buildIndex("20");
 		assertEquals(4, file.getTotalVariants());
 		assertNotNull(file.getVariant(61795));
@@ -33,8 +31,8 @@ public class RiskScoreFileTest {
 
 	@Test
 	public void testLoadGZFile() throws Exception {
-		RiskScoreFormat format = RiskScoreFormat.load("test-data/chr20.scores.csv.format");
-		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv.gz", format, DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv.gz", RiskScoreFormat.MAPPING_FILE,
+				DBSNP_INDEX);
 		file.buildIndex("20");
 		assertEquals(4, file.getTotalVariants());
 		assertNotNull(file.getVariant(61795));
@@ -55,7 +53,7 @@ public class RiskScoreFileTest {
 	}
 
 	public void testLoadTextFileMissingAlleleInOtherChromosome() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", new PGSCatalogFormat(), DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX);
 		file.buildIndex("1");
 		assertEquals(17, file.getCacheSize());
 		assertEquals(176, file.getTotalVariants());
@@ -63,16 +61,29 @@ public class RiskScoreFileTest {
 
 	@Test(expected = IOException.class)
 	public void testLoadTextFileMissingAllele() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", new PGSCatalogFormat(), DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX);
 		file.buildIndex("11");
 	}
-	
+
 	@Test
 	public void testLoadRsIdFormat() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("PGS000001", new PGSCatalogFormat(), DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("PGS000001", DBSNP_INDEX);
 		file.buildIndex("1");
 		assertEquals(5, file.getCacheSize());
 		assertEquals(77, file.getTotalVariants());
+	}
+
+	@Test
+	public void testLoadRsIdFormatV1AndV2() throws Exception {
+
+		RiskScoreFile file = new RiskScoreFile("PGS000957", DBSNP_INDEX);
+		file.buildIndex("1");
+		assertEquals(11276, file.getTotalVariants());
+
+		RiskScoreFile file2 = new RiskScoreFile("PGS000958", DBSNP_INDEX);
+		file2.buildIndex("1");
+		assertEquals(9400, file2.getTotalVariants());
+
 	}
 
 }

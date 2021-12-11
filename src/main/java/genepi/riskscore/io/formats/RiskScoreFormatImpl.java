@@ -1,4 +1,4 @@
-package genepi.riskscore.model;
+package genepi.riskscore.io.formats;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
-public class RiskScoreFormat {
+public class RiskScoreFormatImpl {
 
 	public static final char SEPARATOR = '\t';
 
@@ -71,11 +71,11 @@ public class RiskScoreFormat {
 		return effectAllele;
 	}
 
-	public static RiskScoreFormat load(String filename)
+	public static RiskScoreFormatImpl load(String filename)
 			throws JsonSyntaxException, JsonIOException, FileNotFoundException {
 
 		Gson gson = new Gson();
-		RiskScoreFormat format = gson.fromJson(new FileReader(filename), RiskScoreFormat.class);
+		RiskScoreFormatImpl format = gson.fromJson(new FileReader(filename), RiskScoreFormatImpl.class);
 		return format;
 	}
 

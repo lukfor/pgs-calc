@@ -11,8 +11,10 @@ import java.util.Map;
 import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory;
+import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.model.ReferenceVariant;
-import genepi.riskscore.model.RiskScoreFormat;
 
 public class RiskScoreFile {
 
@@ -22,16 +24,15 @@ public class RiskScoreFile {
 
 	private int totalVariants = 0;
 
-	private RiskScoreFormat format;
+	private RiskScoreFormatImpl format;
 
 	public RiskScoreFile(String filename, String dbsnp) throws Exception {
-		this(filename, new RiskScoreFormat(), dbsnp);
+		this(filename, RiskScoreFormat.PGS_CATALOG, dbsnp);
 	}
 
 	public RiskScoreFile(String filename, RiskScoreFormat format, String dbsnp) throws Exception {
 
 		this.filename = filename;
-		this.format = format;
 
 		variants = new HashMap<Integer, ReferenceVariant>();
 
@@ -48,9 +49,11 @@ public class RiskScoreFile {
 			}
 		}
 
-		DataInputStream in = openTxtOrGzipStream(this.filename);
+		this.format = RiskScoreFormatFactory.buildFormat(this.filename, format);
 
-		ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
+		
+		DataInputStream in = openTxtOrGzipStream(this.filename);
+		ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
 		checkFileFormat(reader, this.filename);
 		reader.close();
 
@@ -86,7 +89,7 @@ public class RiskScoreFile {
 		try {
 			DataInputStream in = openTxtOrGzipStream(filename);
 
-			ITableReader reader = new CsvTableReader(in, RiskScoreFormat.SEPARATOR);
+			ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
 			int row = 0;
 			while (reader.next()) {
 				row++;
@@ -182,6 +185,14 @@ public class RiskScoreFile {
 		FileInputStream inputStream = new FileInputStream(filename);
 		InputStream in2 = FileUtil.decompressStream(inputStream);
 		return new DataInputStream(in2);
+	}
+
+	public String toString() {
+		return format.toString();
+	}
+
+	public RiskScoreFormatImpl getFormat() {
+		return format;
 	}
 
 }

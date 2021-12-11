@@ -28,11 +28,11 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
+		PGSCatalogFormat format = new PGSCatalogFormat(input);
+
 		System.out.println("Converting score file " + input + "...");
 		CsvTableReader reader = new CsvTableReader(input, '\t');
 		CsvTableWriter writer = new CsvTableWriter(output, '\t', false);
-
-		PGSCatalogFormat format = new PGSCatalogFormat();
 
 		DbSnpReader dbSnpReader = new DbSnpReader(dbsnpFilename);
 

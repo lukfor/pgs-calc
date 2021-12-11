@@ -12,7 +12,7 @@ import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
-import genepi.riskscore.model.RiskScoreFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
 import genepi.riskscore.tasks.MergeEffectsTask;
@@ -46,9 +46,6 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = {
 			"--genotypes" }, description = "Genotype field (DS or GT)", required = false, showDefaultValue = Visibility.ALWAYS)
 	String genotypeFormat = ApplyScoreTask.DOSAGE_FORMAT;
-
-	@Option(names = { "--format" }, description = "Reference weights format file", required = false)
-	String format = null;
 
 	@Option(names = { "--threads" }, description = "Number of threads", required = false)
 	int threads = 1;
@@ -134,18 +131,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 			String[] refs = parseRef(ref);
 			task.setRiskScoreFilenames(refs);
-			if (format != null) {
-				RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(format);
-				for (String file : refs) {
-					task.setRiskScoreFormat(file, riskScoreFormat);
-				}
-			} else {
-				for (String file : refs) {
-					String autoFormat = file + ".format";
-					if (new File(autoFormat).exists()) {
-						RiskScoreFormat riskScoreFormat = RiskScoreFormat.load(autoFormat);
-						task.setRiskScoreFormat(file, riskScoreFormat);
-					}
+
+			for (String file : refs) {
+				String autoFormat = file + ".format";
+				if (new File(autoFormat).exists()) {
+					task.setRiskScoreFormat(file, RiskScoreFormat.MAPPING_FILE);
 				}
 			}
 
