@@ -25,21 +25,22 @@ public class PGSCatalog {
 
 	public static String USER_HOME = System.getProperty("user.home");
 
+	public static boolean ENABLE_CACHE = true;
+
 	public static String CACHE_DIR = FileUtil.path(USER_HOME, ".pgs-calc", "pgs-catalog");
 
 	public static String FILE_URL = "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/{0}/ScoringFiles/{0}.txt.gz";
 
-	public static String DBSNP_VERSION = "150";
-
-	public static String DBSNP_BUILD = "hg19";
-
-	public static String getFilenameById(String id) throws IOException {
+	public static String getFilenameById(String id, String dbsnp) throws IOException {
 
 		String filename = FileUtil.path(CACHE_DIR, id + ".txt.gz");
 
 		if ((new File(filename)).exists()) {
 			// System.out.println("Score '" + id + "' found in local cache " + filename);
-			return filename;
+			if (ENABLE_CACHE) {
+				return filename;
+			} else
+				new File(filename).delete();
 		}
 
 		FileUtil.createDirectory(CACHE_DIR);
@@ -54,10 +55,12 @@ public class PGSCatalog {
 
 		PGSCatalogFileFormat fileFormat = getFileFormat(filename);
 		if (fileFormat == PGSCatalogFileFormat.RS_ID) {
+			if (dbsnp == null) {
+				throw new IOException("Score " + id + " is in RS_ID format. Please specify dbsnp index.");
+			}
 			String originalFilename = filename.replaceAll(".txt.gz", ".original.txt.gz");
 			new File(filename).renameTo(new File(originalFilename));
-			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, filename, DBSNP_VERSION,
-					DBSNP_BUILD);
+			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, filename, dbsnp);
 			TaskService.setAnsiSupport(false);
 			TaskService.setAnimated(false);
 			List<Task> result = TaskService.run(convertRsIds);

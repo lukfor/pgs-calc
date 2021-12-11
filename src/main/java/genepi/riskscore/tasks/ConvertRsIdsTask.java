@@ -1,10 +1,7 @@
 package genepi.riskscore.tasks;
 
-import java.io.IOException;
-
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.writer.CsvTableWriter;
-import genepi.riskscore.io.dbsnp.DbSnp;
 import genepi.riskscore.io.dbsnp.DbSnpReader;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
 import lukfor.progress.tasks.ITaskRunnable;
@@ -21,12 +18,6 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 	private int total = 0;
 
 	private String dbsnpFilename;
-
-	public ConvertRsIdsTask(String input, String output, String dbsnpVersion, String dbsnpBuild) throws IOException {
-		this.input = input;
-		this.output = output;
-		this.dbsnpFilename = DbSnp.getFilename(dbsnpVersion, dbsnpBuild);
-	}
 
 	public ConvertRsIdsTask(String input, String output, String dbsnpFilename) {
 		this.input = input;

@@ -65,6 +65,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String outputEffectsFilename;
 
+	private String dbsnp = null;
+	
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -112,6 +114,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 		this.outputEffectsFilename = outputEffectsFilename;
 	}
 
+	public void setDbSnp(String dbsnp) {
+		this.dbsnp = dbsnp;
+	}
+	
 	public void run(ITaskMonitor monitor) throws Exception {
 
 		if (vcf == null || vcf.isEmpty()) {
@@ -153,7 +159,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			summaries[i] = new RiskScoreSummary(name);
 		}
 
-		RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, riskScoreFilenames);
+		RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, riskScoreFilenames);
 
 		boolean empty = true;
 		for (RiskScoreFile riskscore : riskscores) {
@@ -185,7 +191,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	}
 
-	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String... riskScoreFilenames)
+	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp, String... riskScoreFilenames)
 			throws Exception {
 
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
@@ -194,7 +200,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			// System.out.println("Loading file " + riskScoreFilenames[i] + "...");
 
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
-			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format);
+			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp);
 
 			if (chunk != null) {
 				riskscore.buildIndex(chromosome, chunk);

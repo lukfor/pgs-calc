@@ -74,6 +74,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--writeEffects" }, description = "Write file with effects per snp and sample", required = false)
 	String outputEffectsFilename = null;
 
+	@Option(names = { "--dbsnp" }, description = "dbSNP Index file to support rsIDs", required = false)
+	String dbsnp = null;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -151,7 +154,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 
 			String taskPrefix = FileUtil.path(tempFolder, "task_" + tasks.size());
-
+			if (dbsnp != null) {
+				task.setDbSnp(dbsnp);
+			}
 			task.setVcfFilename(vcf);
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);

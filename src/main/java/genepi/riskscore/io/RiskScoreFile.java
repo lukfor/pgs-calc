@@ -24,11 +24,11 @@ public class RiskScoreFile {
 
 	private RiskScoreFormat format;
 
-	public RiskScoreFile(String filename) throws Exception {
-		this(filename, new RiskScoreFormat());
+	public RiskScoreFile(String filename, String dbsnp) throws Exception {
+		this(filename, new RiskScoreFormat(), dbsnp);
 	}
 
-	public RiskScoreFile(String filename, RiskScoreFormat format) throws Exception {
+	public RiskScoreFile(String filename, RiskScoreFormat format, String dbsnp) throws Exception {
 
 		this.filename = filename;
 		this.format = format;
@@ -40,7 +40,7 @@ public class RiskScoreFile {
 			// check if filename is a PGS id
 			if (PGSCatalog.isValidId(filename)) {
 				String id = filename;
-				this.filename = PGSCatalog.getFilenameById(id);
+				this.filename = PGSCatalog.getFilenameById(id, dbsnp);
 			} else {
 
 				throw new Exception("File '" + filename + "' not found.");

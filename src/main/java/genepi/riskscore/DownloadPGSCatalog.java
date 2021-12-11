@@ -20,8 +20,8 @@ public class DownloadPGSCatalog {
 		for (int i = 320; i <= max; i++) {
 			String id = String.format(formatId, i);
 			try {
-				String filename = PGSCatalog.getFilenameById(id);
-				new RiskScoreFile(filename, new PGSCatalogFormat());
+				String filename = PGSCatalog.getFilenameById(id, null);
+				new RiskScoreFile(filename, new PGSCatalogFormat(), null);
 				System.out.println(id);
 				writer.write(id);
 				count++;

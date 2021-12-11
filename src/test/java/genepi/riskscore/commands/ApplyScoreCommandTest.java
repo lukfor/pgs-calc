@@ -12,16 +12,20 @@ import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.App;
+import genepi.riskscore.io.PGSCatalog;
 import lukfor.progress.TaskService;
 import picocli.CommandLine;
 
 public class ApplyScoreCommandTest {
+
+	public static String DBSNP_INDEX = "test-data/dbsnp-index.small.txt.gz";
 
 	public static final int EXPECTED_SAMPLES = 51;
 
 	@BeforeClass
 	public static void setup() {
 		TaskService.setAnsiSupport(false);
+		PGSCatalog.ENABLE_CACHE = false;
 	}
 
 	@Before
@@ -30,11 +34,12 @@ public class ApplyScoreCommandTest {
 		FileUtil.deleteDirectory("test-data-output");
 		FileUtil.createDirectory("test-data-output");
 	}
-	
+
 	@Test
 	public void testCall() {
 
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out", "test-data-output/output.csv" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out",
+				"test-data-output/output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -69,8 +74,9 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithMultiplePGSIDs() {
 
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out", "test-data-output/output.csv",
-				"--report-html", "test-data-output/output.html", "--meta", "test-data/pgs-catalog-small.json" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000028,PGS000027", "--out",
+				"test-data-output/output.csv", "--report-html", "test-data-output/output.html", "--meta",
+				"test-data/pgs-catalog-small.json" };
 		App.ARGS = args;
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
@@ -89,7 +95,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithPGSCatalogIDFile() {
 
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/pgs-ids.txt", "--out", "test-data-output/output.csv" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/pgs-ids.txt", "--out",
+				"test-data-output/output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -101,6 +108,24 @@ public class ApplyScoreCommandTest {
 		}
 		assertEquals(3, reader.getColumns().length);
 		assertEquals(EXPECTED_SAMPLES, samples);
+		reader.close();
+	}
+
+	@Test
+	public void testCallWithPGSCatalogIDAndRsIDs() {
+
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "PGS000001", "--out", "test-data-output/output.csv",
+				"--dbsnp", DBSNP_INDEX };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("test-data-output/output.csv", ',');
+		while (reader.next()) {
+			samples++;
+		}
+		assertEquals(2, reader.getColumns().length);
+		assertEquals(2, samples);
 		reader.close();
 	}
 
@@ -146,7 +171,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallAndCheckOutputFile() throws IOException {
 
-		String[] args = { "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out", "test-data-output/output.csv" };
+		String[] args = { "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out",
+				"test-data-output/output.csv" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -261,8 +287,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithMinR2() throws IOException {
 
-		String[] args = { "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out", "test-data-output/output.csv", "--minR2",
-				"0.5" };
+		String[] args = { "test-data/two.vcf", "--ref", "test-data/chr20.scores.csv", "--out",
+				"test-data-output/output.csv", "--minR2", "0.5" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -298,8 +324,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithChunk() {
 
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out", "test-data-output/output.csv",
-				"--start", "61795", "--end", "63231" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out",
+				"test-data-output/output.csv", "--start", "61795", "--end", "63231" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -316,8 +342,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithStartOnly() {
 
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out", "test-data-output/output.csv",
-				"--start", "61795" };
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/chr20.scores.csv", "--out",
+				"test-data-output/output.csv", "--start", "61795" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(2, result);
 
