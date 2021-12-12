@@ -11,6 +11,7 @@ import java.util.concurrent.Callable;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.commands.MergeReportCommand;
 import genepi.riskscore.commands.MergeScoreCommand;
+import genepi.riskscore.commands.ResolveScoreCommand;
 import lukfor.progress.renderer.ProgressIndicatorGroup;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -46,7 +47,7 @@ public class App {
 	}
 
 	@Command(name = App.APP, version = App.VERSION, subcommands = { ApplyScoreCommand.class, MergeScoreCommand.class,
-			MergeReportCommand.class })
+			MergeReportCommand.class, ResolveScoreCommand.class })
 	public static class DefaultCommand implements Callable<Integer> {
 
 		@Override
