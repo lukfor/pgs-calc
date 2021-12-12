@@ -7,7 +7,7 @@ import genepi.riskscore.io.formats.PGSCatalogFormat;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
 
-public class ConvertRsIdsTask implements ITaskRunnable {
+public class ResolveScoreTask implements ITaskRunnable {
 
 	private String input = null;
 
@@ -19,7 +19,7 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 	private String dbsnpFilename;
 
-	public ConvertRsIdsTask(String input, String output, String dbsnpFilename) {
+	public ResolveScoreTask(String input, String output, String dbsnpFilename) {
 		this.input = input;
 		this.output = output;
 		this.dbsnpFilename = dbsnpFilename;
@@ -30,9 +30,8 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 
 		PGSCatalogFormat format = new PGSCatalogFormat(input);
 
-		System.out.println("Converting score file " + input + "...");
-		CsvTableReader reader = new CsvTableReader(input, '\t');
-		CsvTableWriter writer = new CsvTableWriter(output, '\t', false);
+		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
+		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
 
 		DbSnpReader dbSnpReader = new DbSnpReader(dbsnpFilename);
 
@@ -67,15 +66,13 @@ public class ConvertRsIdsTask implements ITaskRunnable {
 		writer.close();
 		reader.close();
 
-		System.out.println("File converted. Snps found: " + found + "/" + total);
-
 	}
 
 	public int getTotal() {
 		return total;
 	}
 
-	public int getFound() {
+	public int getResolved() {
 		return found;
 	}
 

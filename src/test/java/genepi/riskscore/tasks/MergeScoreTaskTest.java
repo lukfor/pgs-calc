@@ -82,7 +82,7 @@ public class MergeScoreTaskTest {
 		}
 
 		args = new String[3 + chunkFiles.length];
-		args[0] = "merge-scores";
+		args[0] = "merge";
 		args[1] = "--out";
 		args[2] = "test-data-output/output.merged.txt";
 		for (int i = 0; i < chunkFiles.length; i++) {

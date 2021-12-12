@@ -16,7 +16,7 @@ import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.model.ReferenceVariant;
-import genepi.riskscore.tasks.ConvertRsIdsTask;
+import genepi.riskscore.tasks.ResolveScoreTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
 
@@ -61,7 +61,7 @@ public class RiskScoreFile {
 			}
 			String originalFilename = this.filename;
 			this.filename = originalFilename + ".positions";
-			ConvertRsIdsTask convertRsIds = new ConvertRsIdsTask(originalFilename, this.filename, dbsnp);
+			ResolveScoreTask convertRsIds = new ResolveScoreTask(originalFilename, this.filename, dbsnp);
 			TaskService.setAnsiSupport(false);
 			TaskService.setAnimated(false);
 			List<Task> result = TaskService.run(convertRsIds);
