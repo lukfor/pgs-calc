@@ -3,7 +3,7 @@
 [![Java CI with Maven](https://github.com/lukfor/pgs-calc/actions/workflows/maven.yml/badge.svg)](https://github.com/lukfor/pgs-calc/actions/workflows/maven.yml)[![codecov](https://codecov.io/gh/lukfor/pgs-calc/branch/master/graph/badge.svg)](https://codecov.io/gh/lukfor/pgs-calc)
 [![GitHub release](https://img.shields.io/github/release/lukfor/pgs-calc.svg)](https://GitHub.com/lukfor/pgs-calc/releases/)
 
-> Applying polygenic risk scores (PGS) on imputed genotypes
+> Applying polygenic scores (PGS) on imputed genotypes
 
 ## Features
 
@@ -23,10 +23,10 @@
 
 ## Usage
 
-Applying polygenic risk scores (PRS) on imputed genotypes
+Applying polygenic scores (PGS) on imputed genotypes
 
 ```
-./pgs-calc --ref PGS000018.txt.gz --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
+./pgs-calc apply --ref PGS000018.txt.gz --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
 ```
 
 ### Optional parameters
@@ -54,26 +54,26 @@ Applying polygenic risk scores (PRS) on imputed genotypes
 
 #### Single chromosome
 
-Apply PRS to a single file (e.g. one chromosome):
+Apply PGS to a single file (e.g. one chromosome):
 
 ```
-./pgs-calc --ref PGS000018.txt.gz test.chr1.vcf.gz --out scores.txt
+./pgs-calc apply --ref PGS000018.txt.gz test.chr1.vcf.gz --out scores.txt
 ```
 
 All risk scores are written to file `scores.txt`
 
 #### Multiple chromosomes
 
-Apply PRS to multiple files (e.g. multiple chromosomes):
+Apply PGS to multiple files (e.g. multiple chromosomes):
 
 ```
-./pgs-calc --ref PGS000018.txt.gz test.chr1.vcf.gz test.chr2.vcf.gz test.chr3.vcf.gz test.chr4.vcf.gz --out scores.txt
+./pgs-calc apply --ref PGS000018.txt.gz test.chr1.vcf.gz test.chr2.vcf.gz test.chr3.vcf.gz test.chr4.vcf.gz --out scores.txt
 ```
 
-Apply PRS to multiple files by using file patterns:
+Apply PGS to multiple files by using file patterns:
 
 ```
-./pgs-calc --ref PGS000018.txt.gz test.chr*.vcf.gz --out scores.txt
+./pgs-calc apply --ref PGS000018.txt.gz test.chr*.vcf.gz --out scores.txt
 ```
 
 #### Multiple scores
@@ -81,7 +81,7 @@ Apply PRS to multiple files by using file patterns:
 Apply multiple score files:
 
 ```
-./pgs-calc --ref PGS000018.txt.gz,PGS000027.txt.gz test.chr*.vcf.gz --out scores.txt
+./pgs-calc apply --ref PGS000018.txt.gz,PGS000027.txt.gz test.chr*.vcf.gz --out scores.txt
 ```
 
 
@@ -90,7 +90,7 @@ Apply multiple score files:
 Use only variants with an imputation quality (R2) >= 0.9:
 
 ```
-./pgs-calc --ref PGS000018.txt.gz test.chr*.vcf.gz --minR2 0.9 --out scores.txt
+./pgs-calc apply --ref PGS000018.txt.gz test.chr*.vcf.gz --minR2 0.9 --out scores.txt
 ```
 
 #### PGSCatalog support
@@ -98,7 +98,7 @@ Use only variants with an imputation quality (R2) >= 0.9:
 If a PGS id is provided, pgs-calc downloads the file from PGSCatalog automatically:
 
 ```
-./pgs-calc --ref PGS000018 test.chr1.vcf.gz --out scores.txt
+./pgs-calc apply --ref PGS000018 test.chr1.vcf.gz --out scores.txt
 ```
 
 All risk scores are written to file `scores.txt`
