@@ -225,7 +225,7 @@ public class MinimalVariantContext {
 
 	public double getInfoAsDouble(String key, double defaultValue) {
 		String value = getInfo(key);
-		if (value != null) {
+		if (value != null && !value.isEmpty() && !value.equals(".")) {
 			return Double.parseDouble(value);
 		} else {
 			return defaultValue;
