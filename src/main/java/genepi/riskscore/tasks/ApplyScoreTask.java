@@ -14,8 +14,6 @@ import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.io.VariantFile;
-import genepi.riskscore.io.formats.PGSCatalogFormat;
-import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
@@ -210,6 +208,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			}
 
 			summaries[i].setVariants(riskscore.getTotalVariants());
+			summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
 
 			// System.out.println("Loaded " + riskscore.getCacheSize() + " weights for
 			// chromosome " + chromosome);

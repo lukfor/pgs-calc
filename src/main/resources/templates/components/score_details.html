@@ -22,6 +22,7 @@
           <h5>Target study</h5>
           <ul>
             <li>Coverage: {{decimal(score.variantsUsed)}} ({{percentage(score.coverage)}}) <span class="badge badge-{{score.coverageLabel}}">{{score.coverageLabel}}</span> </li>
+            <li>Variants ignored: {{decimal(score.variantsIgnored)}}</li>
             <li>Samples: {{decimal(samples.size())}}</li>
           </ul>
         </div>

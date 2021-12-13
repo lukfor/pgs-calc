@@ -10,6 +10,8 @@ public class RiskScoreSummary {
 
 	private int variantsUsed = 0;
 
+	private int variantsIgnored = 0;
+
 	private double coverage = 0;
 
 	private int variantsSwitched = 0;
@@ -29,8 +31,6 @@ public class RiskScoreSummary {
 	private Object data;
 
 	private String coverageLabel;
-	
-	private int samples;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -142,6 +142,14 @@ public class RiskScoreSummary {
 		return coverageLabel;
 	}
 
+	public void setVariantsIgnored(int variantsIgnored) {
+		this.variantsIgnored = variantsIgnored;
+	}
+
+	public int getVariantsIgnored() {
+		return variantsIgnored;
+	}
+
 	public void updateStatistics() {
 		coverage = (double) getVariantsUsed() / (double) getVariants();
 
@@ -163,6 +171,7 @@ public class RiskScoreSummary {
 
 		// total variants has to be ignored.
 		variantsUsed += other.variantsUsed;
+		variantsIgnored += other.variantsIgnored;
 		variantsSwitched += other.variantsSwitched;
 		variantsMultiAllelic += other.variantsMultiAllelic;
 		variantsAlleleMissmatch += other.variantsAlleleMissmatch;
@@ -179,6 +188,7 @@ public class RiskScoreSummary {
 
 		buffer.append("  " + name + ":\n");
 		buffer.append("    - Variants: " + number(getVariants()) + "\n");
+		buffer.append("    - Variants ignored: " + number(getVariantsIgnored()) + "\n");
 		buffer.append("    - Variants used: " + number(getVariantsUsed()) + " ("
 				+ percentage(getVariantsUsed(), getVariants()) + ")\n");
 		buffer.append("    - Found in target and filtered by:\n");

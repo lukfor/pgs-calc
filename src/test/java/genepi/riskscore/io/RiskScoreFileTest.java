@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.IOException;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -52,6 +50,7 @@ public class RiskScoreFileTest {
 		assertEquals("filename.weights", RiskScoreFile.getName("folder/path/filename.weights"));
 	}
 
+	@Test
 	public void testLoadTextFileMissingAlleleInOtherChromosome() throws Exception {
 		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX);
 		file.buildIndex("1");
@@ -59,10 +58,12 @@ public class RiskScoreFileTest {
 		assertEquals(176, file.getTotalVariants());
 	}
 
-	@Test(expected = IOException.class)
+	@Test
 	public void testLoadTextFileMissingAllele() throws Exception {
 		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX);
 		file.buildIndex("11");
+		assertEquals(176, file.getTotalVariants());
+		assertEquals(1, file.getIgnoredVariants());
 	}
 
 	@Test
@@ -72,7 +73,7 @@ public class RiskScoreFileTest {
 		assertEquals(5, file.getCacheSize());
 		assertEquals(77, file.getTotalVariants());
 	}
-	
+
 	@Test
 	public void testLoadRsIdFormatFromFile() throws Exception {
 		RiskScoreFile file = new RiskScoreFile("test-data/PGS000001.txt.gz", DBSNP_INDEX);
@@ -84,13 +85,25 @@ public class RiskScoreFileTest {
 	@Test
 	public void testLoadRsIdFormatV1AndV2() throws Exception {
 
-		RiskScoreFile file = new RiskScoreFile("PGS000957", DBSNP_INDEX);
-		file.buildIndex("1");
-		assertEquals(11276, file.getTotalVariants());
+		for (int i = 1; i <= 22; i++) {
+			RiskScoreFile file = new RiskScoreFile("test-data/PGS000957.txt.gz", DBSNP_INDEX);
+			file.buildIndex(i + "");
+		}
 
-		RiskScoreFile file2 = new RiskScoreFile("PGS000958", DBSNP_INDEX);
-		file2.buildIndex("1");
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000957.txt.gz", DBSNP_INDEX);
+		file.buildIndex("6");
+		assertEquals(11276, file.getTotalVariants());
+		assertEquals(1, file.getIgnoredVariants());
+
+		for (int i = 1; i <= 22; i++) {
+			RiskScoreFile file2 = new RiskScoreFile("test-data/PGS000958.txt.gz", DBSNP_INDEX);
+			file2.buildIndex(i + "");
+		}
+
+		RiskScoreFile file2 = new RiskScoreFile("test-data/PGS000958.txt.gz", DBSNP_INDEX);
+		file2.buildIndex("6");
 		assertEquals(9400, file2.getTotalVariants());
+		assertEquals(1, file2.getIgnoredVariants());
 
 	}
 
