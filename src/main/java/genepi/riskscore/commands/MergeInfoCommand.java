@@ -11,10 +11,10 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "merge-reports", version = App.VERSION)
-public class MergeReportCommand implements Callable<Integer> {
+@Command(name = "merge-info", version = App.VERSION)
+public class MergeInfoCommand implements Callable<Integer> {
 
-	@Parameters(description = "report json files")
+	@Parameters(description = "info files")
 	String[] chunkFiles;
 
 	@Option(names = { "--out" }, description = "Output filename", required = true)

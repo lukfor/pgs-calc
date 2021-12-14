@@ -1,17 +1,17 @@
-package genepi.riskscore.tasks;
+package genepi.riskscore.commands;
+
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.io.FileUtil;
-import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalog;
-import genepi.riskscore.io.ReportFile;
 import lukfor.progress.TaskService;
-import lukfor.progress.tasks.monitors.TaskMonitorMock;
+import picocli.CommandLine;
 
-public class CreateHtmlReportTaskTest {
+public class CreateHtmlReportCommandTest {
 
 	@BeforeClass
 	public static void setup() {
@@ -25,18 +25,14 @@ public class CreateHtmlReportTaskTest {
 		FileUtil.deleteDirectory("test-data-output");
 		FileUtil.createDirectory("test-data-output");
 	}
-	
+
 	@Test
 	public void testReport() throws Exception {
 
-		ReportFile report = ReportFile.loadFromFile("test-data/report.json");
-		OutputFile data = new OutputFile("test-data/output.csv");
-
-		CreateHtmlReportTask task = new CreateHtmlReportTask();
-		task.setData(data);
-		task.setReport(report);
-		task.setOutput("test-data-output/report.html");
-		task.run(new TaskMonitorMock());
+		String[] args = { "--data", "test-data/output.csv", "--info", "test-data/report.json", "--out",
+				"test-data-output/report.html" };
+		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
+		assertEquals(0, result);
 
 	}
 

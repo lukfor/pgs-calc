@@ -59,7 +59,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--samples" }, description = "Include only samples from this file", required = false)
 	String includeSamplesFilename = null;
 
-	@Option(names = { "--report-json" }, description = "Write statistics to json file", required = false)
+	@Option(names = { "--report-json", "--info" }, description = "Write statistics to json file", required = false)
 	String reportJson = null;
 
 	@Option(names = { "--report-html" }, description = "Write statistics to html file", required = false)

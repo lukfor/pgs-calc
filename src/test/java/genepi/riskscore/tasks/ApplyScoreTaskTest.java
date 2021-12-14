@@ -9,6 +9,7 @@ import org.junit.Test;
 import genepi.io.FileUtil;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
+import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.TaskService;
@@ -21,6 +22,7 @@ public class ApplyScoreTaskTest {
 	@BeforeClass
 	public static void setup() {
 		TaskService.setAnsiSupport(false);
+		PGSCatalog.ENABLE_CACHE = false;
 	}
 
 	@Before

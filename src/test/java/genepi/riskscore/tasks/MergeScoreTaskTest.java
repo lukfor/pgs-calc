@@ -14,6 +14,7 @@ import genepi.riskscore.App.DefaultCommand;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.OutputFileWriter;
+import genepi.riskscore.io.PGSCatalog;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.monitors.TaskMonitorMock;
 import picocli.CommandLine;
@@ -23,6 +24,7 @@ public class MergeScoreTaskTest {
 	@BeforeClass
 	public static void setup() {
 		TaskService.setAnsiSupport(false);
+		PGSCatalog.ENABLE_CACHE = false;
 	}
 
 	@Before
@@ -47,8 +49,11 @@ public class MergeScoreTaskTest {
 	@Test
 	public void testMergingChunks() throws Exception {
 
+		//resolve 
+		
+		
 		// Whole file
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out",
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--out",
 				"test-data-output/output.csv", "--report-json", "test-data-output/report.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
@@ -71,7 +76,7 @@ public class MergeScoreTaskTest {
 			int end = i + chunkSize - 1;
 			String chunk = "test-data-output/output" + start + "_" + end + ".csv";
 			String report = "test-data-output/output" + start + "_" + end + ".json";
-			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--start", start + "",
+			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--start", start + "",
 					"--end", end + "", "--out", chunk, "--report-json", report };
 			result = new CommandLine(new ApplyScoreCommand()).execute(args);
 			assertEquals(0, result);
@@ -82,7 +87,7 @@ public class MergeScoreTaskTest {
 		}
 
 		args = new String[3 + chunkFiles.length];
-		args[0] = "merge";
+		args[0] = "merge-score";
 		args[1] = "--out";
 		args[2] = "test-data-output/output.merged.txt";
 		for (int i = 0; i < chunkFiles.length; i++) {
@@ -93,7 +98,7 @@ public class MergeScoreTaskTest {
 		assertEqualsScoreFiles("test-data-output/output.csv", "test-data-output/output.merged.txt", 0.0000001);
 
 		args = new String[3 + reportFiles.length];
-		args[0] = "merge-reports";
+		args[0] = "merge-info";
 		args[1] = "--out";
 		args[2] = "test-data-output/report.merged.json";
 		for (int i = 0; i < reportFiles.length; i++) {

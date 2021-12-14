@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import genepi.io.FileUtil;
 import genepi.riskscore.commands.ApplyScoreCommand;
+import genepi.riskscore.io.PGSCatalog;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.monitors.TaskMonitorMock;
 import picocli.CommandLine;
@@ -17,6 +18,7 @@ public class MergeEffectsTaskTest {
 	@BeforeClass
 	public static void setup() {
 		TaskService.setAnsiSupport(false);
+		PGSCatalog.ENABLE_CACHE = false;
 	}
 
 	@Before
@@ -42,7 +44,7 @@ public class MergeEffectsTaskTest {
 	public void testMergingChunks() throws Exception {
 
 		// Whole file
-		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--out", "test-data-output/output.csv",
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--out", "test-data-output/output.csv",
 				"--report-json", "test-data-output/report.json", "--writeEffects", "test-data-output/effects.txt" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
@@ -67,7 +69,7 @@ public class MergeEffectsTaskTest {
 			String chunk = "test-data-output/output" + start + "_" + end + ".csv";
 			String report = "test-data-output/output" + start + "_" + end + ".json";
 			String effects = "test-data-output/effects" + start + "_" + end + ".txt";
-			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "PGS000018,PGS000027", "--start", start + "",
+			args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--start", start + "",
 					"--end", end + "", "--out", chunk, "--report-json", report, "--writeEffects", effects };
 			result = new CommandLine(new ApplyScoreCommand()).execute(args);
 			assertEquals(0, result);

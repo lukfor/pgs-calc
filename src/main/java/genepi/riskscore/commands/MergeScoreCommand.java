@@ -11,7 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "merge", version = App.VERSION)
+@Command(name = "merge-score", version = App.VERSION)
 public class MergeScoreCommand implements Callable<Integer> {
 
 	@Parameters(description = "score files")
