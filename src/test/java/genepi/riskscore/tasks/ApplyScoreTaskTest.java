@@ -134,7 +134,37 @@ public class ApplyScoreTaskTest {
 		assertEquals(-0.4, output.getValue(0, 0), 0.00001);
 
 	}
+	
+	@Test
+	public void testScoreHg38() throws Exception {
 
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
+		task.setVcfFilename("test-data/single.hg38.vcf");
+		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
+		task.setOutput("test-data-output/output.hg38.txt");
+		task.run(new TaskMonitorMock());
+
+		assertEquals(5, task.getCountVariants());
+
+		RiskScoreSummary summary = task.getSummaries()[0];
+		assertEquals(3, summary.getVariantsUsed());
+		assertEquals(2, summary.getSwitched());
+		assertEquals(1, summary.getVariantsNotUsed());
+		assertEquals(0, summary.getMultiAllelic());
+		assertEquals(1, summary.getAlleleMissmatch());
+		assertEquals(1, task.getCountSamples());
+
+		OutputFile output = new OutputFile(task.getOutput());
+
+		assertEquals(1, output.getCountScores());
+		assertEquals("LF001", output.getSamples().get(0));
+		assertEquals(-0.4, output.getValue(0, 0), 0.00001);
+
+	}
+
+	
+	
 	@Test
 	public void testScoreSwitchEffectAllele() throws Exception {
 

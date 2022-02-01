@@ -95,7 +95,8 @@ public class MinimalVariantContext {
 	}
 
 	public String getContig() {
-		return contig;
+		// replace als chr prefixes (e.g. hg38) to normalize chr
+		return contig.replaceAll("chr", "");
 	}
 
 	public void setContig(String contig) {
