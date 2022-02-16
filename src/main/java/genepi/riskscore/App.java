@@ -43,7 +43,8 @@ public class App {
 
 		ARGS = args;
 
-		new CommandLine(new DefaultCommand()).execute(args);
+		int exitCode = new CommandLine(new DefaultCommand()).execute(args);
+		System.exit(exitCode);
 
 	}
 
