@@ -22,11 +22,17 @@ public class DbSnpReader {
 
 		if (line != null) {
 			String[] tiles = line.split("\t");
-			Snp snp = new Snp();
-			snp.setChromosome(tiles[2]);
-			snp.setPosition(Integer.parseInt(tiles[3]));
-			snp.setReference(tiles[4].replaceAll("\\*", ""));
-			return snp;
+			if (tiles.length == 6) {
+				Snp snp = new Snp();
+				snp.setChromosome(tiles[2]);
+				snp.setPosition(Integer.parseInt(tiles[3]));
+				snp.setReference(tiles[4].replaceAll("\\*", ""));
+				snp.setAlternate(tiles[5]);
+				return snp;
+			} else {
+				throw new IOException("Index has not 6 columns.");
+			}
+
 		} else {
 			return null;
 		}
@@ -39,6 +45,8 @@ public class DbSnpReader {
 		private long position;
 
 		private String reference;
+
+		private String alternate;
 
 		public String getChromosome() {
 			return chromosome;
@@ -62,6 +70,14 @@ public class DbSnpReader {
 
 		public String getReference() {
 			return reference;
+		}
+
+		public void setAlternate(String alternate) {
+			this.alternate = alternate;
+		}
+
+		public String getAlternate() {
+			return alternate;
 		}
 
 		@Override

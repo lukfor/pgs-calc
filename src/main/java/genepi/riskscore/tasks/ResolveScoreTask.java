@@ -38,38 +38,59 @@ public class ResolveScoreTask implements ITaskRunnable {
 		writer.setColumns(new String[] { format.getChromosome(), format.getPosition(), format.getEffectAllele(),
 				format.getEffectWeight(), format.getOtherAllele(), "rsId" });
 		try {
+
 			while (reader.next()) {
+
 				String rsId = reader.getString("rsId");
 				String effectAllele = reader.getString(format.getEffectAllele());
 				String effectWeight = reader.getString(format.getEffectWeight());
 				DbSnpReader.Snp snp = dbSnpReader.getByRsId(rsId);
+
+				writer.setString("rsId", rsId);
+
 				if (snp != null) {
-					found++;
+
 					writer.setString(format.getChromosome(), snp.getChromosome().replaceAll("chr", ""));
 					writer.setString(format.getPosition(), snp.getPosition() + "");
 					writer.setString(format.getEffectAllele(), effectAllele);
 					writer.setString(format.getEffectWeight(), effectWeight);
-					// TODO: check if snp.getReference is ALLWAYS the other allele!! or if we need
-					// the alt allele also in snp index!
-					writer.setString(format.getOtherAllele(), snp.getReference());
-					writer.setString("rsId", rsId);
-					writer.next();
+
+					String otherAllele = "";
+					if (reader.hasColumn(format.getOtherAllele())) {
+						otherAllele = reader.getString(format.getOtherAllele());
+					} else {
+						if (snp.getReference().equals(effectAllele)) {
+							if (!snp.getAlternate().contains(",")) {
+								otherAllele = snp.getAlternate();
+							}
+						} else {
+							otherAllele = snp.getReference();
+						}
+					}
+					writer.setString(format.getOtherAllele(), otherAllele);
+
+					found++;
+
 				} else {
-					writer.setString(format.getChromosome(), "-");
+
+					writer.setString(format.getChromosome(), "");
 					writer.setString(format.getPosition(), "");
-					writer.setString(format.getEffectAllele(), "-");
-					writer.setString(format.getEffectWeight(), "-");
-					writer.setString(format.getOtherAllele(), "-");
-					writer.setString("rsId", rsId);
+					writer.setString(format.getEffectAllele(), "");
+					writer.setString(format.getEffectWeight(), "");
+					writer.setString(format.getOtherAllele(), "");
+
 				}
+
+				writer.next();
+
 				total++;
 			}
-			writer.close();
-			reader.close();
 		} catch (Exception e) {
+			throw e;
+		} finally {
+			dbSnpReader.close();
 			writer.close();
 			reader.close();
-			throw e;
 		}
 
 	}
