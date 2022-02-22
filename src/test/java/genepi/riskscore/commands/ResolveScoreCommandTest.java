@@ -49,5 +49,23 @@ public class ResolveScoreCommandTest {
 		assertEquals(77, variants);
 		reader.close();
 	}
+	
+	@Test
+	public void testResolveofPGSId() {
+
+		String[] args = { "--in", "PGS000001", "--out", "test-data-output/PGS000001.converted.txt",
+				"--dbsnp", DBSNP_INDEX };
+		int result = new CommandLine(new ResolveScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int variants = 0;
+		ITableReader reader = new CsvTableReader("test-data-output/PGS000001.converted.txt", '\t');
+		while (reader.next()) {
+			variants++;
+
+		}
+		assertEquals(77, variants);
+		reader.close();
+	}
 
 }
