@@ -32,6 +32,8 @@ public class ResolveScoreCommand implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 
+		long start = System.currentTimeMillis();
+
 		System.out.println("Input File: " + input);
 		try {
 
@@ -50,7 +52,11 @@ public class ResolveScoreCommand implements Callable<Integer> {
 			RiskScoreFormatImpl format = RiskScoreFormatFactory.buildFormat(input, RiskScoreFormat.PGS_CATALOG);
 			System.out.println("Input File Format: " + format);
 
+			System.out.println("--------------------------------------");
+
 			if (format.hasRsIds()) {
+
+				System.out.println("Resolve rsIDs using index file '" + dbsnp + "'...");
 
 				ResolveScoreTask task = new ResolveScoreTask(input, output, dbsnp);
 				TaskService.setAnsiSupport(false);
@@ -64,6 +70,13 @@ public class ResolveScoreCommand implements Callable<Integer> {
 
 				System.out.println("Number Variants Input: " + task.getTotal());
 				System.out.println("Number Variants Resolved: " + task.getResolved());
+				System.out.println("  Other Allele: ");
+				System.out.println("    Reference Allele dbSNP: " + task.getOtherAlleleReference());
+				System.out.println("    Alternate Allele dbSNP: " + task.getOtherAlleleAlternate());
+				System.out.println("    From Source File: " + task.getOtherAlleleSource());
+				System.out.println("Ignored Variants: ");
+				System.out.println("  Not found in dbSNP: " + task.getIgnoredNotInDbSnp());
+				System.out.println("  Multiple Alternate Alleles: " + task.getIgnoredMulAlternateAlleles());
 
 			} else {
 
@@ -71,17 +84,27 @@ public class ResolveScoreCommand implements Callable<Integer> {
 
 			}
 
+			System.out.println("--------------------------------------");
+			
 			// test output file format
 			RiskScoreFile score = null;
+			int loaded = 0;
 			for (int i = 1; i <= 22; i++) {
+				System.out.println("Validate chromosome " + i +"...");
 				score = new RiskScoreFile(output, dbsnp);
 				score.buildIndex(i + "");
+				loaded += score.getCacheSize();
 			}
+
+			long end = System.currentTimeMillis();
 
 			System.out.println("--------------------------------------");
 			System.out.println("Output File: " + output);
 			System.out.println("Output File Format: " + score.getFormat());
-			System.out.println("Number Variants Output: " + score.getTotalVariants());
+			System.out.println("Number Variants Output: " + loaded + "/" + score.getTotalVariants());
+			System.out.println("--------------------------------------");
+
+			System.out.println("Execution Time: " + ((end - start) / 1000) + " sec");
 
 			return 0;
 

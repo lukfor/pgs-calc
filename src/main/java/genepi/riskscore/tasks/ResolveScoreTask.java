@@ -17,6 +17,16 @@ public class ResolveScoreTask implements ITaskRunnable {
 
 	private int total = 0;
 
+	private int otherAlleleSource = 0;
+
+	private int otherAlleleAlternate = 0;
+
+	private int otherAlleleReference = 0;
+
+	private int ignoredNotInDbSnp = 0;
+
+	private int ignoredMulAlternateAlleles = 0;
+
 	private String dbsnpFilename;
 
 	public ResolveScoreTask(String input, String output, String dbsnpFilename) {
@@ -58,26 +68,41 @@ public class ResolveScoreTask implements ITaskRunnable {
 					String otherAllele = "";
 					if (reader.hasColumn(format.getOtherAllele())) {
 						otherAllele = reader.getString(format.getOtherAllele());
+						otherAlleleSource++;
+						found++;
 					} else {
 						if (snp.getReference().equals(effectAllele)) {
 							if (!snp.getAlternate().contains(",")) {
 								otherAllele = snp.getAlternate();
+								otherAlleleAlternate++;
+								found++;
+
+							} else {
+								log("Warning: Ignore SNP " + rsId
+										+ ": effect allele is reference allele and SNP has multiple alleles.");
+
+								ignoredMulAlternateAlleles++;
+
 							}
 						} else {
 							otherAllele = snp.getReference();
+							otherAlleleReference++;
+							found++;
 						}
 					}
 					writer.setString(format.getOtherAllele(), otherAllele);
-
-					found++;
-
+					
 				} else {
+
+					log("Warning: Ignore SNP " + rsId + ": not found in index.");
 
 					writer.setString(format.getChromosome(), "");
 					writer.setString(format.getPosition(), "");
 					writer.setString(format.getEffectAllele(), "");
 					writer.setString(format.getEffectWeight(), "");
 					writer.setString(format.getOtherAllele(), "");
+
+					ignoredNotInDbSnp++;
 
 				}
 
@@ -95,12 +120,36 @@ public class ResolveScoreTask implements ITaskRunnable {
 
 	}
 
+	protected void log(String message) {
+
+	}
+
 	public int getTotal() {
 		return total;
 	}
 
 	public int getResolved() {
 		return found;
+	}
+
+	public int getOtherAlleleAlternate() {
+		return otherAlleleAlternate;
+	}
+
+	public int getOtherAlleleReference() {
+		return otherAlleleReference;
+	}
+
+	public int getOtherAlleleSource() {
+		return otherAlleleSource;
+	}
+	
+	public int getIgnoredMulAlternateAlleles() {
+		return ignoredMulAlternateAlleles;
+	}
+	
+	public int getIgnoredNotInDbSnp() {
+		return ignoredNotInDbSnp;
 	}
 
 }
