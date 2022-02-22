@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import genepi.io.FileUtil;
+import genepi.io.text.GzipLineWriter;
+import genepi.io.text.LineReader;
 import genepi.riskscore.App;
 import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.RiskScoreFile;
@@ -58,7 +60,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 
 				System.out.println("Resolve rsIDs using index file '" + dbsnp + "'...");
 
-				ResolveScoreTask task = new ResolveScoreTask(input, output, dbsnp);
+				ResolveScoreTask task = new ResolveScoreTask(input, output + ".raw", dbsnp);
 				TaskService.setAnsiSupport(false);
 				TaskService.setAnimated(false);
 				List<Task> result = TaskService.run(task);
@@ -78,6 +80,16 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				System.out.println("  Not found in dbSNP: " + task.getIgnoredNotInDbSnp());
 				System.out.println("  Multiple Alternate Alleles: " + task.getIgnoredMulAlternateAlleles());
 
+				LineReader reader = new LineReader(output + ".raw");
+				GzipLineWriter writer = new GzipLineWriter(output);
+				while (reader.next()) {
+					writer.write(reader.get());
+				}
+				writer.close();
+				reader.close();
+				
+				FileUtil.deleteFile(output + ".raw");
+				
 			} else {
 
 				FileUtil.copy(input, output);
@@ -85,12 +97,12 @@ public class ResolveScoreCommand implements Callable<Integer> {
 			}
 
 			System.out.println("--------------------------------------");
-			
+
 			// test output file format
 			RiskScoreFile score = null;
 			int loaded = 0;
 			for (int i = 1; i <= 22; i++) {
-				System.out.println("Validate chromosome " + i +"...");
+				System.out.println("Validate chromosome " + i + "...");
 				score = new RiskScoreFile(output, dbsnp);
 				score.buildIndex(i + "");
 				loaded += score.getCacheSize();
