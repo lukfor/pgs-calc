@@ -182,7 +182,9 @@ function updatePlots() {
 }
 
 function showCommand() {
+  {{if (show_command)}}
   bootbox.alert('<pre>pgs-calc {{application_args}}</pre>');
+  {{end}}
 }
 
 $(document).ready(function() {
@@ -213,5 +215,5 @@ $(document).ready(function() {
   } else {
     $('#row-plots').hide();
   }
-  
+
 });

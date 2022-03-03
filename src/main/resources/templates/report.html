@@ -35,6 +35,7 @@
 
     <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
       <ul class="navbar-nav ml-auto">
+        {{if (show_command)}}
         {{if application_args != null}}
         <li class="nav-item">
           <a class="nav-link" href="#" id="show-command-button">
@@ -42,6 +43,8 @@
           </a>
         </li>
         {{end}}
+        {{end}}
+        {{if (show_samples)}}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="highlight-samples-navigation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span id="highlight-samples-header">Highlighted Samples (0)</span>
@@ -52,6 +55,7 @@
             <a class="dropdown-item" id="clear-highlighted-samples-button" href="#">Clear</a>
           </div>
         </li>
+        {{end}}
       </ul>
     </div>
   </nav>

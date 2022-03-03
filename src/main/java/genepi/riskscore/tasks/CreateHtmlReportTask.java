@@ -22,6 +22,16 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	private OutputFile data;
 
+	private boolean showCommand = true;
+
+	private String application = App.APP;
+
+	private String applicationName = "PGS-Sever";
+
+	private String version = App.VERSION;
+
+	private String url = App.URL;
+
 	public CreateHtmlReportTask() {
 
 	}
@@ -38,6 +48,26 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		this.data = data;
 	}
 
+	public void setShowCommand(boolean showCommand) {
+		this.showCommand = showCommand;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
+	}
+
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
@@ -45,30 +75,42 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 		assert (report != null);
 		assert (output != null);
-		assert (data != null);
 
 		HtmlReport report = new HtmlReport(TEMPLATE_DIRECTORY);
 		report.setMainFilename(REPORT_TEMPLATE);
 
 		// general informations
 		report.set("createdOn", new Date());
-		report.set("version", App.VERSION);
-		report.set("application", App.APP);
-		report.set("application_name", "PGS-Calc");
+		report.set("version", version);
+		report.set("application", application);
+		report.set("application_name", applicationName);
 
-		String args = String.join("\\<br>  ", App.ARGS);
+		if (showCommand) {
+			String args = String.join("\\<br>  ", App.ARGS);
+			report.set("show_command", true);
+			report.set("application_args", args);
+		} else {
+			report.set("show_command", false);
+		}
 
-		report.set("application_args", args);
-		report.set("url", App.URL);
+		report.set("url", url);
 		report.set("copyright", App.COPYRIGHT);
 
-		report.set("samples", data.getSamples());
+		if (data != null) {
+			report.set("show_samples", true);
+			report.set("samples", data.getSamples());
+		} else {
+			report.set("show_samples", false);
+			report.set("samples", null);
+		}
 
 		// add data do summaries
 		for (int i = 0; i < this.report.getSummaries().size(); i++) {
 			// ignore empty scores
 			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
-				this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
+				if (data != null) {
+					this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
+				}
 			}
 			this.report.getSummaries().get(i).updateStatistics();
 		}

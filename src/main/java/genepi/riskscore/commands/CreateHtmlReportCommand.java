@@ -16,7 +16,7 @@ import picocli.CommandLine.Option;
 @Command(name = "report", version = App.VERSION)
 public class CreateHtmlReportCommand implements Callable<Integer> {
 
-	@Option(names = { "--data" }, description = "JSON file with meta data about scores", required = true)
+	@Option(names = { "--data" }, description = "JSON file with meta data about scores", required = false)
 	String data = null;
 
 	@Option(names = { "--info" }, description = "JSON file with meta data about scores", required = true)
@@ -37,11 +37,12 @@ public class CreateHtmlReportCommand implements Callable<Integer> {
 			infoFile.mergeWithMeta(metaFile);
 		}
 
-		OutputFile outputFile = new OutputFile(data);
-
 		CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 		htmlReportTask.setReport(infoFile);
-		htmlReportTask.setData(outputFile);
+		if (data != null) {
+			OutputFile outputFile = new OutputFile(data);
+			htmlReportTask.setData(outputFile);
+		}
 		htmlReportTask.setOutput(out);
 
 		if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {

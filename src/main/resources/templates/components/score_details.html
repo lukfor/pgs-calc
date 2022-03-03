@@ -9,7 +9,7 @@
           <h5>Reference score</h5>
           <ul class="text-small">
             <li>Variants: {{decimal(score.variants)}}</li>
-            <li>Variants ignored: {{decimal(score.variantsIgnored)}}</li>            
+            <li>Variants ignored: {{decimal(score.variantsIgnored)}}</li>
             {{if score.meta != null}}
               <li>Trait: {{score.meta.trait_reported}}</li>
               {{if score.meta.trait_additional != null}}
@@ -23,7 +23,9 @@
           <h5>Target study</h5>
           <ul>
             <li>Coverage: {{decimal(score.variantsUsed)}} ({{percentage(score.coverage)}}) <span class="badge badge-{{score.coverageLabel}}">{{score.coverageLabel}}</span> </li>
+            {{if (show_samples)}}
             <li>Samples: {{decimal(samples.size())}}</li>
+            {{end}}
           </ul>
         </div>
       {{end}}

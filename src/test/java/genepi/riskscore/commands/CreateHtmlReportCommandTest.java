@@ -35,5 +35,15 @@ public class CreateHtmlReportCommandTest {
 		assertEquals(0, result);
 
 	}
+	
+	@Test
+	public void testReportWithoutData() throws Exception {
+
+		String[] args = {"--info", "test-data/report.json", "--out",
+				"test-data-output/report.html" };
+		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
+		assertEquals(0, result);
+
+	}
 
 }
