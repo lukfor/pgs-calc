@@ -1,11 +1,13 @@
 package genepi.riskscore.tasks;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.Date;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
 import lukfor.reports.HtmlReport;
@@ -114,6 +116,15 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 			}
 			this.report.getSummaries().get(i).updateStatistics();
 		}
+
+		// sort summaries by pgs name
+		this.report.getSummaries().sort(new Comparator<RiskScoreSummary>() {
+			@Override
+			public int compare(RiskScoreSummary o1, RiskScoreSummary o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+
 		report.set("scores", this.report.getSummaries());
 
 		report.setSelfContained(true);
