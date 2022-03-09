@@ -26,7 +26,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	private String application = App.APP;
 
-	private String applicationName = "PGS-Sever";
+	private String applicationName = "PGS-Server";
 
 	private String version = App.VERSION;
 
