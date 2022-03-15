@@ -10,8 +10,8 @@
 - command line program (works on linux or MacOS)
 - supports vcf.gz files (imputed or genotyped)
 - supports different filters (e.g. r2 or variant list)
-- supports PGS Catalog format (https://www.pgscatalog.org, currently over 190 scores)
-- supports custom file formats with simple mapping mechanism
+- supports PGS Catalog format (https://www.pgscatalog.org, currently over 2,000 scores)
+- creates an interactive html report
 
 
 ## Installation
@@ -26,8 +26,10 @@
 Applying polygenic scores (PGS) on imputed genotypes
 
 ```
-./pgs-calc apply --ref PGS000018.txt.gz --out PGS000018.scores.txt chr*.dose.noID.vcf.gz
+./pgs-calc apply --ref PGS000018 --out PGS000018.scores.txt chr*.dose.noID.vcf.gz  --report-html PGS000018.html
 ```
+
+All scores are written to file `PGS000018.scores.txt` and an interactive report html report is created.
 
 ### Optional parameters
 
@@ -35,7 +37,7 @@ Applying polygenic scores (PGS) on imputed genotypes
 - `--writeVariants <file>` - Writes csv file with all variants used in calculation
 - `--includeVariants <file>` - Restrict calculation to use only variants from this csv file
 - `--genotypes GT|DS` - Use genotypes or dosage
-
+- `--report-html <file>` - Creates an interactive html report. The report includes summary statistics (like coverage) for each score and can be filtered by e.g. id or trait.
 
 ### Input files
 
@@ -60,7 +62,7 @@ Apply PGS to a single file (e.g. one chromosome):
 ./pgs-calc apply --ref PGS000018.txt.gz test.chr1.vcf.gz --out scores.txt
 ```
 
-All risk scores are written to file `scores.txt`
+All scores are written to file `scores.txt`
 
 #### Multiple chromosomes
 
@@ -101,7 +103,7 @@ If a PGS id is provided, pgs-calc downloads the file from PGSCatalog automatical
 ./pgs-calc apply --ref PGS000018 test.chr1.vcf.gz --out scores.txt
 ```
 
-All risk scores are written to file `scores.txt`
+All scores are written to file `scores.txt`
 
 ## Contact
 
