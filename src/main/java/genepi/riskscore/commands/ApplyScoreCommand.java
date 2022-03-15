@@ -39,8 +39,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--out" }, description = "Output filename", required = true)
 	String out;
 
-	@Option(names = {
-			"--minR2" }, description = "Minimal imputation quality", required = false, showDefaultValue = Visibility.ALWAYS)
+	@Option(names = { "--minR2",
+			"--min-r2" }, description = "Minimal imputation quality", required = false, showDefaultValue = Visibility.ALWAYS)
 	float minR2 = 0;
 
 	@Option(names = {
@@ -50,10 +50,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--threads" }, description = "Number of threads", required = false)
 	int threads = 1;
 
-	@Option(names = { "--writeVariants" }, description = "Write csv file with all used variants", required = false)
+	@Option(names = { "--writeVariants",
+			"--write-variants" }, description = "Write csv file with all used variants", required = false)
 	String outputVariantFilename = null;
 
-	@Option(names = { "--includeVariants" }, description = "Include only variants from this file", required = false)
+	@Option(names = { "--includeVariants",
+			"--include-variants" }, description = "Include only variants from this file", required = false)
 	String includeVariantFilename = null;
 
 	@Option(names = { "--samples" }, description = "Include only samples from this file", required = false)
@@ -68,7 +70,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--meta" }, description = "JSON file with meta data about scores", required = false)
 	String meta = null;
 
-	@Option(names = { "--writeEffects" }, description = "Write file with effects per snp and sample", required = false)
+	@Option(names = { "--writeEffects",
+			"--write-effects" }, description = "Write file with effects per snp and sample", required = false)
 	String outputEffectsFilename = null;
 
 	@Option(names = { "--dbsnp" }, description = "dbSNP Index file to support rsIDs", required = false)
