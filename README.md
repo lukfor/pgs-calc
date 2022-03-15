@@ -13,12 +13,10 @@
 - supports PGS Catalog format (https://www.pgscatalog.org, currently over 2,000 scores)
 - creates an interactive html report
 
-
 ## Installation
 
-- Download `installer.sh` from [latest release](https://github.com/lukfor/pgs-calc/releases/latest)
-- Execute `bash installer.sh`
-- Installer creates a file `pgs-calc` in current directory
+- Download `pgs-calc-*.tar.gz` from [latest release](https://github.com/lukfor/pgs-calc/releases/latest)
+- Extract the downloaded archive (e.g `tar -xf bash installer.sh`)
 - Validate installation with `./pgs-calc --version`
 
 ## Usage
