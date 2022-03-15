@@ -147,34 +147,11 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
+							<appendAssemblyId>false</appendAssemblyId>
 							<descriptors>
 								<descriptor>src/main/assembly/assembly.xml</descriptor>
 							</descriptors>
 						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Build installer -->
-
-			<plugin>
-				<groupId>com.github.hazendaz.maven</groupId>
-				<artifactId>makeself-maven-plugin</artifactId>
-				<version>1.0.0.beta3</version>
-				<configuration>
-					<archiveDir>${project.artifactId}-${project.version}-assembly</archiveDir>
-					<fileName>installer.sh</fileName>
-					<notemp>true</notemp>
-					<current>true</current>
-					<nox11>true</nox11>
-					<nowait>true</nowait>
-				</configuration>
-				<executions>
-					<execution>
-						<id>makeself</id>
-						<goals>
-							<goal>makeself</goal>
-						</goals>
 					</execution>
 				</executions>
 			</plugin>

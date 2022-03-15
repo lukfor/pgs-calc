@@ -6,7 +6,6 @@
 	<id>assembly</id>
 
 	<formats>
-		<format>zip</format>
 		<format>tar.gz</format>
 		<format>dir</format>
 	</formats>
