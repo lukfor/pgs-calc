@@ -18,7 +18,7 @@ public class CreateHtmlReportCommandTest {
 		TaskService.setAnsiSupport(false);
 		PGSCatalog.ENABLE_CACHE = false;
 	}
-	
+
 	@Before
 	public void beforeTest() {
 		System.out.println("Clean up output directory");
@@ -35,15 +35,34 @@ public class CreateHtmlReportCommandTest {
 		assertEquals(0, result);
 
 	}
-	
+
 	@Test
 	public void testReportWithoutData() throws Exception {
 
-		String[] args = {"--info", "test-data/report.json", "--out",
-				"test-data-output/report.html" };
+		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.html" };
 		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
 		assertEquals(0, result);
 
 	}
 
+	@Test
+	public void testReportWithTxtTemplate() throws Exception {
+
+		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.txt", "--template",
+				"txt" };
+		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
+		assertEquals(0, result);
+
+	}
+
+	@Test
+	public void testReportWithTxtTemplateAndMetaData() throws Exception {
+
+		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.txt", "--template",
+				"txt","--meta","test-data/pgs-catalog-small.json" };
+		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
+		assertEquals(0, result);
+
+	}
+	
 }

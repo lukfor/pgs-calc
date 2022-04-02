@@ -16,7 +16,9 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	public static final String TEMPLATE_DIRECTORY = "/templates";
 
-	public static final String REPORT_TEMPLATE = "report.html";
+	public static final String DEFAULT_TEMPLATE = "default";
+
+	public static final String INDEX_FILE = "index.html";
 
 	private String output;
 
@@ -33,6 +35,8 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 	private String version = App.VERSION;
 
 	private String url = App.URL;
+
+	private String template = DEFAULT_TEMPLATE;
 
 	public CreateHtmlReportTask() {
 
@@ -70,6 +74,10 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		this.url = url;
 	}
 
+	public void setTemplate(String template) {
+		this.template = template;
+	}
+
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
@@ -78,8 +86,8 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		assert (report != null);
 		assert (output != null);
 
-		HtmlReport report = new HtmlReport(TEMPLATE_DIRECTORY);
-		report.setMainFilename(REPORT_TEMPLATE);
+		HtmlReport report = new HtmlReport(TEMPLATE_DIRECTORY + "/" + template);
+		report.setMainFilename(INDEX_FILE);
 
 		// general informations
 		report.set("createdOn", new Date());

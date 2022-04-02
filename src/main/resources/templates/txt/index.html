@@ -1,0 +1,3 @@
+score,coverage,variants_used,variants_total,trait
+{{for index,score in scores}}{{score.name}},{{score.coverage}},{{score.variantsUsed}},{{score.variants}},{{if score.meta != null}}{{score.meta.trait_reported}}{{end}}
+{{end}}

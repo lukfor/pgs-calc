@@ -28,6 +28,10 @@ public class CreateHtmlReportCommand implements Callable<Integer> {
 	@Option(names = { "--out" }, description = "Output filename", required = true)
 	String out;
 
+	@Option(names = { "--template" }, description = "template to create html report", required = false)
+	String template = null;
+
+	
 	public Integer call() throws Exception {
 
 		ReportFile infoFile = ReportFile.loadFromFile(info);
@@ -42,6 +46,9 @@ public class CreateHtmlReportCommand implements Callable<Integer> {
 		if (data != null) {
 			OutputFile outputFile = new OutputFile(data);
 			htmlReportTask.setData(outputFile);
+		}
+		if (template != null) {
+			htmlReportTask.setTemplate(template);
 		}
 		htmlReportTask.setOutput(out);
 
