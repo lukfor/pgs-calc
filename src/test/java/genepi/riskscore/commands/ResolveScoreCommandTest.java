@@ -49,12 +49,12 @@ public class ResolveScoreCommandTest {
 		assertEquals(77, variants);
 		reader.close();
 	}
-	
+
 	@Test
 	public void testResolveofPGSId() {
 
-		String[] args = { "--in", "PGS000001", "--out", "test-data-output/PGS000001.converted.txt",
-				"--dbsnp", DBSNP_INDEX };
+		String[] args = { "--in", "PGS000001", "--out", "test-data-output/PGS000001.converted.txt", "--dbsnp",
+				DBSNP_INDEX };
 		int result = new CommandLine(new ResolveScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -68,4 +68,38 @@ public class ResolveScoreCommandTest {
 		reader.close();
 	}
 
+	@Test
+	public void testResolveofFileWithPositions() {
+
+		String[] args = { "--in", "test-data/PGS000957.txt.gz", "--out", "test-data-output/PGS000899.converted.txt", "--dbsnp",
+				DBSNP_INDEX };
+		int result = new CommandLine(new ResolveScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int variants = 0;
+		ITableReader reader = new CsvTableReader("test-data-output/PGS000899.converted.txt", '\t');
+		while (reader.next()) {
+			variants++;
+
+		}
+		assertEquals(11276, variants);
+		reader.close();
+	}
+
+	@Test
+	public void testResolveofFileWithPositionsAndChain() {
+		String[] args = { "--in", "test-data/PGS000957.txt.gz", "--out", "test-data-output/PGS000899.converted.txt", "--dbsnp",
+				DBSNP_INDEX, "--chain", "test-data/chains/hg19ToHg38.over.chain.gz" };
+		int result = new CommandLine(new ResolveScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int variants = 0;
+		ITableReader reader = new CsvTableReader("test-data-output/PGS000899.converted.txt", '\t');
+		while (reader.next()) {
+			variants++;
+
+		}
+		assertEquals(11276, variants);
+		reader.close();
+	}
 }

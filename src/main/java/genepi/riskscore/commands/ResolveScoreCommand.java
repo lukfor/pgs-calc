@@ -1,6 +1,7 @@
 package genepi.riskscore.commands;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -13,6 +14,7 @@ import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
+import genepi.riskscore.tasks.LiftOverScoreTask;
 import genepi.riskscore.tasks.ResolveScoreTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
@@ -30,6 +32,9 @@ public class ResolveScoreCommand implements Callable<Integer> {
 
 	@Option(names = "--dbsnp", description = "dbsnp index file", required = true)
 	private String dbsnp;
+
+	@Option(names = "--chain", description = "dbsnp index file", required = false)
+	private String chain;
 
 	@Override
 	public Integer call() throws Exception {
@@ -80,19 +85,34 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				System.out.println("  Not found in dbSNP: " + task.getIgnoredNotInDbSnp());
 				System.out.println("  Multiple Alternate Alleles: " + task.getIgnoredMulAlternateAlleles());
 
-				LineReader reader = new LineReader(output + ".raw");
-				GzipLineWriter writer = new GzipLineWriter(output);
-				while (reader.next()) {
-					writer.write(reader.get());
-				}
-				writer.close();
-				reader.close();
-				
-				FileUtil.deleteFile(output + ".raw");
-				
+				compress(output + ".raw", output);
+
 			} else {
 
-				FileUtil.copy(input, output);
+				if (chain != null) {
+
+					System.out.println("Liftover using chain file '" + chain + "'...");
+
+					LiftOverScoreTask task = new LiftOverScoreTask(input, output + ".raw", chain);
+					TaskService.setAnsiSupport(false);
+					TaskService.setAnimated(false);
+					List<Task> result = TaskService.run(task);
+					if (!result.get(0).getStatus().isSuccess()) {
+						result.get(0).getStatus().getThrowable().printStackTrace();
+						System.out.println("*** ERROR ***  " + result.get(0).getStatus().getThrowable());
+						return 1;
+					}
+
+					System.out.println("Number Variants Input: " + task.getTotal());
+					System.out.println("Number Variants lifted: " + task.getResolved());
+					System.out.println("Number Variants not lifted: " + task.getFailed());
+					System.out.println("Ignored Variants (no position): " + task.getIgnored());
+
+					compress(output + ".raw", output);
+
+				} else {
+					FileUtil.copy(input, output);
+				}
 
 			}
 
@@ -127,6 +147,18 @@ public class ResolveScoreCommand implements Callable<Integer> {
 			return 1;
 		}
 
+	}
+
+	private void compress(String input, String output) throws IOException {
+		LineReader reader = new LineReader(input);
+		GzipLineWriter writer = new GzipLineWriter(output);
+		while (reader.next()) {
+			writer.write(reader.get());
+		}
+		writer.close();
+		reader.close();
+
+		FileUtil.deleteFile(input);
 	}
 
 }
