@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.commands.CreateHtmlReportCommand;
+import genepi.riskscore.commands.DownloadMetaCommand;
 import genepi.riskscore.commands.MergeInfoCommand;
 import genepi.riskscore.commands.MergeScoreCommand;
 import genepi.riskscore.commands.ResolveScoreCommand;
@@ -49,7 +50,7 @@ public class App {
 	}
 
 	@Command(name = App.APP, version = App.VERSION, subcommands = { ApplyScoreCommand.class, MergeScoreCommand.class,
-			MergeInfoCommand.class, ResolveScoreCommand.class, CreateHtmlReportCommand.class })
+			MergeInfoCommand.class, ResolveScoreCommand.class, CreateHtmlReportCommand.class, DownloadMetaCommand.class })
 	public static class DefaultCommand implements Callable<Integer> {
 
 		@Override
