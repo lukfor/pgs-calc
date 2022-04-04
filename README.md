@@ -16,7 +16,7 @@
 ## Installation
 
 - Download `pgs-calc-*.tar.gz` from [latest release](https://github.com/lukfor/pgs-calc/releases/latest)
-- Extract the downloaded archive (e.g `tar -xf bash installer.sh`)
+- Extract the downloaded archive (e.g `tar -xf pgs-calc-*.tar.gz`)
 - Validate installation with `./pgs-calc --version`
 
 ## Usage
