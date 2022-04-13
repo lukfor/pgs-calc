@@ -1,6 +1,8 @@
 package genepi.riskscore.tasks;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.writer.CsvTableWriter;
@@ -25,6 +27,15 @@ public class LiftOverScoreTask implements ITaskRunnable {
 	private int ignored;
 
 	private String chainFile;
+
+	public static final Map<String, String> ALLELE_SWITCHES = new HashMap<String, String>();
+
+	static {
+		ALLELE_SWITCHES.put("A", "T");
+		ALLELE_SWITCHES.put("T", "A");
+		ALLELE_SWITCHES.put("G", "C");
+		ALLELE_SWITCHES.put("C", "G");
+	}
 
 	public LiftOverScoreTask(String input, String output, String chainFile) {
 		this.input = input;
@@ -61,22 +72,34 @@ public class LiftOverScoreTask implements ITaskRunnable {
 					ignored++;
 					ignore = true;
 				}
-
 				int originalPosition = 0;
-				try {
-					originalPosition = reader.getInteger(format.getPosition());
+				if (!ignore) {
+					try {
+						originalPosition = reader.getInteger(format.getPosition());
 
-				} catch (NumberFormatException e) {
-					log("Warning: Row " + row + ": '" + reader.getString(format.getPosition())
-							+ "' is an invalid position. Ignore variant.");
-					ignored++;
-					ignore = true;
+					} catch (NumberFormatException e) {
+						log("Warning: Row " + row + ": '" + reader.getString(format.getPosition())
+								+ "' is an invalid position. Ignore variant.");
+						ignored++;
+						ignore = true;
+					}
 				}
+
+				String effectAllele = reader.getString(format.getEffectAllele());
+				String otherAllele = reader.getString(format.getOtherAllele());
 
 				if (!ignore) {
 
 					String contig = "";
 					String newContig = "";
+
+					if (orginalContig.equals("chr23")) {
+						orginalContig = "chrX";
+					}
+					if (orginalContig.equals("23")) {
+						orginalContig = "X";
+					}
+
 					if (orginalContig.startsWith("chr")) {
 						contig = orginalContig;
 						newContig = orginalContig.replaceAll("chr", "");
@@ -88,32 +111,63 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 					String id = orginalContig + ":" + originalPosition;
 
-					Interval source = new Interval(contig, originalPosition, originalPosition, false, id);
+					int length = otherAllele.length();
+					int start = originalPosition;
+					int stop = originalPosition + length - 1;
+
+					Interval source = new Interval(contig, start, stop, false, id);
+
 					Interval target = liftOver.liftOver(source);
+
 					if (target != null) {
+
 						if (source.getContig().equals(target.getContig())) {
-							writer.setString(format.getChromosome(), newContig);
-							writer.setInteger(format.getPosition(), target.getStart());
-							resolved++;
+
+							if (length != target.length()) {
+
+								log(id + "\t" + "LiftOver" + "\t" + "INDEL_STRADDLES_TWO_INTERVALS. SNP removed.");
+								ignore = true;
+								failed++;
+
+							} else {
+
+								if (target.isNegativeStrand()) {
+
+									writer.setString(format.getEffectAllele(), switchAllel(otherAllele));
+									writer.setString(format.getOtherAllele(), switchAllel(effectAllele));
+								}
+
+								if (otherAllele != null && effectAllele != null) {
+
+									writer.setString(format.getChromosome(), newContig);
+									writer.setInteger(format.getPosition(), target.getStart());
+									resolved++;
+
+								} else {
+
+									log(id + "\t" + "LiftOver" + "\t" + "Indel on negative strand. SNP removed.");
+									ignore = true;
+									failed++;
+								}
+							}
+
 						} else {
-							writer.setString(format.getChromosome(), "");
-							writer.setString(format.getPosition(), "");
-							writer.setString(format.getEffectAllele(), "");
-							writer.setString(format.getEffectWeight(), "");
-							writer.setString(format.getOtherAllele(), "");
+
+							log(id + "\t" + "LiftOver" + "\t" + "On different chromosome after LiftOver. SNP removed.");
+							ignore = true;
 							failed++;
-							log(id + " LiftOver: On different chromosome after LiftOver. SNP removed.");
+
 						}
+
 					} else {
-						writer.setString(format.getChromosome(), "");
-						writer.setString(format.getPosition(), "");
-						writer.setString(format.getEffectAllele(), "");
-						writer.setString(format.getEffectWeight(), "");
-						writer.setString(format.getOtherAllele(), "");
+						log(id + "\t" + "LiftOver" + "\t" + "LiftOver failed. SNP removed.");
+						ignore = true;
 						failed++;
-						log(id + " LiftOver failed. SNP removed.");
+
 					}
-				} else {
+				}
+
+				if (ignore) {
 					writer.setString(format.getChromosome(), "");
 					writer.setString(format.getPosition(), "");
 					writer.setString(format.getEffectAllele(), "");
@@ -132,6 +186,10 @@ public class LiftOverScoreTask implements ITaskRunnable {
 			reader.close();
 		}
 
+	}
+
+	public static String switchAllel(String allele) {
+		return ALLELE_SWITCHES.get(allele);
 	}
 
 	protected void log(String message) {
