@@ -1,11 +1,11 @@
 package genepi.riskscore.tasks;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.writer.CsvTableWriter;
+import genepi.riskscore.io.Chain;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
 import htsjdk.samtools.liftover.LiftOver;
 import htsjdk.samtools.util.Interval;
@@ -26,7 +26,7 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 	private int ignored;
 
-	private String chainFile;
+	private Chain chain;
 
 	public static final Map<String, String> ALLELE_SWITCHES = new HashMap<String, String>();
 
@@ -37,21 +37,23 @@ public class LiftOverScoreTask implements ITaskRunnable {
 		ALLELE_SWITCHES.put("C", "G");
 	}
 
-	public LiftOverScoreTask(String input, String output, String chainFile) {
+	public LiftOverScoreTask(String input, String output, Chain chain) {
 		this.input = input;
 		this.output = output;
-		this.chainFile = chainFile;
+		this.chain = chain;
 	}
 
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
+		monitor.begin("Lift Over");
+		
 		PGSCatalogFormat format = new PGSCatalogFormat(input);
 
 		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
 		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
 
-		LiftOver liftOver = new LiftOver(new File(chainFile));
+		LiftOver liftOver = new LiftOver(chain.getFile());
 
 		int row = 0;
 		writer.setColumns(reader.getColumns());

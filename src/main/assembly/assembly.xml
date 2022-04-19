@@ -28,6 +28,11 @@
 			<directory>files</directory>
 		</fileSet>
 
+		<fileSet>
+			<outputDirectory>/chains</outputDirectory>
+			<directory>chains</directory>
+		</fileSet>
+
 	</fileSets>
 
 </assembly>

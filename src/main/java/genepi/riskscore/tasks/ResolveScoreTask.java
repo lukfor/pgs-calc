@@ -38,6 +38,8 @@ public class ResolveScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
+		monitor.begin("Resolve Score");
+		
 		PGSCatalogFormat format = new PGSCatalogFormat(input);
 
 		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);

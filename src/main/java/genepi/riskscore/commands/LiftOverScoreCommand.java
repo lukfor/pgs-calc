@@ -7,9 +7,11 @@ import genepi.io.FileUtil;
 import genepi.io.text.GzipLineWriter;
 import genepi.io.text.LineReader;
 import genepi.riskscore.App;
+import genepi.riskscore.io.Chain;
 import genepi.riskscore.tasks.LiftOverScoreTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -22,8 +24,8 @@ public class LiftOverScoreCommand implements Callable<Integer> {
 	@Option(names = "--out", description = "output score file", required = true)
 	private String output;
 
-	@Option(names = "--chain", description = "chain file", required = true)
-	private String chain;
+	@ArgGroup(exclusive = false, multiplicity = "1")
+	private Chain chain;
 
 	@Override
 	public Integer call() throws Exception {

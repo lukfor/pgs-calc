@@ -9,6 +9,7 @@ import genepi.io.FileUtil;
 import genepi.io.text.GzipLineWriter;
 import genepi.io.text.LineReader;
 import genepi.riskscore.App;
+import genepi.riskscore.io.Chain;
 import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
@@ -18,6 +19,7 @@ import genepi.riskscore.tasks.LiftOverScoreTask;
 import genepi.riskscore.tasks.ResolveScoreTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -33,8 +35,8 @@ public class ResolveScoreCommand implements Callable<Integer> {
 	@Option(names = "--dbsnp", description = "dbsnp index file", required = true)
 	private String dbsnp;
 
-	@Option(names = "--chain", description = "dbsnp index file", required = false)
-	private String chain;
+	@ArgGroup(exclusive = false, multiplicity = "0..1")
+	private Chain chain;
 
 	@Override
 	public Integer call() throws Exception {
@@ -62,6 +64,10 @@ public class ResolveScoreCommand implements Callable<Integer> {
 			System.out.println("--------------------------------------");
 
 			if (format.hasRsIds()) {
+
+				if (dbsnp == null) {
+					throw new IOException("File " + input + " is in RS_ID format. Please specify dbsnp index.");
+				}
 
 				System.out.println("Resolve rsIDs using index file '" + dbsnp + "'...");
 
@@ -91,7 +97,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 
 				if (chain != null) {
 
-					System.out.println("Liftover using chain file '" + chain + "'...");
+					System.out.println("Liftover using chain file '" + chain.getFilename() + "'...");
 
 					LiftOverScoreTask task = new LiftOverScoreTask(input, output + ".raw", chain);
 					TaskService.setAnsiSupport(false);
