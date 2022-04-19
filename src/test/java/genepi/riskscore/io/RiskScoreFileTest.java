@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
+import genepi.riskscore.io.scores.RiskScoreFile;
 
 public class RiskScoreFileTest {
 

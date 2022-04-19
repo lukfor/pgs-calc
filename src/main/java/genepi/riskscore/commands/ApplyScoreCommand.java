@@ -12,7 +12,6 @@ import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
-import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
 import genepi.riskscore.tasks.MergeEffectsTask;
@@ -58,7 +57,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			"--include-variants" }, description = "Include only variants from this file", required = false)
 	String includeVariantFilename = null;
 
-	@Option(names = { "--samples" }, description = "Include only samples from this file", required = false)
+	@Option(names = { "--samples", "--include-samples",
+			"--includeSamples" }, description = "Include only samples from this file", required = false)
 	String includeSamplesFilename = null;
 
 	@Option(names = { "--report-json", "--info" }, description = "Write statistics to json file", required = false)
@@ -134,13 +134,6 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 			String[] refs = parseRef(ref);
 			task.setRiskScoreFilenames(refs);
-
-			for (String file : refs) {
-				String autoFormat = file + ".format";
-				if (new File(autoFormat).exists()) {
-					task.setRiskScoreFormat(file, RiskScoreFormat.MAPPING_FILE);
-				}
-			}
 
 			if (chunk != null) {
 				task.setChunk(chunk);

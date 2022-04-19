@@ -5,13 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
+import genepi.riskscore.io.scores.IRiskScoreCollection;
 import genepi.riskscore.model.RiskScoreSummary;
 
 public class ReportFile {
@@ -22,9 +22,9 @@ public class ReportFile {
 		this.summaries = new Vector<RiskScoreSummary>();
 	}
 
-	public ReportFile(RiskScoreSummary[] summaries) {
+	public ReportFile(IRiskScoreCollection riskscores) {
 		this.summaries = new Vector<RiskScoreSummary>();
-		for (RiskScoreSummary summary : summaries) {
+		for (RiskScoreSummary summary : riskscores.getSummaries()) {
 			this.summaries.add(summary);
 		}
 	}

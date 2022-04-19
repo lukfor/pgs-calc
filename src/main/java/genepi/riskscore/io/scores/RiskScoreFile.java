@@ -1,4 +1,4 @@
-package genepi.riskscore.io;
+package genepi.riskscore.io.scores;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -12,6 +12,8 @@ import java.util.Map;
 import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.reader.ITableReader;
+import genepi.riskscore.io.Chunk;
+import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;

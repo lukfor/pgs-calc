@@ -10,7 +10,6 @@ import genepi.io.FileUtil;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalog;
-import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.monitors.TaskMonitorMock;
@@ -36,7 +35,6 @@ public class ApplyScoreTaskTest {
 	public void testPerformance() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -44,7 +42,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(63480, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
@@ -58,7 +56,6 @@ public class ApplyScoreTaskTest {
 	public void testMultiPostion() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/small.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -66,7 +63,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(4, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
@@ -83,7 +80,6 @@ public class ApplyScoreTaskTest {
 	public void testMultipleScores() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv", "test-data/chr20.scores.csv",
 				"test-data/chr20.scores.csv");
@@ -92,9 +88,9 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(63480, task.getCountVariants());
 
-		assertEquals(3, task.getSummaries().length);
+		assertEquals(3, task.getRiskScores().getSummaries().length);
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
@@ -111,7 +107,6 @@ public class ApplyScoreTaskTest {
 	public void testScore() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -119,7 +114,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(5, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
@@ -134,12 +129,11 @@ public class ApplyScoreTaskTest {
 		assertEquals(-0.4, output.getValue(0, 0), 0.00001);
 
 	}
-	
+
 	@Test
 	public void testScoreHg38() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.hg38.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutput("test-data-output/output.hg38.txt");
@@ -147,7 +141,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(5, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
@@ -163,13 +157,10 @@ public class ApplyScoreTaskTest {
 
 	}
 
-	
-	
 	@Test
 	public void testScoreSwitchEffectAllele() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setOutput("test-data-output/output.txt");
@@ -177,7 +168,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(5, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(3, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());
@@ -197,7 +188,6 @@ public class ApplyScoreTaskTest {
 	public void testMinR2_06() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setMinR2(0.6f);
@@ -206,7 +196,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(5, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(1, summary.getVariantsUsed());
 		assertEquals(1, summary.getSwitched());
 		assertEquals(3, summary.getVariantsNotUsed());
@@ -227,7 +217,6 @@ public class ApplyScoreTaskTest {
 	public void testMinR2_05() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(0.5f);
@@ -236,7 +225,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(5, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(2, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(2, summary.getVariantsNotUsed());
@@ -257,7 +246,6 @@ public class ApplyScoreTaskTest {
 	public void testMinR2_1() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/two.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(1f);
@@ -266,7 +254,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(5, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(0, summary.getVariantsUsed());
 		assertEquals(0, summary.getSwitched());
 		assertEquals(4, summary.getVariantsNotUsed());
@@ -288,7 +276,6 @@ public class ApplyScoreTaskTest {
 	public void testWrongChromosome() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/single.wrong_chr.vcf");
 		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
 		task.setMinR2(1f);
@@ -301,7 +288,6 @@ public class ApplyScoreTaskTest {
 	public void testWithChunk() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		Chunk chunk = new Chunk();
@@ -313,7 +299,7 @@ public class ApplyScoreTaskTest {
 
 		// assertEquals(63480, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(2, summary.getVariantsUsed());
 		assertEquals(1, summary.getSwitched());
 		assertEquals(2, summary.getVariantsNotUsed());
@@ -327,7 +313,6 @@ public class ApplyScoreTaskTest {
 	public void testWithEffectsFile() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();
-		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
 		task.setVcfFilename("test-data/chr20.dose.vcf.gz");
 		task.setRiskScoreFilenames("test-data/chr20.scores.csv");
 		task.setOutputEffectsFilename("test-data-output/output.effects.txt");
@@ -336,7 +321,7 @@ public class ApplyScoreTaskTest {
 
 		assertEquals(63480, task.getCountVariants());
 
-		RiskScoreSummary summary = task.getSummaries()[0];
+		RiskScoreSummary summary = task.getRiskScores().getSummaries()[0];
 		assertEquals(3, summary.getVariantsUsed());
 		assertEquals(2, summary.getSwitched());
 		assertEquals(1, summary.getVariantsNotUsed());

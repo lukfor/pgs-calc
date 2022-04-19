@@ -35,7 +35,7 @@ public class MergeReportTask implements ITaskRunnable {
 			ApplyScoreTask task = tasks.get(i);
 			String filename = task.getOutput();
 			if (new File(filename).exists()) {
-				inputs.add(new ReportFile(task.getSummaries()));
+				inputs.add(new ReportFile(task.getRiskScores()));
 			}
 		}
 	}

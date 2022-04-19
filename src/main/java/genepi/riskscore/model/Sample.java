@@ -1,6 +1,6 @@
 package genepi.riskscore.model;
 
-public class RiskScore {
+public class Sample {
 
 	private String sample;
 
@@ -8,7 +8,7 @@ public class RiskScore {
 
 	private double[] scores;
 
-	public RiskScore(String chromosome, String sample, int numberOfScores) {
+	public Sample(String chromosome, String sample, int numberOfScores) {
 		this.chromosome = chromosome;
 		this.sample = sample;
 		this.scores = new double[numberOfScores];

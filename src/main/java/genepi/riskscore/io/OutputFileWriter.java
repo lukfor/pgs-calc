@@ -1,15 +1,13 @@
 package genepi.riskscore.io;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
-import genepi.io.table.reader.CsvTableReader;
-import genepi.io.table.reader.ITableReader;
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.io.table.writer.ITableWriter;
-import genepi.riskscore.model.RiskScore;
+import genepi.riskscore.io.scores.IRiskScoreCollection;
 import genepi.riskscore.model.RiskScoreSummary;
+import genepi.riskscore.model.Sample;
 
 public class OutputFileWriter {
 
@@ -27,10 +25,10 @@ public class OutputFileWriter {
 
 	}
 
-	public OutputFileWriter(List<RiskScore> finalScores, RiskScoreSummary[] summaries) {
+	public OutputFileWriter(List<Sample> finalScores, IRiskScoreCollection riskscores) {
 
 		scores = new Vector<String>();
-		for (RiskScoreSummary summary : summaries) {
+		for (RiskScoreSummary summary : riskscores.getSummaries()) {			
 			scores.add(summary.getName());
 		}
 
@@ -40,7 +38,7 @@ public class OutputFileWriter {
 			data[i] = new Vector<Double>();
 		}
 
-		for (RiskScore riskScore : finalScores) {
+		for (Sample riskScore : finalScores) {
 			samples.add(riskScore.getSample());
 			for (int i = 0; i < scores.size(); i++) {
 				data[i].add(riskScore.getScore(i));
