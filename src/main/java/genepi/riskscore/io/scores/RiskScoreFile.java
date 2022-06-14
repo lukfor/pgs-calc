@@ -6,8 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import genepi.io.FileUtil;
 import genepi.io.table.reader.CsvTableReader;
@@ -31,7 +33,7 @@ public class RiskScoreFile {
 	private int totalVariants = 0;
 
 	private int ignoredVariants = 0;
-	
+
 	private RiskScoreFormatImpl format;
 
 	public RiskScoreFile(String filename, String dbsnp) throws Exception {
@@ -104,6 +106,24 @@ public class RiskScoreFile {
 		buildIndex(chromosome, new Chunk());
 	}
 
+	public Set<String> getAllChromosomes() throws IOException {
+
+		try {
+			Set<String> chromosomes = new HashSet<String>();
+			DataInputStream in = openTxtOrGzipStream(filename);
+			ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
+			while (reader.next()) {
+				String chromsomeVariant = reader.getString(format.getChromosome());
+				chromosomes.add(chromsomeVariant);
+			}
+			reader.close();
+			return chromosomes;
+
+		} catch (Exception e) {
+			throw new IOException("Getting chromosomes for '" + filename + "' failed: " + e.getMessage(), e);
+		}
+	}
+
 	public void buildIndex(String chromosome, Chunk chunk) throws IOException {
 
 		assert (chromosome != null);
@@ -142,8 +162,9 @@ public class RiskScoreFile {
 							effectWeight = ((Double) (reader.getDouble(format.getEffectWeight()))).floatValue();
 
 						} catch (NumberFormatException e) {
-							System.out.println("Warning: Row " + row + ": '" + reader.getString(format.getEffectWeight())
-									+ "' is an invalid weight. Ignore variant.");
+							System.out
+									.println("Warning: Row " + row + ": '" + reader.getString(format.getEffectWeight())
+											+ "' is an invalid weight. Ignore variant.");
 							ignoredVariants++;
 							continue;
 						}
@@ -171,7 +192,7 @@ public class RiskScoreFile {
 				}
 			}
 			reader.close();
-		} catch ( Exception e) {
+		} catch (Exception e) {
 			throw new IOException(
 					"Build Index for '" + filename + "' and chr '" + chromosome + "' failed: " + e.getMessage(), e);
 		}
@@ -226,5 +247,9 @@ public class RiskScoreFile {
 	public int getIgnoredVariants() {
 		return ignoredVariants;
 	}
-	
+
+	public Set<Integer> getPositions() {
+		return variants.keySet();
+	}
+
 }

@@ -1,6 +1,10 @@
 package genepi.riskscore.io.scores;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
@@ -23,6 +27,8 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 
 	private String[] filenames;
 
+	private boolean verbose = false;
+
 	public RiskScoreCollection(String... filenames) {
 		this.filenames = filenames;
 	}
@@ -43,6 +49,24 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 	}
 
 	@Override
+	public Set<String> getAllChromosomes(String dbsnp) throws Exception {
+		Set<String> chromosomes = new HashSet<String>();
+		for (int i = 0; i < filenames.length; i++) {
+			RiskScoreFormat format = null;
+
+			String autoFormat = filenames[i] + ".format";
+			if (new File(autoFormat).exists()) {
+				format = RiskScoreFormat.MAPPING_FILE;
+			} else {
+				format = RiskScoreFormat.PGS_CATALOG;
+			}
+			RiskScoreFile riskscore = new RiskScoreFile(filenames[i], format, dbsnp);
+			chromosomes.addAll(riskscore.getAllChromosomes());
+		}
+		return chromosomes;
+	}
+
+	@Override
 	public void buildIndex(String chromosome, Chunk chunk, String dbsnp) throws Exception {
 
 		numberRiskScores = filenames.length;
@@ -53,10 +77,14 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 			summaries[i] = new RiskScoreSummary(name);
 		}
 
+		int total = 0;
+
 		riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
 
-			// System.out.println("Loading file " + riskScoreFilenames[i] + "...");
+			if (verbose) {
+				System.out.println("Loading file " + filenames[i] + "...");
+			}
 
 			RiskScoreFormat format = null;
 
@@ -78,10 +106,18 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 			summaries[i].setVariants(riskscore.getTotalVariants());
 			summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
 
-			// System.out.println("Loaded " + riskscore.getCacheSize() + " weights for
-			// chromosome " + chromosome);
+			if (verbose) {
+				System.out.println("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
+			}
+			total += riskscore.getCacheSize();
 			riskscores[i] = riskscore;
 
+		}
+
+		if (verbose) {
+			System.out.println();
+			System.out.println("Collection contains " + total + " weights for chromosome " + chromosome);
+			System.out.println();
 		}
 	}
 
@@ -118,6 +154,19 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 	@Override
 	public RiskScoreSummary[] getSummaries() {
 		return summaries;
+	}
+
+	@Override
+	public SortedSet<Integer> getAllPositions() {
+		SortedSet<Integer> positions = new TreeSet<Integer>();
+		for (RiskScoreFile score : riskscores) {
+			positions.addAll(score.getPositions());
+		}
+		return positions;
+	}
+
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 }
