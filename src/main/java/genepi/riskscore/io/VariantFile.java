@@ -2,7 +2,9 @@ package genepi.riskscore.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import genepi.io.table.reader.CsvTableReader;
@@ -12,25 +14,24 @@ public class VariantFile {
 
 	private String filename;
 
-	private Set<Integer> variants;
+	private Map<String, Set<Integer>> variants;
 
 	private int totalVariants = 0;
 
 	public static final char SEPARATOR = '\t';
 
 	public static final String SCORE = "score";
-	
+
 	public static final String CHROMOSOME = "chr_name";
 
 	public static final String POSITION = "chr_position";
 
 	public static final String R2 = "r2";
 
-	
 	public VariantFile(String filename) throws Exception {
 
 		this.filename = filename;
-		variants = new HashSet<Integer>();
+		variants = new HashMap<String, Set<Integer>>();
 
 		if (!new File(filename).exists()) {
 			throw new Exception("File '" + filename + "' not found.");
@@ -50,7 +51,7 @@ public class VariantFile {
 		}
 		if (!reader.hasColumn(POSITION)) {
 			throw new Exception("Column '" + POSITION + "' not found in '" + filename + "'");
-		}		
+		}
 	}
 
 	public void buildIndex(String chromosome) throws IOException {
@@ -58,16 +59,28 @@ public class VariantFile {
 		while (reader.next()) {
 			String chromsomeVariant = reader.getString(CHROMOSOME);
 			if (chromsomeVariant.equals(chromosome)) {
+				String score = reader.getString(SCORE);
 				int position = reader.getInteger(POSITION);
-				variants.add(position);
+				Set<Integer> variantsScore = variants.get(score);
+				if (variantsScore == null) {
+					variantsScore = new HashSet<Integer>();
+					variants.put(score, variantsScore);
+				}
+				variantsScore.add(position);
 			}
 			totalVariants++;
 		}
 		reader.close();
 	}
 
-	public boolean contains(int position) {
-		return variants.contains(position);
+	public boolean contains(String score, int position) {
+		Set<Integer> variantsScore = variants.get(score);
+		if (variantsScore != null) {
+			return variantsScore.contains(position);
+		} else {
+			return false;
+		}
+
 	}
 
 	public int getCacheSize() {
