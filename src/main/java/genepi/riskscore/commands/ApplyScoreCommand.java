@@ -271,6 +271,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	private boolean isFailed(List<Task> tasks) {
 		for (Task result : tasks) {
 			if (!result.getStatus().isSuccess()) {
+				result.getStatus().getThrowable().printStackTrace();
 				return true;
 			}
 		}

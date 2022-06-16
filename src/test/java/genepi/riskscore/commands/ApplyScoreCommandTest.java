@@ -114,8 +114,8 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallWithPGSCatalogIDAndRsIDs() {
 
-		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "PGS000001", "--out", "test-data-output/output.csv",
-				"--dbsnp", DBSNP_INDEX };
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "PGS000001", "--out",
+				"test-data-output/output.csv", "--dbsnp", DBSNP_INDEX };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -357,8 +357,7 @@ public class ApplyScoreCommandTest {
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(1, result);
 	}
-	
-	
+
 	@Test
 	public void testIncludeVariants() {
 		// Whole file
@@ -367,14 +366,14 @@ public class ApplyScoreCommandTest {
 				"--report-json", "test-data-output/report.json", "--writeVariants", "test-data-output/variants2.txt" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
-		
-		args = new String[]{ "test-data/chr20.dose.vcf.gz", "--ref",
+
+		args = new String[] { "test-data/chr20.dose.vcf.gz", "--ref",
 				"test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--out", "test-data-output/output3.csv",
-				"--report-json", "test-data-output/report.json", "--includeVariants", "test-data-output/variants2.txt" };
-		 result = new CommandLine(new ApplyScoreCommand()).execute(args);
+				"--report-json", "test-data-output/report.json", "--includeVariants",
+				"test-data-output/variants2.txt" };
+		result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
-	
 	}
 
 }

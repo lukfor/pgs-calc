@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
@@ -47,8 +48,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private String includeSamplesFilename = null;
 
 	private String outputReportFilename = null;
-
-	private CsvTableWriter variantFile;
 
 	private RiskScoreFormat defaultFormat = RiskScoreFormat.PGS_CATALOG;
 
@@ -131,12 +130,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 			throw new Exception("Reference can not be null or empty.");
 		}
 
-		if (outputVariantFilename != null) {
-			variantFile = new CsvTableWriter(outputVariantFilename, VariantFile.SEPARATOR);
-			variantFile.setColumns(
-					new String[] { VariantFile.SCORE, VariantFile.CHROMOSOME, VariantFile.POSITION, VariantFile.R2 });
-		}
-
 		// read chromosome from first variant
 		String chromosome = null;
 		FastVCFFileReader vcfReader = new FastVCFFileReader(new FileInputStream(vcf), vcf);
@@ -172,10 +165,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (!empty) {
 
 			processVCF(monitor, chromosome, vcf, riskscores);
-
-			if (variantFile != null) {
-				variantFile.close();
-			}
 
 			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
 			outputFile.save(output);
@@ -255,6 +244,13 @@ public class ApplyScoreTask implements ITaskRunnable {
 		}
 
 		boolean outOfChunk = false;
+
+		CsvTableWriter variantsWriter = null;
+		if (outputVariantFilename != null) {
+			variantsWriter = new CsvTableWriter(outputVariantFilename, VariantFile.SEPARATOR);
+			variantsWriter.setColumns(new String[] { VariantFile.SCORE, VariantFile.CHROMOSOME, VariantFile.POSITION,
+					VariantFile.R2, VariantFile.INCLUDE });
+		}
 
 		CsvTableWriter effectsWriter = null;
 		if (outputEffectsFilename != null) {
@@ -362,12 +358,13 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				referenceVariant.setUsed(true);
 
-				if (variantFile != null) {
-					variantFile.setString(VariantFile.SCORE, summary.getName());
-					variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
-					variantFile.setInteger(VariantFile.POSITION, variant.getStart());
-					variantFile.setDouble(VariantFile.R2, variant.getInfoAsDouble(INFO_R2, 0));
-					variantFile.next();
+				if (variantsWriter != null) {
+					variantsWriter.setString(VariantFile.SCORE, summary.getName());
+					variantsWriter.setString(VariantFile.CHROMOSOME, variant.getContig());
+					variantsWriter.setInteger(VariantFile.POSITION, variant.getStart());
+					variantsWriter.setDouble(VariantFile.R2, variant.getInfoAsDouble(INFO_R2, 0));
+					variantsWriter.setInteger(VariantFile.INCLUDE, 1);
+					variantsWriter.next();
 				}
 
 				float[] dosages = variant.getGenotypeDosages(genotypeFormat);
@@ -396,6 +393,44 @@ public class ApplyScoreTask implements ITaskRunnable {
 				summary.incVariantsUsed();
 
 			}
+		}
+
+		if (variantsWriter != null) {
+
+			// TODO: write all unused variants to file!
+			for (int j = 0; j < riskScoreFilenames.length; j++) {
+				RiskScoreSummary summary = summaries[j];
+				RiskScoreFile riskscore = riskscores[j];
+				for (Entry<Integer, ReferenceVariant> item : riskscore.getVariants().entrySet()) {
+					ReferenceVariant variant = item.getValue();
+					int position = item.getKey();
+					
+					if (chunk != null) {
+
+						if (position < chunk.getStart()) {
+							continue;
+						}
+
+						if (position > chunk.getEnd()) {
+							outOfChunk = true;
+							continue;
+						}
+
+					}
+					
+					if ( !variant.isUsed()) {
+						variantsWriter.setString(VariantFile.SCORE, summary.getName());
+						variantsWriter.setString(VariantFile.CHROMOSOME, chromosome);
+						variantsWriter.setInteger(VariantFile.POSITION, position);
+						variantsWriter.setString(VariantFile.R2, "");
+						variantsWriter.setInteger(VariantFile.INCLUDE, 0);
+						variantsWriter.next();
+
+					}
+				}
+			}
+
+			variantsWriter.close();
 		}
 
 		if (effectsWriter != null) {

@@ -225,4 +225,8 @@ public class RiskScoreFile {
 		return ignoredVariants;
 	}
 	
+	public Map<Integer, ReferenceVariant> getVariants() {
+		return variants;
+	}
+	
 }

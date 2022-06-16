@@ -28,6 +28,8 @@ public class VariantFile {
 
 	public static final String R2 = "r2";
 
+	public static final String INCLUDE = "INCLUDE";
+
 	public VariantFile(String filename) throws Exception {
 
 		this.filename = filename;
@@ -52,6 +54,9 @@ public class VariantFile {
 		if (!reader.hasColumn(POSITION)) {
 			throw new Exception("Column '" + POSITION + "' not found in '" + filename + "'");
 		}
+		if (!reader.hasColumn(INCLUDE)) {
+			throw new Exception("Column '" + INCLUDE + "' not found in '" + filename + "'");
+		}
 	}
 
 	public void buildIndex(String chromosome) throws IOException {
@@ -59,14 +64,17 @@ public class VariantFile {
 		while (reader.next()) {
 			String chromsomeVariant = reader.getString(CHROMOSOME);
 			if (chromsomeVariant.equals(chromosome)) {
-				String score = reader.getString(SCORE);
-				int position = reader.getInteger(POSITION);
-				Set<Integer> variantsScore = variants.get(score);
-				if (variantsScore == null) {
-					variantsScore = new HashSet<Integer>();
-					variants.put(score, variantsScore);
+				int include = reader.getInteger(INCLUDE);
+				if (include == 1) {
+					String score = reader.getString(SCORE);
+					int position = reader.getInteger(POSITION);
+					Set<Integer> variantsScore = variants.get(score);
+					if (variantsScore == null) {
+						variantsScore = new HashSet<Integer>();
+						variants.put(score, variantsScore);
+					}
+					variantsScore.add(position);
 				}
-				variantsScore.add(position);
 			}
 			totalVariants++;
 		}
