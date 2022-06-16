@@ -1,14 +1,20 @@
 package genepi.riskscore.tasks;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import genepi.io.FileUtil;
+import genepi.io.table.reader.CsvTableReader;
+import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.commands.ApplyScoreCommand;
 import genepi.riskscore.io.PGSCatalog;
+import genepi.riskscore.io.VariantFile;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.monitors.TaskMonitorMock;
 import picocli.CommandLine;
@@ -75,8 +81,26 @@ public class MergeVariantsTaskTest {
 		task.setOutput("test-data-output/variants.merged.txt");
 		task.run(new TaskMonitorMock());
 
-		assertEquals(FileUtil.readFileAsString("test-data-output/variants.txt"),
-				FileUtil.readFileAsString("test-data-output/variants.merged.txt"));
+		//compare files (order difference of not included variants)
+		ITableReader reader = new CsvTableReader("test-data-output/variants.txt", VariantFile.SEPARATOR);
+		HashMap<Integer, Integer> variants = new HashMap<Integer, Integer>();
+		while(reader.next()) {
+			int position = reader.getInteger(VariantFile.POSITION);
+			int include = reader.getInteger(VariantFile.INCLUDE);
+			variants.put(position, include);
+		}
+		reader.close();
+
+		
+		ITableReader reader2 = new CsvTableReader("test-data-output/variants.merged.txt", VariantFile.SEPARATOR);
+		while(reader2.next()) {
+			int position = reader2.getInteger(VariantFile.POSITION);
+			Integer include = reader2.getInteger(VariantFile.INCLUDE);
+			Integer expectIncluded = variants.get(position);
+			assertNotNull(expectIncluded);
+			assertEquals(expectIncluded, include);
+		}
+		reader2.close();		
 
 	}
 
