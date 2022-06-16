@@ -65,7 +65,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private String outputEffectsFilename;
 
 	private String dbsnp = null;
-	
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -116,7 +116,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 	public void setDbSnp(String dbsnp) {
 		this.dbsnp = dbsnp;
 	}
-	
+
 	public void run(ITaskMonitor monitor) throws Exception {
 
 		if (vcf == null || vcf.isEmpty()) {
@@ -133,7 +133,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		if (outputVariantFilename != null) {
 			variantFile = new CsvTableWriter(outputVariantFilename, VariantFile.SEPARATOR);
-			variantFile.setColumns(new String[] { VariantFile.CHROMOSOME, VariantFile.POSITION });
+			variantFile.setColumns(
+					new String[] { VariantFile.SCORE, VariantFile.CHROMOSOME, VariantFile.POSITION, VariantFile.R2 });
 		}
 
 		// read chromosome from first variant
@@ -190,8 +191,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	}
 
-	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp, String... riskScoreFilenames)
-			throws Exception {
+	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp,
+			String... riskScoreFilenames) throws Exception {
 
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
@@ -305,7 +306,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				if (includeVariants != null) {
-					if (!includeVariants.contains(position)) {
+					if (!includeVariants.contains(summary.getName(), position)) {
 						summary.incFiltered();
 						continue;
 					}
@@ -362,8 +363,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 				referenceVariant.setUsed(true);
 
 				if (variantFile != null) {
+					variantFile.setString(VariantFile.SCORE, summary.getName());
 					variantFile.setString(VariantFile.CHROMOSOME, variant.getContig());
 					variantFile.setInteger(VariantFile.POSITION, variant.getStart());
+					variantFile.setDouble(VariantFile.R2, variant.getInfoAsDouble(INFO_R2, 0));
 					variantFile.next();
 				}
 
@@ -445,6 +448,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public String getOutputEffectsFilename() {
 		return outputEffectsFilename;
+	}
+
+	public String getOutputVariantFilename() {
+		return outputVariantFilename;
 	}
 
 }

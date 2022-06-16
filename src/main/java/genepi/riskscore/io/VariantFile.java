@@ -18,10 +18,15 @@ public class VariantFile {
 
 	public static final char SEPARATOR = '\t';
 
+	public static final String SCORE = "score";
+	
 	public static final String CHROMOSOME = "chr_name";
 
 	public static final String POSITION = "chr_position";
 
+	public static final String R2 = "r2";
+
+	
 	public VariantFile(String filename) throws Exception {
 
 		this.filename = filename;
@@ -37,12 +42,15 @@ public class VariantFile {
 	}
 
 	private void checkFileFormat(ITableReader reader, String filename) throws Exception {
+		if (!reader.hasColumn(SCORE)) {
+			throw new Exception("Column '" + SCORE + "' not found in '" + filename + "'");
+		}
 		if (!reader.hasColumn(CHROMOSOME)) {
 			throw new Exception("Column '" + CHROMOSOME + "' not found in '" + filename + "'");
 		}
 		if (!reader.hasColumn(POSITION)) {
 			throw new Exception("Column '" + POSITION + "' not found in '" + filename + "'");
-		}
+		}		
 	}
 
 	public void buildIndex(String chromosome) throws IOException {

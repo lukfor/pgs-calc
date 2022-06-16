@@ -357,5 +357,24 @@ public class ApplyScoreCommandTest {
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(1, result);
 	}
+	
+	
+	@Test
+	public void testIncludeVariants() {
+		// Whole file
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref",
+				"test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--out", "test-data-output/output2.csv",
+				"--report-json", "test-data-output/report.json", "--writeVariants", "test-data-output/variants2.txt" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+		
+		args = new String[]{ "test-data/chr20.dose.vcf.gz", "--ref",
+				"test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz", "--out", "test-data-output/output3.csv",
+				"--report-json", "test-data-output/report.json", "--includeVariants", "test-data-output/variants2.txt" };
+		 result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+	
+	}
 
 }

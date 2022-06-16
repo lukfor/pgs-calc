@@ -18,6 +18,7 @@ import genepi.riskscore.tasks.CreateHtmlReportTask;
 import genepi.riskscore.tasks.MergeEffectsTask;
 import genepi.riskscore.tasks.MergeReportTask;
 import genepi.riskscore.tasks.MergeScoreTask;
+import genepi.riskscore.tasks.MergeVariantsTask;
 import htsjdk.samtools.util.StopWatch;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
@@ -153,7 +154,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setVcfFilename(vcf);
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
-			task.setOutputVariantFilename(outputVariantFilename);
+			if (outputVariantFilename != null) {
+				task.setOutputVariantFilename(taskPrefix + ".variants.txt");
+			}
 			if (outputEffectsFilename != null) {
 				task.setOutputEffectsFilename(taskPrefix + ".effects.txt");
 			}
@@ -187,6 +190,16 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			mergeEffectsTask.setInputs(tasks);
 			mergeEffectsTask.setOutput(outputEffectsFilename);
 			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeEffectsTask))) {
+				cleanUp();
+				return 1;
+			}
+		}
+
+		if (outputVariantFilename != null) {
+			MergeVariantsTask mergeVariantsTask = new MergeVariantsTask();
+			mergeVariantsTask.setInputs(tasks);
+			mergeVariantsTask.setOutput(outputVariantFilename);
+			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(mergeVariantsTask))) {
 				cleanUp();
 				return 1;
 			}
