@@ -28,6 +28,9 @@ public class DbSnpReader {
 				snp.setPosition(Integer.parseInt(tiles[3]));
 				snp.setReference(tiles[4].replaceAll("\\*", ""));
 				snp.setAlternate(tiles[5]);
+
+				System.out.println(line);
+				System.out.println(result.next());
 				return snp;
 			} else {
 				throw new IOException("Index has not 6 columns.");
@@ -93,9 +96,14 @@ public class DbSnpReader {
 
 	public static String getContig(String rsID) {
 		if (rsID.length() > 10) {
-			return rsID.substring(0, 3);
+			// TODO: count zeros --> rs1, rs10, ...
+			String position = rsID.substring(3);
+			int count = countCharacter(position, '0');
+			return rsID.substring(0, 3) + sequence('0', count);
 		} else {
-			return "rs";
+			String position = rsID.substring(2);
+			int count = countCharacter(position, '0');
+			return "rs" + sequence('0', count);
 		}
 	}
 
@@ -105,6 +113,25 @@ public class DbSnpReader {
 		} else {
 			return Integer.parseInt(rsID.substring(2));
 		}
+	}
+
+	public static int countCharacter(String string, char character) {
+		int count = 0;
+		for (int i = 0; i < string.length(); i++) {
+			if (string.charAt(i) != character) {
+				break;
+			}
+			count++;
+		}
+		return count;
+	}
+
+	public static String sequence(char character, int count) {
+		String result = "";
+		for (int i = 0; i < count; i++) {
+			result += character;
+		}
+		return result;
 	}
 
 }
