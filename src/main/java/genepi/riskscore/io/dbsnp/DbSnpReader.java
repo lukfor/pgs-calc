@@ -28,9 +28,6 @@ public class DbSnpReader {
 				snp.setPosition(Integer.parseInt(tiles[3]));
 				snp.setReference(tiles[4].replaceAll("\\*", ""));
 				snp.setAlternate(tiles[5]);
-
-				System.out.println(line);
-				System.out.println(result.next());
 				return snp;
 			} else {
 				throw new IOException("Index has not 6 columns.");
