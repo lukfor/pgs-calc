@@ -35,8 +35,7 @@ public class PGSCatalog {
 
 		FileUtil.createDirectory(CACHE_DIR);
 
-		MessageFormat format = new MessageFormat(FILE_URL);
-		String url = format.format(new Object[] { id });
+		String url = getUrl(id);
 
 		// System.out.println("Downloading score '" + id + "' from " + url + "...");
 
@@ -49,6 +48,12 @@ public class PGSCatalog {
 
 	public static boolean isValidId(String id) {
 		return (id.startsWith("PGS") && id.length() == 9 && !id.endsWith(".txt.gz"));
+	}
+
+	public static String getUrl(String id) {
+		MessageFormat format = new MessageFormat(FILE_URL);
+		return format.format(new Object[] { id });
+
 	}
 
 }
