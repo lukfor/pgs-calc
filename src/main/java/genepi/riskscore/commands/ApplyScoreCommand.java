@@ -12,6 +12,7 @@ import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.io.ScoresFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
@@ -65,6 +66,9 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--report-json", "--info" }, description = "Write statistics to json file", required = false)
 	String reportJson = null;
 
+	@Option(names = { "--report-csv", }, description = "Write statistics to csv file", required = false)
+	String reportCsv = null;
+	
 	@Option(names = { "--report-html" }, description = "Write statistics to html file", required = false)
 	String reportHtml = null;
 
@@ -233,6 +237,26 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				return 1;
 			}
 		}
+		
+		if (reportCsv != null) {
+
+			if (meta != null) {
+				MetaFile metaFile = MetaFile.load(meta);
+				report.mergeWithMeta(metaFile);
+			}
+
+			OutputFile data = new OutputFile(out);
+
+			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
+			htmlReportTask.setReport(report);
+			htmlReportTask.setData(data);
+			htmlReportTask.setTemplate("txt");
+			htmlReportTask.setOutput(reportCsv);
+			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {
+				cleanUp();
+				return 1;
+			}
+		}
 
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
@@ -255,12 +279,20 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			return file.getIds();
 
 		} catch (Exception e) {
+			try {
 
-			String[] refs = ref.split(",");
-			for (int i = 0; i < refs.length; i++) {
-				refs[i] = refs[i].trim();
+				// check if file is a file with scores
+				ScoresFile file = new ScoresFile(ref);
+				return file.getFilenames();
+
+			} catch (Exception e1) {
+
+				String[] refs = ref.split(",");
+				for (int i = 0; i < refs.length; i++) {
+					refs[i] = refs[i].trim();
+				}
+				return refs;
 			}
-			return refs;
 		}
 	}
 
