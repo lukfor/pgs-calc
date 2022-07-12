@@ -2,6 +2,7 @@ package genepi.riskscore.io.dbsnp;
 
 import java.io.IOException;
 
+import genepi.io.text.LineReader;
 import htsjdk.tribble.readers.TabixReader;
 import htsjdk.tribble.readers.TabixReader.Iterator;
 
@@ -9,14 +10,36 @@ public class DbSnpReader {
 
 	private TabixReader reader;
 
+	private int size = 3;
+
 	public DbSnpReader(String input) throws IOException {
+
+		// read header
+		LineReader headerReader = new LineReader(input);
+		while (headerReader.next()) {
+			String line = headerReader.get();
+			if (!line.startsWith("#")) {
+				break;
+			}
+			String[] tiles = line.split("=");
+			if (tiles.length == 2) {
+				String key = tiles[0];
+				String value = tiles[1];
+				if (key.equalsIgnoreCase("#size")) {
+					size = Integer.parseInt(value);
+				}
+			}
+		}
+		headerReader.close();
+
 		reader = new TabixReader(input);
+
 	}
 
 	public Snp getByRsId(String rs) throws IOException {
 
-		Iterator result = reader.query(DbSnpReader.getContig(rs), DbSnpReader.getPosition(rs) - 1,
-				DbSnpReader.getPosition(rs));
+		Iterator result = reader.query(DbSnpReader.getContig(rs, size), DbSnpReader.getPosition(rs, size) - 1,
+				DbSnpReader.getPosition(rs, size));
 
 		String line = result.next();
 
@@ -91,12 +114,12 @@ public class DbSnpReader {
 		reader.close();
 	}
 
-	public static String getContig(String rsID) {
+	public static String getContig(String rsID, int size) {
 		if (rsID.length() > 10) {
-			// TODO: count zeros --> rs1, rs10, ...
-			String position = rsID.substring(3);
+			// count zeros --> rs1, rs10, ...
+			String position = rsID.substring(size);
 			int count = countCharacter(position, '0');
-			return rsID.substring(0, 3) + sequence('0', count);
+			return rsID.substring(0, size) + sequence('0', count);
 		} else {
 			String position = rsID.substring(2);
 			int count = countCharacter(position, '0');
@@ -104,9 +127,9 @@ public class DbSnpReader {
 		}
 	}
 
-	public static int getPosition(String rsID) {
+	public static int getPosition(String rsID, int size) {
 		if (rsID.length() > 10) {
-			return Integer.parseInt(rsID.substring(3));
+			return Integer.parseInt(rsID.substring(size));
 		} else {
 			return Integer.parseInt(rsID.substring(2));
 		}
