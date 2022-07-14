@@ -13,7 +13,7 @@
 - supports PGS Catalog format (https://www.pgscatalog.org, currently over 2,000 scores)
 - creates an interactive html report
 - supports liftover of score files
-- supports converting rsID to positions
+- supports converting rsIDs to positions
 
 ## Installation
 
@@ -58,10 +58,10 @@ The weights for score `PGS000018` are downloaded automatically from PGSCatalog a
 
 `pgs-calc` supports [PGSCatalog](https://www.pgscatalog.org) out of the box: open the website, find your score of interest and download the provided `txt.gz` files.
 
-As `pgs-calc` works with genomic positions and not with marker ids, the following requirements must be fulfilled:
+As `pgs-calc` works with chromosomal positions and not with marker ids, the following requirements must be fulfilled:
 
-1. The build of your genotypes and the score must be the same. If the score is on a different build, you can use the `pgs-calc resolve` command to lift over to the build of the genotypes.
-2. The score file needs `chr_name` and `chr_position` columns. If there is only `rsID` present, you need to set the parameter `--dbsnp` and the correct index to convert rsIDs on the fly to the correct position. Depending on the build of your genotypes (hg19 or hg38) you can download the dbsnp index from [here](https://imputationserver.sph.umich.edu/resources/dbsnp-index/).
+1. The build of your genotypes and the build of the score must be the same. If the score is on a different build, you can use the `pgs-calc resolve` command to lift over to the build of the genotypes.
+2. The score file needs `chr_name` and `chr_position` columns. If there is only `rsID` present, you need to set the parameter `--dbsnp` and the correct index to convert rsIDs on the fly to the correct chromosomal positions. Depending on the build of your genotypes (hg19 or hg38) you can download the dbsnp-index from [here](https://imputationserver.sph.umich.edu/resources/dbsnp-index/).
 3. The column `other_allele` is mandatory to handle multi-allelic variants in an unified way.
 
 If you want to create your own weight files, you need a tab-delimited text file with the following columns:
