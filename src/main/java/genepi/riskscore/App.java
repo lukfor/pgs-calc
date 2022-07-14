@@ -9,6 +9,7 @@ import static lukfor.progress.Components.TIME;
 import java.util.concurrent.Callable;
 
 import genepi.riskscore.commands.ApplyScoreCommand;
+import genepi.riskscore.commands.ClearCacheCommand;
 import genepi.riskscore.commands.CreateHtmlReportCommand;
 import genepi.riskscore.commands.DownloadMetaCommand;
 import genepi.riskscore.commands.DownloadScoreCommand;
@@ -56,7 +57,7 @@ public class App {
 	@Command(name = App.APP, version = App.VERSION, subcommands = { ApplyScoreCommand.class, MergeScoreCommand.class,
 			MergeInfoCommand.class, MergeVariantsCommand.class, MergeEffectsCommand.class, ResolveScoreCommand.class,
 			CreateHtmlReportCommand.class, DownloadMetaCommand.class, LiftOverScoreCommand.class,
-			DownloadScoreCommand.class })
+			DownloadScoreCommand.class, ClearCacheCommand.class })
 	public static class DefaultCommand implements Callable<Integer> {
 
 		@Override

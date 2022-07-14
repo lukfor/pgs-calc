@@ -44,8 +44,16 @@ public class PGSCatalog {
 		InputStream in = new URL(url).openStream();
 		Files.copy(in, Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);
 
+		debug("Score '" + id + "' downloaded and cached in file '" + filename + "'.");
+
+		
 		return filename;
 
+	}
+
+	public static void clearCache() {
+		FileUtil.deleteDirectory(CACHE_DIR);
+		debug("Deleted cache directory '" + CACHE_DIR + "'");
 	}
 
 	public static boolean isValidId(String id) {
