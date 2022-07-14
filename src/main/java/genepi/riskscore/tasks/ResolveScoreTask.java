@@ -29,6 +29,8 @@ public class ResolveScoreTask implements ITaskRunnable {
 
 	private String dbsnpFilename;
 
+	public static boolean VERBOSE = false;
+
 	public ResolveScoreTask(String input, String output, String dbsnpFilename) {
 		this.input = input;
 		this.output = output;
@@ -78,7 +80,7 @@ public class ResolveScoreTask implements ITaskRunnable {
 								found++;
 
 							} else {
-								log("Warning: Ignore SNP " + rsId
+								warning("Ignore SNP " + rsId
 										+ ": effect allele is reference allele and SNP has multiple alleles.");
 
 								ignoredMulAlternateAlleles++;
@@ -91,10 +93,10 @@ public class ResolveScoreTask implements ITaskRunnable {
 						}
 					}
 					writer.setString(format.getOtherAllele(), otherAllele);
-					
+
 				} else {
 
-					log("Warning: Ignore SNP " + rsId + ": not found in index.");
+					warning(" Ignore SNP " + rsId + ": not found in index.");
 
 					writer.setString(format.getChromosome(), "");
 					writer.setString(format.getPosition(), "");
@@ -120,8 +122,10 @@ public class ResolveScoreTask implements ITaskRunnable {
 
 	}
 
-	protected void log(String message) {
-
+	protected void warning(String message) {
+		if (VERBOSE) {
+			System.out.println("Warning: " + message);
+		}
 	}
 
 	public int getTotal() {
@@ -143,11 +147,11 @@ public class ResolveScoreTask implements ITaskRunnable {
 	public int getOtherAlleleSource() {
 		return otherAlleleSource;
 	}
-	
+
 	public int getIgnoredMulAlternateAlleles() {
 		return ignoredMulAlternateAlleles;
 	}
-	
+
 	public int getIgnoredNotInDbSnp() {
 		return ignoredNotInDbSnp;
 	}

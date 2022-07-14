@@ -28,6 +28,8 @@ public class LiftOverScoreCommand implements Callable<Integer> {
 	@Override
 	public Integer call() throws Exception {
 
+		LiftOverScoreTask.VERBOSE = true;
+		
 		LiftOverScoreTask task = new LiftOverScoreTask(input, output + ".raw", chain);
 		TaskService.setAnsiSupport(false);
 		TaskService.setAnimated(false);

@@ -28,6 +28,8 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 	private String chainFile;
 
+	public static boolean VERBOSE = false;
+
 	public static final Map<String, String> ALLELE_SWITCHES = new HashMap<String, String>();
 
 	static {
@@ -193,7 +195,9 @@ public class LiftOverScoreTask implements ITaskRunnable {
 	}
 
 	protected void log(String message) {
-		System.out.println(message);
+		if (VERBOSE) {
+			System.out.println(message);
+		}
 	}
 
 	public int getTotal() {

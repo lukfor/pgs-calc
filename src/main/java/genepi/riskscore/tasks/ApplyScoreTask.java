@@ -69,6 +69,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public static final String DOSAGE_FORMAT = "DS";
 
+	public static boolean VERBOSE = false;
+
 	public void setRiskScoreFilenames(String... filenames) {
 		this.riskScoreFilenames = filenames;
 		for (String filename : filenames) {
@@ -186,7 +188,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
 		for (int i = 0; i < numberRiskScores; i++) {
 
-			// System.out.println("Loading file " + riskScoreFilenames[i] + "...");
+			debug("Loading file " + riskScoreFilenames[i] + "...");
 
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
 			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp);
@@ -200,8 +202,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			summaries[i].setVariants(riskscore.getTotalVariants());
 			summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
 
-			// System.out.println("Loaded " + riskscore.getCacheSize() + " weights for
-			// chromosome " + chromosome);
+			debug("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
 			riskscores[i] = riskscore;
 			monitor.worked(0);
 		}
@@ -213,15 +214,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private void processVCF(ITaskMonitor monitor, String chromosome, String vcfFilename, RiskScoreFile[] riskscores)
 			throws Exception {
 
-		// System.out.println("Loading file " + vcfFilename + "...");
+		debug("Loading file " + vcfFilename + "...");
 
 		VariantFile includeVariants = null;
 		if (includeVariantFilename != null) {
-			// System.out.println("Loading file " + includeVariantFilename + "...");
+			debug("Loading file " + includeVariantFilename + "...");
 			includeVariants = new VariantFile(includeVariantFilename);
 			includeVariants.buildIndex(chromosome);
-			// System.out.println("Loaded " + includeVariants.getCacheSize() + " variants
-			// for chromosome " + chromosome);
+			debug("Loaded " + includeVariants.getCacheSize() + " variants for chromosome " + chromosome);
 		}
 
 		SamplesFile samplesFile = null;
@@ -352,10 +352,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 					}
 				}
 
-				if (referenceVariant.isUsed()) {
-					System.out.println(variant.getContig() + " " + variant.getStart());
-				}
-
 				referenceVariant.setUsed(true);
 
 				if (variantsWriter != null) {
@@ -397,14 +393,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		if (variantsWriter != null) {
 
-			// TODO: write all unused variants to file!
+			// write all unused variants to file!
 			for (int j = 0; j < riskScoreFilenames.length; j++) {
 				RiskScoreSummary summary = summaries[j];
 				RiskScoreFile riskscore = riskscores[j];
 				for (Entry<Integer, ReferenceVariant> item : riskscore.getVariants().entrySet()) {
 					ReferenceVariant variant = item.getValue();
 					int position = item.getKey();
-					
+
 					if (chunk != null) {
 
 						if (position < chunk.getStart()) {
@@ -417,8 +413,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 						}
 
 					}
-					
-					if ( !variant.isUsed()) {
+
+					if (!variant.isUsed()) {
 						variantsWriter.setString(VariantFile.SCORE, summary.getName());
 						variantsWriter.setString(VariantFile.CHROMOSOME, chromosome);
 						variantsWriter.setInteger(VariantFile.POSITION, position);
@@ -439,8 +435,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 		vcfReader.close();
 
-		// System.out.println("Loaded " + getRiskScores().length + " samples and " +
-		// countVariants + " variants.");
+		debug("Loaded " + countSamples + " samples and " + countVariants + " variants.");
 
 	}
 
@@ -487,6 +482,12 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public String getOutputVariantFilename() {
 		return outputVariantFilename;
+	}
+
+	public void debug(String text) {
+		if (VERBOSE) {
+			System.out.println(text);
+		}
 	}
 
 }

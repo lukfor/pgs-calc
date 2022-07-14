@@ -10,16 +10,20 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
+import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.ScoresFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
+import genepi.riskscore.tasks.LiftOverScoreTask;
 import genepi.riskscore.tasks.MergeEffectsTask;
 import genepi.riskscore.tasks.MergeReportTask;
 import genepi.riskscore.tasks.MergeScoreTask;
 import genepi.riskscore.tasks.MergeVariantsTask;
+import genepi.riskscore.tasks.ResolveScoreTask;
 import htsjdk.samtools.util.StopWatch;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
@@ -68,7 +72,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 
 	@Option(names = { "--report-csv", }, description = "Write statistics to csv file", required = false)
 	String reportCsv = null;
-	
+
 	@Option(names = { "--report-html" }, description = "Write statistics to html file", required = false)
 	String reportHtml = null;
 
@@ -89,6 +93,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			"--no-ansi" }, description = "Disable ANSI output", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean noAnsi = false;
 
+	@Option(names = {
+			"--verbose" }, description = "Show debug messages", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean verbose = false;
+
 	@Option(names = { "--version" }, versionHelp = true)
 	boolean showVersion;
 
@@ -96,6 +104,15 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	Chunk chunk;
 
 	public Integer call() throws Exception {
+
+		if (verbose) {
+			RiskScoreFile.VERBOSE = true;
+			ResolveScoreTask.VERBOSE = true;
+			ApplyScoreTask.VERBOSE = true;
+			LiftOverScoreTask.VERBOSE = true;
+			PGSCatalog.VERBOSE = true;
+			noAnsi = true;
+		}
 
 		if (noAnsi) {
 			TaskService.setAnimated(false);
@@ -237,7 +254,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				return 1;
 			}
 		}
-		
+
 		if (reportCsv != null) {
 
 			if (meta != null) {

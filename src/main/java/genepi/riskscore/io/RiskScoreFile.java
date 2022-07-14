@@ -29,8 +29,10 @@ public class RiskScoreFile {
 	private int totalVariants = 0;
 
 	private int ignoredVariants = 0;
-	
+
 	private RiskScoreFormatImpl format;
+
+	public static boolean VERBOSE = false;
 
 	public RiskScoreFile(String filename, String dbsnp) throws Exception {
 		this(filename, RiskScoreFormat.PGS_CATALOG, dbsnp);
@@ -116,7 +118,7 @@ public class RiskScoreFile {
 				String chromsomeVariant = reader.getString(format.getChromosome());
 				if (chromsomeVariant.equals(chromosome)) {
 					if (reader.getString(format.getPosition()).isEmpty()) {
-						System.out.println("Warning: Row " + row + ": Position is empty. Ignore variant.");
+						warning("Row " + row + ": Position is empty. Ignore variant.");
 						ignoredVariants++;
 						continue;
 					}
@@ -126,7 +128,7 @@ public class RiskScoreFile {
 						position = reader.getInteger(format.getPosition());
 
 					} catch (NumberFormatException e) {
-						System.out.println("Warning: Row " + row + ": '" + reader.getString(format.getPosition())
+						warning("Row " + row + ": '" + reader.getString(format.getPosition())
 								+ "' is an invalid position. Ignore variant.");
 						ignoredVariants++;
 						continue;
@@ -140,15 +142,15 @@ public class RiskScoreFile {
 							effectWeight = ((Double) (reader.getDouble(format.getEffectWeight()))).floatValue();
 
 						} catch (NumberFormatException e) {
-							System.out.println("Warning: Row " + row + ": '" + reader.getString(format.getEffectWeight())
-									+ "' is an invalid weight. Ignore variant.");
+							warning("Row " + row + ": '" + reader.getString(format.getEffectWeight())
+											+ "' is an invalid weight. Ignore variant.");
 							ignoredVariants++;
 							continue;
 						}
 
 						String rawOtherA = reader.getString(format.getOtherAllele());
 						if (rawOtherA.isEmpty()) {
-							System.out.println("Warning: Row " + row + ": Other allele is empty. Ignore variant.");
+							warning("Row " + row + ": Other allele is empty. Ignore variant.");
 							ignoredVariants++;
 							continue;
 						}
@@ -156,7 +158,7 @@ public class RiskScoreFile {
 
 						String rawEffectAllele = reader.getString(format.getEffectAllele());
 						if (rawEffectAllele.isEmpty()) {
-							System.out.println("Warning: Row " + row + ": Effect allele is empty. Ignore variant.");
+							warning("Row " + row + ": Effect allele is empty. Ignore variant.");
 							ignoredVariants++;
 							continue;
 						}
@@ -169,7 +171,7 @@ public class RiskScoreFile {
 				}
 			}
 			reader.close();
-		} catch ( Exception e) {
+		} catch (Exception e) {
 			throw new IOException(
 					"Build Index for '" + filename + "' and chr '" + chromosome + "' failed: " + e.getMessage(), e);
 		}
@@ -224,9 +226,15 @@ public class RiskScoreFile {
 	public int getIgnoredVariants() {
 		return ignoredVariants;
 	}
-	
+
 	public Map<Integer, ReferenceVariant> getVariants() {
 		return variants;
 	}
-	
+
+	public void warning(String text) {
+		if (VERBOSE) {
+			System.out.println("Warning: " + text);
+		}
+	}
+
 }

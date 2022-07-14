@@ -21,12 +21,14 @@ public class PGSCatalog {
 
 	public static String FILE_URL = "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/{0}/ScoringFiles/{0}.txt.gz";
 
+	public static boolean VERBOSE = false;
+
 	public static String getFilenameById(String id) throws IOException {
 
 		String filename = FileUtil.path(CACHE_DIR, id + ".txt.gz");
 
 		if ((new File(filename)).exists()) {
-			// System.out.println("Score '" + id + "' found in local cache " + filename);
+			debug("Score '" + id + "' found in local cache " + filename);
 			if (ENABLE_CACHE) {
 				return filename;
 			} else
@@ -37,7 +39,7 @@ public class PGSCatalog {
 
 		String url = getUrl(id);
 
-		// System.out.println("Downloading score '" + id + "' from " + url + "...");
+		debug("Downloading score '" + id + "' from " + url + "...");
 
 		InputStream in = new URL(url).openStream();
 		Files.copy(in, Paths.get(filename), StandardCopyOption.REPLACE_EXISTING);
@@ -54,6 +56,12 @@ public class PGSCatalog {
 		MessageFormat format = new MessageFormat(FILE_URL);
 		return format.format(new Object[] { id });
 
+	}
+
+	public static void debug(String message) {
+		if (VERBOSE) {
+			System.out.println(message);
+		}
 	}
 
 }
