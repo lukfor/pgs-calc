@@ -1,17 +1,20 @@
 package genepi.riskscore.io.vcf;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
-import genepi.io.text.LineReader;
+import genepi.io.FileUtil;
+import genepi.io.reader.IReader;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 
-public class FastVCFFileReader extends LineReader {
+public class FastVCFFileReader implements IReader<MinimalVariantContext> {
 
 	private List<String> samples;
 
@@ -21,13 +24,16 @@ public class FastVCFFileReader extends LineReader {
 
 	private MinimalVariantContext variantContext;
 
-	private List<String> header = new Vector<>();
-
 	private VCFLineParser parser;
 
-	public FastVCFFileReader(InputStream stream, String vcfFilename) throws IOException {
+	private String filename;
 
-		super(new DataInputStream(stream));
+	protected BufferedReader in;
+
+	private int lineNumber = 0;
+
+	public FastVCFFileReader(InputStream inputStream, String vcfFilename) throws IOException {
+
 		// load header
 		VCFFileReader reader = new VCFFileReader(new File(vcfFilename), false);
 		VCFHeader header = reader.getFileHeader();
@@ -36,15 +42,23 @@ public class FastVCFFileReader extends LineReader {
 		variantContext = new MinimalVariantContext(samplesCount);
 		reader.close();
 
+		filename = vcfFilename;
+		InputStream in2 = FileUtil.decompressStream(inputStream);
+		in = new BufferedReader(new InputStreamReader(in2));
+
 		parser = new VCFLineParser(samplesCount);
 
+	}
+
+	public FastVCFFileReader(String vcfFilename) throws IOException {
+		this(new FileInputStream(vcfFilename), vcfFilename);
 	}
 
 	public List<String> getGenotypedSamples() {
 		return samples;
 	}
 
-	public MinimalVariantContext getVariantContext() {
+	public MinimalVariantContext get() {
 		return variantContext;
 	}
 
@@ -56,29 +70,54 @@ public class FastVCFFileReader extends LineReader {
 		return samplesCount;
 	}
 
-	@Override
+	public boolean next() throws IOException {
+		String line;
+		while ((line = in.readLine()) != null) {
+			try {
+				lineNumber++;
+				if (!line.trim().isEmpty() && line.charAt(0) != '#') {
+					parseLine(line);
+					return true;
+				}
+			} catch (Exception e) {
+				throw new IOException(filename + ": Line " + lineNumber + ": " + e.getMessage());
+			}
+		}
+		return false;
+	}
+
 	protected void parseLine(String line) throws IOException {
 
-		// not a header line
-		if (line.charAt(0) != '#') {
+		variantContext = parser.parseLine(line);
 
-			variantContext = parser.parseLine(line);
-
-			if (variantContext.getNSamples() != samplesCount) {
-				throw new IOException("Line " + getLineNumber() + ": different number of samples.");
-			}
-
-			snpsCount++;
-
-		} else {
-			header.add(line);
-			next();
+		if (variantContext.getNSamples() != samplesCount) {
+			throw new IOException("Line " + lineNumber + ": different number of samples.");
 		}
+
+		snpsCount++;
 
 	}
 
-	public List<String> getFileHeader() {
-		return header;
+	public void close() {
+		try {
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	@Override
+	public Iterator<MinimalVariantContext> iterator() {
+		return null;
+	}
+
+	@Override
+	public void reset() {
+
 	}
 
 }

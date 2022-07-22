@@ -131,54 +131,68 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (riskScoreFilenames == null || riskScoreFilenames.length == 0) {
 			throw new Exception("Reference can not be null or empty.");
 		}
+		try {
 
-		// read chromosome from first variant
-		String chromosome = null;
-		FastVCFFileReader vcfReader = new FastVCFFileReader(new FileInputStream(vcf), vcf);
-		if (vcfReader.next()) {
-			chromosome = vcfReader.getVariantContext().getContig();
-			vcfReader.close();
-		} else {
-			vcfReader.close();
-			throw new Exception("VCF file is empty.");
-		}
-
-		String taskName = "[Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome + "]";
-		monitor.begin(taskName, new File(vcf).length());
-		monitor.worked(0);
-
-		numberRiskScores = riskScoreFilenames.length;
-		summaries = new RiskScoreSummary[numberRiskScores];
-		for (int i = 0; i < numberRiskScores; i++) {
-			String name = RiskScoreFile.getName(riskScoreFilenames[i]);
-			summaries[i] = new RiskScoreSummary(name);
-		}
-
-		RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, riskScoreFilenames);
-
-		boolean empty = true;
-		for (RiskScoreFile riskscore : riskscores) {
-			if (riskscore.getCacheSize() > 0) {
-				empty = false;
-				break;
-			}
-		}
-
-		if (!empty) {
-
-			processVCF(monitor, chromosome, vcf, riskscores);
-
-			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
-			outputFile.save(output);
-
-			if (outputReportFilename != null) {
-				ReportFile reportFile = new ReportFile(summaries);
-				reportFile.save(outputReportFilename);
+			// read chromosome from first variant
+			String chromosome = null;
+			FastVCFFileReader vcfReader = new FastVCFFileReader(vcf);
+			if (vcfReader.next()) {
+				chromosome = vcfReader.get().getContig();
+				vcfReader.close();
+			} else {
+				vcfReader.close();
+				throw new Exception("VCF file is empty.");
 			}
 
-		}
+			String taskName = "[Chr " + (chromosome.length() == 1 ? "0" : "") + chromosome + "]";
+			monitor.begin(taskName, new File(vcf).length());
+			monitor.worked(0);
 
-		monitor.done();
+			numberRiskScores = riskScoreFilenames.length;
+			summaries = new RiskScoreSummary[numberRiskScores];
+			for (int i = 0; i < numberRiskScores; i++) {
+				String name = RiskScoreFile.getName(riskScoreFilenames[i]);
+				summaries[i] = new RiskScoreSummary(name);
+			}
+
+			RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, riskScoreFilenames);
+
+			boolean empty = true;
+			for (RiskScoreFile riskscore : riskscores) {
+				if (riskscore.getCacheSize() > 0) {
+					empty = false;
+					break;
+				}
+			}
+
+			if (!empty) {
+
+				processVCF(monitor, chromosome, vcf, riskscores);
+
+				OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
+				outputFile.save(output);
+
+				if (outputReportFilename != null) {
+					ReportFile reportFile = new ReportFile(summaries);
+					reportFile.save(outputReportFilename);
+				}
+
+			}
+
+			monitor.done();
+		} catch (Exception e) {
+			if (VERBOSE) {
+				System.out.println("ERROR:");
+				e.printStackTrace();
+			}
+			throw e;
+		} catch (Error e) {
+			if (VERBOSE) {
+				System.out.println("ERROR:");
+				e.printStackTrace();
+			}
+			throw new Exception(e);
+		}
 
 	}
 
@@ -265,7 +279,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				return;
 			}
 
-			MinimalVariantContext variant = vcfReader.getVariantContext();
+			MinimalVariantContext variant = vcfReader.get();
 
 			countVariants++;
 
