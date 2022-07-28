@@ -142,6 +142,12 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				loaded += score.getCacheSize();
 			}
 
+			//chr X
+			System.out.println("Validate chromosome X...");
+			score = new RiskScoreFile(output, dbsnp);
+			score.buildIndex("X");
+			loaded += score.getCacheSize();
+			
 			long end = System.currentTimeMillis();
 
 			System.out.println("--------------------------------------");
