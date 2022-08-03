@@ -19,6 +19,7 @@ import genepi.riskscore.commands.MergeInfoCommand;
 import genepi.riskscore.commands.MergeScoreCommand;
 import genepi.riskscore.commands.MergeVariantsCommand;
 import genepi.riskscore.commands.ResolveScoreCommand;
+import genepi.riskscore.commands.ValidateScoreCommand;
 import lukfor.progress.renderer.ProgressIndicatorGroup;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -57,7 +58,7 @@ public class App {
 	@Command(name = App.APP, version = App.VERSION, subcommands = { ApplyScoreCommand.class, MergeScoreCommand.class,
 			MergeInfoCommand.class, MergeVariantsCommand.class, MergeEffectsCommand.class, ResolveScoreCommand.class,
 			CreateHtmlReportCommand.class, DownloadMetaCommand.class, LiftOverScoreCommand.class,
-			DownloadScoreCommand.class, ClearCacheCommand.class })
+			DownloadScoreCommand.class, ClearCacheCommand.class, ValidateScoreCommand.class})
 	public static class DefaultCommand implements Callable<Integer> {
 
 		@Override
