@@ -19,12 +19,12 @@ public class PGSCatalogFormat extends RiskScoreFormatImpl {
 
 	private PGSCatalogVariantsFormat format;
 
-	public PGSCatalogFormat(String filename) throws IOException {
-		this.format = detectVersionAndFormat(filename);
+	public PGSCatalogFormat(String filename, boolean forecRsIds) throws IOException {
+		this.format = detectVersionAndFormat(filename, forecRsIds);
 		// format unknown or rsIds --> let try version two --> maybe we find coordinates
 		if (format == PGSCatalogVariantsFormat.UNKNOWN || format == PGSCatalogVariantsFormat.RS_ID) {
 			this.version = VERSION_2;
-			this.format = detectVersionAndFormat(filename);
+			this.format = detectVersionAndFormat(filename, forecRsIds);
 		}
 	}
 
@@ -57,11 +57,15 @@ public class PGSCatalogFormat extends RiskScoreFormatImpl {
 		}
 	}
 
-	protected PGSCatalogVariantsFormat detectVersionAndFormat(String filename) throws IOException {
+	protected PGSCatalogVariantsFormat detectVersionAndFormat(String filename, boolean forceRsId) throws IOException {
 		DataInputStream in = openTxtOrGzipStream(filename);
 		ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
+		PGSCatalogVariantsFormat format = detectVersionAndFormat(reader, forceRsId);
 		reader.close();
-
+		return format;
+	}
+	
+	private PGSCatalogVariantsFormat detectVersionAndFormat(ITableReader reader, boolean forceRsId) {
 		if (!reader.hasColumn("rsID")) {
 
 			if (!reader.hasColumn(getChromosome())) {
@@ -84,12 +88,26 @@ public class PGSCatalogFormat extends RiskScoreFormatImpl {
 			return PGSCatalogVariantsFormat.UNKNOWN;
 		}
 
-		if (reader.hasColumn(getChromosome()) && reader.hasColumn(getPosition())
+		if (!forceRsId && reader.hasColumn(getChromosome()) && reader.hasColumn(getPosition())
 				&& reader.hasColumn(getOtherAllele())) {
 			return PGSCatalogVariantsFormat.COORDINATES;
 		}
 
+		// check if all rsIds are nor empty
+		boolean empty = false;
+		while (!empty && reader.next()) {
+			empty = !reader.getString("rsID").startsWith("rs");
+		}
+		reader.close();
+		
+		//if one rsId is empty check if positions are available
+		if (empty && reader.hasColumn(getChromosome()) && reader.hasColumn(getPosition())
+				&& reader.hasColumn(getOtherAllele())) {
+			return PGSCatalogVariantsFormat.COORDINATES;
+		}
+		
 		return PGSCatalogVariantsFormat.RS_ID;
+
 	}
 
 	public PGSCatalogVariantsFormat getFormat() {
@@ -105,7 +123,7 @@ public class PGSCatalogFormat extends RiskScoreFormatImpl {
 		InputStream in2 = FileUtil.decompressStream(inputStream);
 		return new DataInputStream(in2);
 	}
-	
+
 	@Override
 	public boolean hasRsIds() {
 		return format == PGSCatalogVariantsFormat.RS_ID;

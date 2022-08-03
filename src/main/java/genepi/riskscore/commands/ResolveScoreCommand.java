@@ -11,6 +11,7 @@ import genepi.io.text.LineReader;
 import genepi.riskscore.App;
 import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.io.formats.PGSCatalogFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
@@ -70,7 +71,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				}
 			}
 
-			RiskScoreFormatImpl format = RiskScoreFormatFactory.buildFormat(input, RiskScoreFormat.PGS_CATALOG);
+			RiskScoreFormatImpl format = new PGSCatalogFormat(input, true);
 			System.out.println("Input File Format: " + format);
 
 			System.out.println("--------------------------------------");

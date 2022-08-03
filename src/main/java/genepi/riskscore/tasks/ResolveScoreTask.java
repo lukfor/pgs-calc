@@ -40,7 +40,7 @@ public class ResolveScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		PGSCatalogFormat format = new PGSCatalogFormat(input);
+		PGSCatalogFormat format = new PGSCatalogFormat(input, false);
 
 		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
 		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
@@ -68,7 +68,7 @@ public class ResolveScoreTask implements ITaskRunnable {
 					writer.setString(format.getEffectWeight(), effectWeight);
 
 					String otherAllele = "";
-					if (reader.hasColumn(format.getOtherAllele())) {
+					if (reader.hasColumn(format.getOtherAllele()) && !reader.getString(format.getOtherAllele()).isEmpty()) {
 						otherAllele = reader.getString(format.getOtherAllele());
 						otherAlleleSource++;
 						found++;

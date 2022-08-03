@@ -48,7 +48,7 @@ public class LiftOverScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		PGSCatalogFormat format = new PGSCatalogFormat(input);
+		PGSCatalogFormat format = new PGSCatalogFormat(input, false);
 
 		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
 		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
@@ -114,9 +114,14 @@ public class LiftOverScoreTask implements ITaskRunnable {
 					String id = orginalContig + ":" + originalPosition;
 
 					int length = otherAllele.length();
+					if (length == 0) {
+						length = 1;
+					}
 					int start = originalPosition;
 					int stop = originalPosition + length - 1;
 
+					
+					
 					Interval source = new Interval(contig, start, stop, false, id);
 
 					Interval target = liftOver.liftOver(source);

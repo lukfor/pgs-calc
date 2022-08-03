@@ -331,10 +331,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				ReferenceVariant referenceVariant = riskscore.getVariant(position);
 
-				if (variant.isComplexIndel()) {
+				/*if (variant.isComplexIndel()) {
 					summary.incMultiAllelic();
 					continue;
-				}
+				}*/
 
 				float effectWeight = referenceVariant.getEffectWeight();
 

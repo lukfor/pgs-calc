@@ -11,7 +11,7 @@ public class RiskScoreFormatFactory {
 	public static RiskScoreFormatImpl buildFormat(String filename, RiskScoreFormat format) throws IOException {
 		switch (format) {
 		case PGS_CATALOG:
-			return new PGSCatalogFormat(filename);
+			return new PGSCatalogFormat(filename, false);
 		case DEFAULT:
 			return new RiskScoreFormatImpl();
 		case MAPPING_FILE:
