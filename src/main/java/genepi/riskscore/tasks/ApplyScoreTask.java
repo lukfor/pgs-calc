@@ -363,7 +363,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				// remove Ambiguous SNPs (AC, GT)
 				if (fixStrandFlips && variant.isAmbigous()) {
-					summary.incAmbigous();
+					summary.incAmbiguous();
 					continue;
 				}
 

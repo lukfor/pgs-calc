@@ -26,7 +26,7 @@ public class RiskScoreSummary {
 
 	private int filtered = 0;
 
-	private int ambigous = 0;
+	private int ambiguous = 0;
 
 	private int flipped = 0;
 
@@ -110,12 +110,12 @@ public class RiskScoreSummary {
 		this.filtered++;
 	}
 
-	public int getAmbigous() {
-		return ambigous;
+	public int getAmbiguous() {
+		return ambiguous;
 	}
 
-	public void incAmbigous() {
-		ambigous++;
+	public void incAmbiguous() {
+		ambiguous++;
 	}
 
 	public int getVariantsNotUsed() {
@@ -202,7 +202,7 @@ public class RiskScoreSummary {
 		r2Filtered += other.r2Filtered;
 		notFound += other.notFound;
 		filtered += other.filtered;
-		ambigous += other.ambigous;
+		ambiguous += other.ambiguous;
 		flipped += other.flipped;
 		updateStatistics();
 	}
@@ -218,7 +218,7 @@ public class RiskScoreSummary {
 		buffer.append("    - Variants used: " + number(getVariantsUsed()) + " ("
 				+ percentage(getVariantsUsed(), getVariants()) + ")\n");
 		buffer.append("    - Found in target and filtered by:\n");
-		buffer.append("      - ambigous: " + number(getAmbigous()) + "\n");
+		buffer.append("      - ambiguous: " + number(getAmbiguous()) + "\n");
 		buffer.append("      - allele mismatch: " + number(getAlleleMissmatch()) + "\n");
 		buffer.append("      - multi allelic or indels: " + number(getMultiAllelic()) + "\n");
 		buffer.append("      - low R2 value: " + number(getR2Filtered()) + "\n");
@@ -226,7 +226,7 @@ public class RiskScoreSummary {
 		buffer.append("    - Strand Flips fixed: " + number(getFlipped()) + "\n");
 
 		int notFound = getVariants() - (getVariantsUsed() + getFiltered() + getAlleleMissmatch() + getMultiAllelic()
-				+ getR2Filtered() + getAmbigous());
+				+ getR2Filtered() + getAmbiguous());
 
 		return buffer.toString();
 
