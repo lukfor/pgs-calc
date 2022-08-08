@@ -244,7 +244,8 @@ public class ApplyScoreTaskTest {
 		assertEquals(0, summary.getAlleleMissmatch());
 		assertEquals(2, task.getCountSamples());
 		assertEquals(2, summary.getR2Filtered());
-
+		assertEquals(0, summary.getFlipped());
+		
 		OutputFile output = new OutputFile(task.getOutput());
 
 		assertEquals(1, output.getCountScores());
@@ -367,6 +368,7 @@ public class ApplyScoreTaskTest {
 		assertEquals(2, summary.getVariantsNotUsed());
 		assertEquals(0, summary.getMultiAllelic());
 		assertEquals(0, summary.getAlleleMissmatch());
+		assertEquals(1, summary.getFlipped());
 		assertEquals(2, task.getCountSamples());
 		assertEquals(2, summary.getR2Filtered());
 
