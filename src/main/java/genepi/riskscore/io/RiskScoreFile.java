@@ -154,7 +154,7 @@ public class RiskScoreFile {
 							ignoredVariants++;
 							continue;
 						}
-						char alleleA = rawOtherA.charAt(0);
+						String alleleA = rawOtherA.trim();
 
 						String rawEffectAllele = reader.getString(format.getEffectAllele());
 						if (rawEffectAllele.isEmpty()) {
@@ -162,7 +162,7 @@ public class RiskScoreFile {
 							ignoredVariants++;
 							continue;
 						}
-						char effectAllele = rawEffectAllele.charAt(0);
+						String effectAllele = rawEffectAllele.trim();
 
 						ReferenceVariant variant = new ReferenceVariant(alleleA, effectAllele, effectWeight);
 						variants.put(position, variant);

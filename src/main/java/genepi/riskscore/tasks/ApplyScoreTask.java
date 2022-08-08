@@ -65,12 +65,23 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String dbsnp = null;
 
+	private boolean fixStrandFlips = false;
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
 
 	public static boolean VERBOSE = false;
 
+	public static final Map<Character, Character> ALLELE_SWITCHES = new HashMap<Character, Character>();
+	
+	static {
+		ALLELE_SWITCHES.put('A', 'T');
+		ALLELE_SWITCHES.put('T', 'A');
+		ALLELE_SWITCHES.put('G', 'C');
+		ALLELE_SWITCHES.put('C', 'G');
+	}
+	
 	public void setRiskScoreFilenames(String... filenames) {
 		this.riskScoreFilenames = filenames;
 		for (String filename : filenames) {
@@ -331,14 +342,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				ReferenceVariant referenceVariant = riskscore.getVariant(position);
 
-				/*if (variant.isComplexIndel()) {
-					summary.incMultiAllelic();
-					continue;
-				}*/
-
 				float effectWeight = referenceVariant.getEffectWeight();
 
-				char referenceAllele = variant.getReferenceAllele().charAt(0);
+				String referenceAllele = variant.getReferenceAllele();
 
 				// ignore deletions
 				if (variant.getAlternateAllele().length() == 0) {
@@ -346,12 +352,41 @@ public class ApplyScoreTask implements ITaskRunnable {
 					continue;
 				}
 
-				char alternateAllele = variant.getAlternateAllele().charAt(0);
+				String[] alternateAlleles = variant.getAlternateAllele().split(",");
+
+				if (alternateAlleles.length > 1) {
+					summary.incMultiAllelic();
+					continue;
+				}
+
+				String alternateAllele = alternateAlleles[0];
+
+				// remove Ambiguous SNPs (AC, GT)
+				if (fixStrandFlips && variant.isAmbigous()) {
+					summary.incAmbigous();
+					continue;
+				}
 
 				// check if alleles (ref and alt) are present
 				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
-					summary.incAlleleMissmatch();
-					continue;
+
+					if (!fixStrandFlips) {
+						summary.incAlleleMissmatch();
+						continue;
+					}
+
+					String flippedReferenceAllele = flip(referenceAllele);
+					String flippedAlternateAllele = flip(alternateAllele);
+					if (!referenceVariant.hasAllele(flippedReferenceAllele)
+							|| !referenceVariant.hasAllele(flippedAlternateAllele)) {
+						summary.incAlleleMissmatch();
+						continue;
+					} else {
+						referenceAllele = flippedReferenceAllele;
+						alternateAllele = flippedAlternateAllele;
+						summary.incFlipped();
+					}
+
 				}
 
 				// check if alleles are switched and update effect weight (effect_allele !=
@@ -502,6 +537,19 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (VERBOSE) {
 			System.out.println(text);
 		}
+	}
+
+	public void setFixStrandFlips(boolean fixStrandFlips) {
+		this.fixStrandFlips = fixStrandFlips;
+	}
+
+	protected static String flip(String allele) {
+		String flippedAllele = "";
+		for (int i = 0; i < allele.length(); i++) {
+			Character flipped = ALLELE_SWITCHES.get(allele.charAt(i));
+			flippedAllele += flipped;
+		}
+		return flippedAllele;
 	}
 
 }

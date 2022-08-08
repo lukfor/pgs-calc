@@ -177,6 +177,13 @@ public class MinimalVariantContext {
 		return genotypes[sample];
 	}
 
+	public boolean isAmbigous() {
+		return (getReferenceAllele().equals("A") && getAlternateAllele().equals("T"))
+				|| (getReferenceAllele().equals("T") && getAlternateAllele().equals("A"))
+				|| (getReferenceAllele().equals("G") && getAlternateAllele().equals("C"))
+				|| (getReferenceAllele().equals("C") && getAlternateAllele().equals("G"));
+	}
+
 	public String getGenotype() {
 
 		if (genotype == null) {

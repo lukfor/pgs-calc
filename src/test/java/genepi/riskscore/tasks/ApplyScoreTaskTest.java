@@ -345,5 +345,37 @@ public class ApplyScoreTaskTest {
 		assertEquals(EXPECTED_SAMPLES, task.getCountSamples());
 
 	}
+	
+	
+	@Test
+	public void testWithFixStrandFlips() throws Exception {
+
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
+		task.setVcfFilename("test-data/two.vcf");
+		task.setRiskScoreFilenames("test-data/chr20.scores.2.flips.csv");
+		task.setMinR2(0.5f);
+		task.setFixStrandFlips(true);
+		task.setOutput("test-data-output/output.txt");
+		task.run(new TaskMonitorMock());
+
+		assertEquals(5, task.getCountVariants());
+
+		RiskScoreSummary summary = task.getSummaries()[0];
+		assertEquals(2, summary.getVariantsUsed());
+		assertEquals(2, summary.getSwitched());
+		assertEquals(2, summary.getVariantsNotUsed());
+		assertEquals(0, summary.getMultiAllelic());
+		assertEquals(0, summary.getAlleleMissmatch());
+		assertEquals(2, task.getCountSamples());
+		assertEquals(2, summary.getR2Filtered());
+
+		OutputFile output = new OutputFile(task.getOutput());
+
+		assertEquals(1, output.getCountScores());
+		assertEquals("LF001", output.getSamples().get(0));
+		assertEquals(-0.3, output.getValue(0, 0), 0.00001);
+
+	}
 
 }

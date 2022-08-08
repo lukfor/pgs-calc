@@ -86,6 +86,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--dbsnp" }, description = "dbSNP Index file to support rsIDs", required = false)
 	String dbsnp = null;
 
+	@Option(names = {
+			"--fix-strand-flips" }, description = "Remove all ambigous variants (A/T and G/C) and fix strand flips when possible.", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean fixStrandFlips = false;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -184,6 +188,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
 			task.setOutput(taskPrefix + ".scores.txt");
+			task.setFixStrandFlips(fixStrandFlips);
 			tasks.add(task);
 
 		}

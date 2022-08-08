@@ -4,13 +4,13 @@ public class ReferenceVariant {
 
 	private float effectWeight;
 
-	private char otherAllele;
+	private String otherAllele;
 
-	private char effectAllele;
+	private String effectAllele;
 
 	private boolean used = false;
 
-	public ReferenceVariant(char otherAllele, char effectAllele, float effectWeight) {
+	public ReferenceVariant(String otherAllele, String effectAllele, float effectWeight) {
 		this.otherAllele = otherAllele;
 		this.effectAllele = effectAllele;
 		this.effectWeight = effectWeight;
@@ -20,20 +20,20 @@ public class ReferenceVariant {
 		return effectWeight;
 	}
 
-	public char getOtherAllele() {
+	public String getOtherAllele() {
 		return otherAllele;
 	}
 
-	public char getEffectAllele() {
+	public String getEffectAllele() {
 		return effectAllele;
 	}
 
-	public boolean isEffectAllele(char allele) {
-		return (effectAllele == allele);
+	public boolean isEffectAllele(String allele) {
+		return (effectAllele.equals(allele));
 	}
 
-	public boolean hasAllele(char allele) {
-		return ((otherAllele == allele) || (effectAllele == allele));
+	public boolean hasAllele(String allele) {
+		return ((otherAllele.equals(allele)) || (effectAllele.equals(allele)));
 	}
 
 	public void setUsed(boolean used) {

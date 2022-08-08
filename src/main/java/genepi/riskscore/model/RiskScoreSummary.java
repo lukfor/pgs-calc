@@ -26,6 +26,10 @@ public class RiskScoreSummary {
 
 	private int filtered = 0;
 
+	private int ambigous = 0;
+
+	private int flipped = 0;
+
 	private Object meta;
 
 	private Object data;
@@ -106,6 +110,14 @@ public class RiskScoreSummary {
 		this.filtered++;
 	}
 
+	public int getAmbigous() {
+		return ambigous;
+	}
+
+	public void incAmbigous() {
+		ambigous++;
+	}
+
 	public int getVariantsNotUsed() {
 		return (variants - variantsUsed);
 	}
@@ -150,6 +162,18 @@ public class RiskScoreSummary {
 		return variantsIgnored;
 	}
 
+	public int getFlipped() {
+		return flipped;
+	}
+
+	public void setFlipped(int flipped) {
+		this.flipped = flipped;
+	}
+
+	public void incFlipped() {
+		flipped++;
+	}
+
 	public void updateStatistics() {
 		coverage = (double) getVariantsUsed() / (double) getVariants();
 
@@ -178,6 +202,8 @@ public class RiskScoreSummary {
 		r2Filtered += other.r2Filtered;
 		notFound += other.notFound;
 		filtered += other.filtered;
+		ambigous += other.ambigous;
+		flipped += other.flipped;
 		updateStatistics();
 	}
 
@@ -192,13 +218,15 @@ public class RiskScoreSummary {
 		buffer.append("    - Variants used: " + number(getVariantsUsed()) + " ("
 				+ percentage(getVariantsUsed(), getVariants()) + ")\n");
 		buffer.append("    - Found in target and filtered by:\n");
+		buffer.append("      - ambigous: " + number(getAmbigous()) + "\n");
 		buffer.append("      - allele mismatch: " + number(getAlleleMissmatch()) + "\n");
 		buffer.append("      - multi allelic or indels: " + number(getMultiAllelic()) + "\n");
 		buffer.append("      - low R2 value: " + number(getR2Filtered()) + "\n");
 		buffer.append("      - variants file: " + number(getFiltered()) + "\n");
+		buffer.append("    - Strand Flips fixed: " + number(getFlipped()) + "\n");
 
-		int notFound = getVariants()
-				- (getVariantsUsed() + getFiltered() + getAlleleMissmatch() + getMultiAllelic() + getR2Filtered());
+		int notFound = getVariants() - (getVariantsUsed() + getFiltered() + getAlleleMissmatch() + getMultiAllelic()
+				+ getR2Filtered() + getAmbigous());
 
 		return buffer.toString();
 
