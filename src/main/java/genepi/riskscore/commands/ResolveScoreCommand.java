@@ -38,6 +38,11 @@ public class ResolveScoreCommand implements Callable<Integer> {
 	private String chain;
 
 	@Option(names = {
+			"--force-rsids" }, description = "Resolve rsIds also when chromosomal positions are available", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean forceRsIds = false;
+
+	@Option(names = {
+
 			"--verbose" }, description = "Show debug messages", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean verbose = false;
 
@@ -69,7 +74,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				}
 			}
 
-			RiskScoreFormatImpl format = new PGSCatalogFormat(input, true);
+			RiskScoreFormatImpl format = new PGSCatalogFormat(input, forceRsIds);
 			System.out.println("Input File Format: " + format);
 
 			System.out.println("--------------------------------------");
