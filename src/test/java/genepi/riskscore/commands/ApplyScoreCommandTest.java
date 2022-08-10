@@ -376,28 +376,4 @@ public class ApplyScoreCommandTest {
 
 	}
 
-	@Test
-	public void testDuplicate() {
-		// Whole file
-		String[] args = { "/Users/lukfor/Data/metsim/chr1.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr2.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr3.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr4.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr5.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr6.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr7.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr8.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr9.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr10.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr11.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr12.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr13.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr14.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr15.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr16.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr17.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr18.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr19.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr20.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr21.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr22.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chrX.clean.vcf.gz", "--ref",
-				"/Users/lukfor/Data/pgs-catalog/pgs-catalog-20220712-hg38/scores/PGS000003.txt.gz", "--out",
-				//"/Users/lukfor/Data/pgs-catalog/pgs-catalog-20220731/scores/PGS000055.txt.gz", "--out",
-				"test-data-output/output2.csv", "--report-html", "test-data-output/report.html", "--report-json",
-				"test-data-output/report.json", "--write-variants", "test-data-output/variants.txt","--fix-strand-flips"};
-		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
-		assertEquals(0, result);
-
-	}
-
 }
