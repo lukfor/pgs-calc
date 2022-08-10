@@ -87,8 +87,12 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	String dbsnp = null;
 
 	@Option(names = {
-			"--fix-strand-flips" }, description = "Remove all ambigous variants (A/T and G/C) and fix strand flips when possible.", required = false, showDefaultValue = Visibility.ALWAYS)
+			"--fix-strand-flips" }, description = "Fix strand flips when possible", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean fixStrandFlips = false;
+
+	@Option(names = {
+			"--remove-ambiguous" }, description = "Remove all ambigous variants (A/T and G/C)", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean removeAmbiguous = false;
 
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
@@ -189,6 +193,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setIncludeSamplesFilename(includeSamplesFilename);
 			task.setOutput(taskPrefix + ".scores.txt");
 			task.setFixStrandFlips(fixStrandFlips);
+			task.setRemoveAmbiguous(removeAmbiguous);
 			tasks.add(task);
 
 		}

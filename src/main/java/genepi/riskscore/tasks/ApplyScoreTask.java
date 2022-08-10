@@ -67,6 +67,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private boolean fixStrandFlips = false;
 
+	private boolean removeAmbiguous = false;
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -74,14 +76,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 	public static boolean VERBOSE = false;
 
 	public static final Map<Character, Character> ALLELE_SWITCHES = new HashMap<Character, Character>();
-	
+
 	static {
 		ALLELE_SWITCHES.put('A', 'T');
 		ALLELE_SWITCHES.put('T', 'A');
 		ALLELE_SWITCHES.put('G', 'C');
 		ALLELE_SWITCHES.put('C', 'G');
 	}
-	
+
 	public void setRiskScoreFilenames(String... filenames) {
 		this.riskScoreFilenames = filenames;
 		for (String filename : filenames) {
@@ -362,7 +364,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				String alternateAllele = alternateAlleles[0];
 
 				// remove Ambiguous SNPs (AC, GT)
-				if (fixStrandFlips && variant.isAmbigous()) {
+				if (removeAmbiguous && variant.isAmbigous()) {
 					summary.incAmbiguous();
 					continue;
 				}
@@ -377,8 +379,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 					String flippedReferenceAllele = flip(referenceAllele);
 					String flippedAlternateAllele = flip(alternateAllele);
-					if (!referenceVariant.hasAllele(flippedReferenceAllele)
-							|| !referenceVariant.hasAllele(flippedAlternateAllele)) {
+					if (variant.isAmbigous() && (!referenceVariant.hasAllele(flippedReferenceAllele)
+							|| !referenceVariant.hasAllele(flippedAlternateAllele))) {
 						summary.incAlleleMissmatch();
 						continue;
 					} else {
@@ -541,6 +543,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public void setFixStrandFlips(boolean fixStrandFlips) {
 		this.fixStrandFlips = fixStrandFlips;
+	}
+
+	public void setRemoveAmbiguous(boolean removeAmbiguous) {
+		this.removeAmbiguous = removeAmbiguous;
 	}
 
 	protected static String flip(String allele) {
