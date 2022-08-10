@@ -140,8 +140,8 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 								if (target.isNegativeStrand()) {
 
-									writer.setString(format.getEffectAllele(), switchAllel(otherAllele));
-									writer.setString(format.getOtherAllele(), switchAllel(effectAllele));
+									writer.setString(format.getEffectAllele(), switchAllel(effectAllele));
+									writer.setString(format.getOtherAllele(), switchAllel(otherAllele));
 								}
 
 								if (otherAllele != null && effectAllele != null) {
