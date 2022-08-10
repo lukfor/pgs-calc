@@ -65,6 +65,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String dbsnp = null;
 
+	private String proxies;
+
 	private boolean fixStrandFlips = false;
 
 	public static final String INFO_R2 = "R2";
@@ -74,14 +76,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 	public static boolean VERBOSE = false;
 
 	public static final Map<Character, Character> ALLELE_SWITCHES = new HashMap<Character, Character>();
-	
+
 	static {
 		ALLELE_SWITCHES.put('A', 'T');
 		ALLELE_SWITCHES.put('T', 'A');
 		ALLELE_SWITCHES.put('G', 'C');
 		ALLELE_SWITCHES.put('C', 'G');
 	}
-	
+
 	public void setRiskScoreFilenames(String... filenames) {
 		this.riskScoreFilenames = filenames;
 		for (String filename : filenames) {
@@ -129,6 +131,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 		this.dbsnp = dbsnp;
 	}
 
+	public void setProxies(String proxies) {
+		this.proxies = proxies;
+	}
+
 	public void run(ITaskMonitor monitor) throws Exception {
 
 		if (vcf == null || vcf.isEmpty()) {
@@ -166,11 +172,11 @@ public class ApplyScoreTask implements ITaskRunnable {
 				summaries[i] = new RiskScoreSummary(name);
 			}
 
-			RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, riskScoreFilenames);
+			RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, proxies, riskScoreFilenames);
 
 			boolean empty = true;
 			for (RiskScoreFile riskscore : riskscores) {
-				if (riskscore.getCacheSize() > 0) {
+				if (riskscore.getLoadedVariants() > 0) {
 					empty = false;
 					break;
 				}
@@ -207,7 +213,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	}
 
-	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp,
+	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp, String proxies,
 			String... riskScoreFilenames) throws Exception {
 
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
@@ -216,7 +222,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			debug("Loading file " + riskScoreFilenames[i] + "...");
 
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
-			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp);
+			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp, proxies);
 
 			if (chunk != null) {
 				riskscore.buildIndex(chromosome, chunk);
@@ -227,7 +233,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			summaries[i].setVariants(riskscore.getTotalVariants());
 			summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
 
-			debug("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
+			debug("Loaded " + riskscore.getLoadedVariants() + " weights for chromosome " + chromosome);
 			riskscores[i] = riskscore;
 			monitor.worked(0);
 		}
@@ -341,6 +347,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				ReferenceVariant referenceVariant = riskscore.getVariant(position);
+				// TODO: ignore variants that where used by other variant or by proxy
+				if (referenceVariant.isUsed()) {
+					continue;
+				}
 
 				float effectWeight = referenceVariant.getEffectWeight();
 
@@ -370,13 +380,19 @@ public class ApplyScoreTask implements ITaskRunnable {
 				// check if alleles (ref and alt) are present
 				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
 
+					String flippedReferenceAllele = flip(referenceAllele);
+					String flippedAlternateAllele = flip(alternateAllele);
+
 					if (!fixStrandFlips) {
-						summary.incAlleleMissmatch();
+						if (referenceVariant.hasAllele(flippedReferenceAllele)
+								&& referenceVariant.hasAllele(flippedAlternateAllele)) {
+							summary.incStrandFlips();
+						} else {
+							summary.incAlleleMissmatch();
+						}
 						continue;
 					}
 
-					String flippedReferenceAllele = flip(referenceAllele);
-					String flippedAlternateAllele = flip(alternateAllele);
 					if (!referenceVariant.hasAllele(flippedReferenceAllele)
 							|| !referenceVariant.hasAllele(flippedAlternateAllele)) {
 						summary.incAlleleMissmatch();
@@ -402,7 +418,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				referenceVariant.setUsed(true);
-
+//TODO: write if it is proxy or not.
 				if (variantsWriter != null) {
 					variantsWriter.setString(VariantFile.SCORE, summary.getName());
 					variantsWriter.setString(VariantFile.CHROMOSOME, variant.getContig());
@@ -436,7 +452,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				summary.incVariantsUsed();
-
+				if (referenceVariant.getParent() != null) {
+					summary.incProxiesUsed();
+				}
 			}
 		}
 

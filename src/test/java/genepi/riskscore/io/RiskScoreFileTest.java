@@ -20,7 +20,8 @@ public class RiskScoreFileTest {
 
 	@Test
 	public void testLoadTextFile() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv", RiskScoreFormat.MAPPING_FILE, DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv", RiskScoreFormat.MAPPING_FILE, DBSNP_INDEX,
+				null);
 		file.buildIndex("20");
 		assertEquals(4, file.getTotalVariants());
 		assertNotNull(file.getVariant(61795));
@@ -30,7 +31,7 @@ public class RiskScoreFileTest {
 	@Test
 	public void testLoadGZFile() throws Exception {
 		RiskScoreFile file = new RiskScoreFile("test-data/chr20.scores.csv.gz", RiskScoreFormat.MAPPING_FILE,
-				DBSNP_INDEX);
+				DBSNP_INDEX, null);
 		file.buildIndex("20");
 		assertEquals(4, file.getTotalVariants());
 		assertNotNull(file.getVariant(61795));
@@ -52,15 +53,15 @@ public class RiskScoreFileTest {
 
 	@Test
 	public void testLoadTextFileMissingAlleleInOtherChromosome() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX, null);
 		file.buildIndex("1");
-		assertEquals(17, file.getCacheSize());
+		assertEquals(17, file.getLoadedVariants());
 		assertEquals(176, file.getTotalVariants());
 	}
 
 	@Test
 	public void testLoadTextFileMissingAllele() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX, null);
 		file.buildIndex("11");
 		assertEquals(176, file.getTotalVariants());
 		assertEquals(1, file.getIgnoredVariants());
@@ -68,17 +69,17 @@ public class RiskScoreFileTest {
 
 	@Test
 	public void testLoadRsIdFormatFromPGSCatalog() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("PGS000001", DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("PGS000001", DBSNP_INDEX, null);
 		file.buildIndex("1");
-		assertEquals(5, file.getCacheSize());
+		assertEquals(5, file.getLoadedVariants());
 		assertEquals(77, file.getTotalVariants());
 	}
 
 	@Test
 	public void testLoadRsIdFormatFromFile() throws Exception {
-		RiskScoreFile file = new RiskScoreFile("test-data/PGS000001.txt.gz", DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000001.txt.gz", DBSNP_INDEX, null);
 		file.buildIndex("1");
-		assertEquals(5, file.getCacheSize());
+		assertEquals(5, file.getLoadedVariants());
 		assertEquals(77, file.getTotalVariants());
 	}
 
@@ -86,25 +87,33 @@ public class RiskScoreFileTest {
 	public void testLoadRsIdFormatV1AndV2() throws Exception {
 
 		for (int i = 1; i <= 22; i++) {
-			RiskScoreFile file = new RiskScoreFile("test-data/PGS000957.txt.gz", DBSNP_INDEX);
+			RiskScoreFile file = new RiskScoreFile("test-data/PGS000957.txt.gz", DBSNP_INDEX, null);
 			file.buildIndex(i + "");
 		}
 
-		RiskScoreFile file = new RiskScoreFile("test-data/PGS000957.txt.gz", DBSNP_INDEX);
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000957.txt.gz", DBSNP_INDEX, null);
 		file.buildIndex("6");
 		assertEquals(11276, file.getTotalVariants());
 		assertEquals(1, file.getIgnoredVariants());
 
 		for (int i = 1; i <= 22; i++) {
-			RiskScoreFile file2 = new RiskScoreFile("test-data/PGS000958.txt.gz", DBSNP_INDEX);
+			RiskScoreFile file2 = new RiskScoreFile("test-data/PGS000958.txt.gz", DBSNP_INDEX, null);
 			file2.buildIndex(i + "");
 		}
 
-		RiskScoreFile file2 = new RiskScoreFile("test-data/PGS000958.txt.gz", DBSNP_INDEX);
+		RiskScoreFile file2 = new RiskScoreFile("test-data/PGS000958.txt.gz", DBSNP_INDEX, null);
 		file2.buildIndex("6");
 		assertEquals(9400, file2.getTotalVariants());
 		assertEquals(1, file2.getIgnoredVariants());
 
 	}
 
+	@Test
+	public void testLoadTextFileWithProxies() throws Exception {
+		RiskScoreFile file = new RiskScoreFile("test-data/PGS000899.txt.gz", DBSNP_INDEX, null);
+		file.buildIndex("1");
+		assertEquals(17, file.getLoadedVariants());
+		assertEquals(176, file.getTotalVariants());
+	}
+	
 }

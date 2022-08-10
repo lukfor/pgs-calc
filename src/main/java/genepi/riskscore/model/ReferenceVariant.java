@@ -10,6 +10,8 @@ public class ReferenceVariant {
 
 	private boolean used = false;
 
+	private ReferenceVariant parent;
+
 	public ReferenceVariant(String otherAllele, String effectAllele, float effectWeight) {
 		this.otherAllele = otherAllele;
 		this.effectAllele = effectAllele;
@@ -37,11 +39,27 @@ public class ReferenceVariant {
 	}
 
 	public void setUsed(boolean used) {
-		this.used = used;
+		if (parent != null) {
+			parent.setUsed(used);
+		} else {
+			this.used = used;
+		}
 	}
 
 	public boolean isUsed() {
-		return used;
+		if (parent != null) {
+			return parent.isUsed();
+		} else {
+			return used;
+		}
+	}
+
+	public void setParent(ReferenceVariant parent) {
+		this.parent = parent;
+	}
+
+	public ReferenceVariant getParent() {
+		return parent;
 	}
 
 }
