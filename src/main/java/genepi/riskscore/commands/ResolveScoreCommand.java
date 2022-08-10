@@ -12,8 +12,6 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
-import genepi.riskscore.io.formats.RiskScoreFormatFactory;
-import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.LiftOverScoreTask;
@@ -21,8 +19,8 @@ import genepi.riskscore.tasks.ResolveScoreTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 import picocli.CommandLine.Help.Visibility;
+import picocli.CommandLine.Option;
 
 @Command(name = "resolve", version = App.VERSION)
 public class ResolveScoreCommand implements Callable<Integer> {
@@ -40,9 +38,13 @@ public class ResolveScoreCommand implements Callable<Integer> {
 	private String chain;
 
 	@Option(names = {
-	"--verbose" }, description = "Show debug messages", required = false, showDefaultValue = Visibility.ALWAYS)
+			"--verbose" }, description = "Resolve rsIds also when chromosomal positions are available", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean forceRsIds = false;
+
+	@Option(names = {
+			"--verbose" }, description = "Show debug messages", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean verbose = false;
-	
+
 	@Override
 	public Integer call() throws Exception {
 
@@ -53,7 +55,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 			LiftOverScoreTask.VERBOSE = true;
 			PGSCatalog.VERBOSE = true;
 		}
-		
+
 		long start = System.currentTimeMillis();
 
 		System.out.println("Input File: " + input);
@@ -71,7 +73,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				}
 			}
 
-			RiskScoreFormatImpl format = new PGSCatalogFormat(input, true);
+			RiskScoreFormatImpl format = new PGSCatalogFormat(input, forceRsIds);
 			System.out.println("Input File Format: " + format);
 
 			System.out.println("--------------------------------------");
@@ -143,12 +145,12 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				loaded += score.getCacheSize();
 			}
 
-			//chr X
+			// chr X
 			System.out.println("Validate chromosome X...");
 			score = new RiskScoreFile(output, dbsnp);
 			score.buildIndex("X");
 			loaded += score.getCacheSize();
-			
+
 			long end = System.currentTimeMillis();
 
 			System.out.println("--------------------------------------");
