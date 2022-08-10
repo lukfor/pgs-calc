@@ -38,7 +38,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 	private String chain;
 
 	@Option(names = {
-			"--verbose" }, description = "Resolve rsIds also when chromosomal positions are available", required = false, showDefaultValue = Visibility.ALWAYS)
+			"--force-rsids" }, description = "Resolve rsIds also when chromosomal positions are available", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean forceRsIds = false;
 
 	@Option(names = {
