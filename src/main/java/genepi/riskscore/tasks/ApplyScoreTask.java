@@ -343,6 +343,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				ReferenceVariant referenceVariant = riskscore.getVariant(position);
+				if (referenceVariant.isUsed()) {
+					continue;
+				}
 
 				float effectWeight = referenceVariant.getEffectWeight();
 
