@@ -69,6 +69,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private boolean removeAmbiguous = false;
 
+	private boolean inverseDosage = false;
+
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -393,9 +395,11 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				// check if alleles are switched and update effect weight (effect_allele !=
 				// alternate_allele)
+				boolean switched = false;
 				if (!referenceVariant.isEffectAllele(alternateAllele)) {
 					if (referenceVariant.isEffectAllele(referenceAllele)) {
 						effectWeight = -effectWeight;
+						switched = true;
 						summary.incSwitched();
 					} else {
 						summary.incAlleleMissmatch();
@@ -426,7 +430,12 @@ public class ApplyScoreTask implements ITaskRunnable {
 					if (samplesFile == null || samplesFile.contains(sample)) {
 						float dosage = dosages[i];
 						if (dosage >= 0) {
-							double effect = dosage * effectWeight;
+							double effect = 0;
+							if (inverseDosage && switched) {
+								effect = (2 - dosage) * -effectWeight;
+							} else {
+								effect = dosage * effectWeight;
+							}
 							riskScores.get(indexSample).incScore(j, effect);
 							indexSample++;
 							if (effectsWriter != null) {
@@ -560,6 +569,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 			flippedAllele += flipped;
 		}
 		return flippedAllele;
+	}
+
+	public void setInverseDosage(boolean inverseDosage) {
+		this.inverseDosage = inverseDosage;
 	}
 
 }

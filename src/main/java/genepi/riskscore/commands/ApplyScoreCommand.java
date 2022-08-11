@@ -91,6 +91,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	boolean fixStrandFlips = false;
 
 	@Option(names = {
+			"--inverse-dosage" }, description = "Use inverse dosage instead of inverse effect size.", required = false, showDefaultValue = Visibility.ALWAYS)
+	boolean inverseDosage = false;
+
+	@Option(names = {
 			"--remove-ambiguous" }, description = "Remove all ambigous variants (A/T and G/C)", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean removeAmbiguous = false;
 
@@ -194,6 +198,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setOutput(taskPrefix + ".scores.txt");
 			task.setFixStrandFlips(fixStrandFlips);
 			task.setRemoveAmbiguous(removeAmbiguous);
+			task.setInverseDosage(inverseDosage);
 			tasks.add(task);
 
 		}
