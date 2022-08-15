@@ -194,6 +194,35 @@ public class ApplyScoreTaskTest {
 	}
 
 	@Test
+	public void testScoreSwitchEffectAlleleAndInverseDosage() throws Exception {
+
+		ApplyScoreTask task = new ApplyScoreTask();
+		task.setDefaultRiskScoreFormat(RiskScoreFormat.DEFAULT);
+		task.setVcfFilename("test-data/single.vcf");
+		task.setRiskScoreFilenames("test-data/chr20.scores.2.csv");
+		task.setOutput("test-data-output/output.txt");
+		task.setInverseDosage(true);
+		task.run(new TaskMonitorMock());
+
+		assertEquals(5, task.getCountVariants());
+
+		RiskScoreSummary summary = task.getSummaries()[0];
+		assertEquals(3, summary.getVariantsUsed());
+		assertEquals(3, summary.getSwitched());
+		assertEquals(1, summary.getVariantsNotUsed());
+		assertEquals(0, summary.getMultiAllelic());
+		assertEquals(1, summary.getAlleleMissmatch());
+		assertEquals(1, task.getCountSamples());
+
+		OutputFile output = new OutputFile(task.getOutput());
+
+		assertEquals(1, output.getCountScores());
+		assertEquals("LF001", output.getSamples().get(0));
+		assertEquals(5.4, output.getValue(0, 0), 0.00001);
+
+	}
+	
+	@Test
 	public void testMinR2_06() throws Exception {
 
 		ApplyScoreTask task = new ApplyScoreTask();

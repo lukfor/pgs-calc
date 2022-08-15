@@ -66,8 +66,12 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private String dbsnp = null;
 
 	private String proxies;
-
+	
 	private boolean fixStrandFlips = false;
+
+	private boolean removeAmbiguous = false;
+
+	private boolean inverseDosage = false;
 
 	public static final String INFO_R2 = "R2";
 
@@ -130,7 +134,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 	public void setDbSnp(String dbsnp) {
 		this.dbsnp = dbsnp;
 	}
-
+	
 	public void setProxies(String proxies) {
 		this.proxies = proxies;
 	}
@@ -347,10 +351,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				ReferenceVariant referenceVariant = riskscore.getVariant(position);
-				// TODO: ignore variants that where used by other variant or by proxy
-				if (referenceVariant.isUsed()) {
-					continue;
-				}
 
 				float effectWeight = referenceVariant.getEffectWeight();
 
@@ -372,7 +372,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				String alternateAllele = alternateAlleles[0];
 
 				// remove Ambiguous SNPs (AC, GT)
-				if (fixStrandFlips && variant.isAmbigous()) {
+				if (removeAmbiguous && variant.isAmbigous()) {
 					summary.incAmbiguous();
 					continue;
 				}
@@ -380,21 +380,15 @@ public class ApplyScoreTask implements ITaskRunnable {
 				// check if alleles (ref and alt) are present
 				if (!referenceVariant.hasAllele(referenceAllele) || !referenceVariant.hasAllele(alternateAllele)) {
 
-					String flippedReferenceAllele = flip(referenceAllele);
-					String flippedAlternateAllele = flip(alternateAllele);
-
 					if (!fixStrandFlips) {
-						if (referenceVariant.hasAllele(flippedReferenceAllele)
-								&& referenceVariant.hasAllele(flippedAlternateAllele)) {
-							summary.incStrandFlips();
-						} else {
-							summary.incAlleleMissmatch();
-						}
+						summary.incAlleleMissmatch();
 						continue;
 					}
 
-					if (!referenceVariant.hasAllele(flippedReferenceAllele)
-							|| !referenceVariant.hasAllele(flippedAlternateAllele)) {
+					String flippedReferenceAllele = flip(referenceAllele);
+					String flippedAlternateAllele = flip(alternateAllele);
+					if (variant.isAmbigous() && (!referenceVariant.hasAllele(flippedReferenceAllele)
+							|| !referenceVariant.hasAllele(flippedAlternateAllele))) {
 						summary.incAlleleMissmatch();
 						continue;
 					} else {
@@ -407,9 +401,11 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				// check if alleles are switched and update effect weight (effect_allele !=
 				// alternate_allele)
+				boolean switched = false;
 				if (!referenceVariant.isEffectAllele(alternateAllele)) {
 					if (referenceVariant.isEffectAllele(referenceAllele)) {
 						effectWeight = -effectWeight;
+						switched = true;
 						summary.incSwitched();
 					} else {
 						summary.incAlleleMissmatch();
@@ -417,8 +413,12 @@ public class ApplyScoreTask implements ITaskRunnable {
 					}
 				}
 
+				if (referenceVariant.isUsed()) {
+					continue;
+				}
+
 				referenceVariant.setUsed(true);
-//TODO: write if it is proxy or not.
+
 				if (variantsWriter != null) {
 					variantsWriter.setString(VariantFile.SCORE, summary.getName());
 					variantsWriter.setString(VariantFile.CHROMOSOME, variant.getContig());
@@ -436,7 +436,12 @@ public class ApplyScoreTask implements ITaskRunnable {
 					if (samplesFile == null || samplesFile.contains(sample)) {
 						float dosage = dosages[i];
 						if (dosage >= 0) {
-							double effect = dosage * effectWeight;
+							double effect = 0;
+							if (inverseDosage && switched) {
+								effect = (2 - dosage) * -effectWeight;
+							} else {
+								effect = dosage * effectWeight;
+							}
 							riskScores.get(indexSample).incScore(j, effect);
 							indexSample++;
 							if (effectsWriter != null) {
@@ -452,9 +457,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				summary.incVariantsUsed();
-				if (referenceVariant.getParent() != null) {
-					summary.incProxiesUsed();
-				}
+
 			}
 		}
 
@@ -561,6 +564,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 		this.fixStrandFlips = fixStrandFlips;
 	}
 
+	public void setRemoveAmbiguous(boolean removeAmbiguous) {
+		this.removeAmbiguous = removeAmbiguous;
+	}
+
 	protected static String flip(String allele) {
 		String flippedAllele = "";
 		for (int i = 0; i < allele.length(); i++) {
@@ -568,6 +575,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 			flippedAllele += flipped;
 		}
 		return flippedAllele;
+	}
+
+	public void setInverseDosage(boolean inverseDosage) {
+		this.inverseDosage = inverseDosage;
 	}
 
 }
