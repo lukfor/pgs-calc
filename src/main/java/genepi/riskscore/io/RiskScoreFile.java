@@ -189,11 +189,16 @@ public class RiskScoreFile {
 									effectAllele);
 							for (ProxySnp proxySnp : proxySnps) {
 								// add allele mapping
-								ReferenceVariant variant2 = new ReferenceVariant(proxySnp.mapAllele(alleleA),
-										proxySnp.mapAllele(effectAllele), effectWeight);
-								variant2.setParent(variant);
-								loadedProxies++;
-								variants.put(proxySnp.getPosition(), variant2);
+								try {
+									ReferenceVariant variant2 = new ReferenceVariant(proxySnp.mapAllele(alleleA),
+											proxySnp.mapAllele(effectAllele), effectWeight);
+									variant2.setParent(variant);
+									loadedProxies++;
+									variants.put(proxySnp.getPosition(), variant2);
+								} catch (Exception e) {
+									e.printStackTrace();
+									System.out.println("Mapping failed: " + position + ":" + e);
+								}
 							}
 						}
 					}

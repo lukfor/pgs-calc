@@ -22,10 +22,10 @@ public class ProxyReader {
 
 		if (line != null) {
 			String[] tiles = line.split("\t");
-			if (tiles.length == 5) {
+			if (tiles.length >= 5) {
 				String[] proxiesDetails = tiles[4].split(";");
 				if ((tiles[2].equals(alleleA) && tiles[3].equals(alleleB))
-						|| (tiles[2].equals(alleleB) || tiles[3].equals(alleleA))) {
+						|| (tiles[2].equals(alleleB) && tiles[3].equals(alleleA))) {
 					ProxySnp[] proxies = new ProxySnp[proxiesDetails.length];
 					for (int i = 0; i < proxiesDetails.length; i++) {
 						String proxyDetails = proxiesDetails[i];
@@ -43,7 +43,7 @@ public class ProxyReader {
 					return new ProxySnp[0];
 				}
 			} else {
-				throw new IOException("Index has not 5 columns.");
+				throw new IOException("Index has not 5 columns:\n" + line);
 			}
 
 		} else {
@@ -105,14 +105,14 @@ public class ProxyReader {
 			this.proxyReference = proxyReference;
 		}
 
-		public String mapAllele(String allele) throws IOException {
+		public String mapAllele(String allele) throws IOException {			
 			if (allele.equals(proxyReference)) {
 				return reference;
 			}
 			if (allele.equals(proxyAlternate)) {
 				return alternate;
 			}
-			throw new IOException("No mapping entry for allele '" + allele + "'");
+			throw new IOException("No mapping entry for allele '" + allele + "' (Supported alleles: " + proxyReference +" and " + proxyAlternate+")");
 		}
 
 		@Override
