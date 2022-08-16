@@ -86,6 +86,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--dbsnp" }, description = "dbSNP Index file to support rsIDs", required = false)
 	String dbsnp = null;
 
+	@Option(names = { "--proxies" }, description = "Proxy Index file", required = false)
+	String proxies = null;
+
+	
 	@Option(names = {
 			"--fix-strand-flips" }, description = "Fix strand flips when possible", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean fixStrandFlips = false;
@@ -184,6 +188,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			if (dbsnp != null) {
 				task.setDbSnp(dbsnp);
 			}
+			task.setProxies(proxies);			
+			
 			task.setVcfFilename(vcf);
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);

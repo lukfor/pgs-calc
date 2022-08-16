@@ -65,6 +65,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String dbsnp = null;
 
+	private String proxies;
+	
 	private boolean fixStrandFlips = false;
 
 	private boolean removeAmbiguous = false;
@@ -132,6 +134,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 	public void setDbSnp(String dbsnp) {
 		this.dbsnp = dbsnp;
 	}
+	
+	public void setProxies(String proxies) {
+		this.proxies = proxies;
+	}
 
 	public void run(ITaskMonitor monitor) throws Exception {
 
@@ -170,11 +176,11 @@ public class ApplyScoreTask implements ITaskRunnable {
 				summaries[i] = new RiskScoreSummary(name);
 			}
 
-			RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, riskScoreFilenames);
+			RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, proxies, riskScoreFilenames);
 
 			boolean empty = true;
 			for (RiskScoreFile riskscore : riskscores) {
-				if (riskscore.getCacheSize() > 0) {
+				if (riskscore.getLoadedVariants() > 0) {
 					empty = false;
 					break;
 				}
@@ -211,7 +217,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	}
 
-	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp,
+	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp, String proxies,
 			String... riskScoreFilenames) throws Exception {
 
 		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
@@ -220,7 +226,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			debug("Loading file " + riskScoreFilenames[i] + "...");
 
 			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
-			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp);
+			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp, proxies);
 
 			if (chunk != null) {
 				riskscore.buildIndex(chromosome, chunk);
@@ -231,7 +237,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			summaries[i].setVariants(riskscore.getTotalVariants());
 			summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
 
-			debug("Loaded " + riskscore.getCacheSize() + " weights for chromosome " + chromosome);
+			debug("Loaded " + riskscore.getLoadedVariants() + " weights for chromosome " + chromosome);
 			riskscores[i] = riskscore;
 			monitor.worked(0);
 		}

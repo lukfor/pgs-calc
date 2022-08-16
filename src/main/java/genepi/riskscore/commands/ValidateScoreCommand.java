@@ -53,16 +53,16 @@ public class ValidateScoreCommand implements Callable<Integer> {
 				int loaded = 0;
 				for (int i = 1; i <= 22; i++) {
 					System.out.println("Validate chromosome " + i + "...");
-					score = new RiskScoreFile(input, null);
+					score = new RiskScoreFile(input, null, null);
 					score.buildIndex(i + "");
-					loaded += score.getCacheSize();
+					loaded += score.getLoadedVariants();
 				}
 
 				// chr X
 				System.out.println("Validate chromosome X...");
-				score = new RiskScoreFile(input, null);
+				score = new RiskScoreFile(input, null, null);
 				score.buildIndex("X");
-				loaded += score.getCacheSize();
+				loaded += score.getLoadedVariants();
 
 				String name = RiskScoreFile.getName(input);
 				System.out.println("--------------------------------------");

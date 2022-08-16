@@ -30,6 +30,10 @@ public class RiskScoreSummary {
 
 	private int flipped = 0;
 
+	private int strandFlips = 0;
+	
+	private int proxiesUsed = 0;
+
 	private Object meta;
 
 	private Object data;
@@ -174,6 +178,30 @@ public class RiskScoreSummary {
 		flipped++;
 	}
 
+	public int getStrandFlips() {
+		return strandFlips;
+	}
+
+	public void setStrandFlips(int strandFlips) {
+		this.strandFlips = strandFlips;
+	}
+
+	public void incStrandFlips() {
+		this.strandFlips++;
+	}
+	
+	public void setProxiesUsed(int proxiesUsed) {
+		this.proxiesUsed = proxiesUsed;
+	}
+	
+	public int getProxiesUsed() {
+		return proxiesUsed;
+	}
+	
+	public void incProxiesUsed() {
+		this.proxiesUsed++;
+	}
+
 	public void updateStatistics() {
 		coverage = (double) getVariantsUsed() / (double) getVariants();
 
@@ -204,6 +232,7 @@ public class RiskScoreSummary {
 		filtered += other.filtered;
 		ambiguous += other.ambiguous;
 		flipped += other.flipped;
+		strandFlips += other.strandFlips;
 		updateStatistics();
 	}
 
@@ -217,8 +246,10 @@ public class RiskScoreSummary {
 		buffer.append("    - Variants ignored: " + number(getVariantsIgnored()) + "\n");
 		buffer.append("    - Variants used: " + number(getVariantsUsed()) + " ("
 				+ percentage(getVariantsUsed(), getVariants()) + ")\n");
+		buffer.append("    - Proxies used: " + number(getProxiesUsed()) + "\n");		
 		buffer.append("    - Found in target and filtered by:\n");
 		buffer.append("      - ambiguous: " + number(getAmbiguous()) + "\n");
+		buffer.append("      - strand flip: " + number(getStrandFlips()) + "\n");
 		buffer.append("      - allele mismatch: " + number(getAlleleMissmatch()) + "\n");
 		buffer.append("      - multi allelic or indels: " + number(getMultiAllelic()) + "\n");
 		buffer.append("      - low R2 value: " + number(getR2Filtered()) + "\n");

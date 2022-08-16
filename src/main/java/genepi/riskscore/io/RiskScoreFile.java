@@ -15,6 +15,8 @@ import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
+import genepi.riskscore.io.proxy.ProxyReader;
+import genepi.riskscore.io.proxy.ProxyReader.ProxySnp;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.tasks.ResolveScoreTask;
 import lukfor.progress.TaskService;
@@ -26,19 +28,25 @@ public class RiskScoreFile {
 
 	private Map<Integer, ReferenceVariant> variants;
 
+	private String proxies;
+
 	private int totalVariants = 0;
 
 	private int ignoredVariants = 0;
+
+	private int loadedVariants = 0;
+
+	private int loadedProxies = 0;
 
 	private RiskScoreFormatImpl format;
 
 	public static boolean VERBOSE = false;
 
-	public RiskScoreFile(String filename, String dbsnp) throws Exception {
-		this(filename, RiskScoreFormat.PGS_CATALOG, dbsnp);
+	public RiskScoreFile(String filename, String dbsnp, String proxyFile) throws Exception {
+		this(filename, RiskScoreFormat.PGS_CATALOG, dbsnp, proxyFile);
 	}
 
-	public RiskScoreFile(String filename, RiskScoreFormat format, String dbsnp) throws Exception {
+	public RiskScoreFile(String filename, RiskScoreFormat format, String dbsnp, String proxies) throws Exception {
 
 		this.filename = filename;
 
@@ -74,6 +82,8 @@ public class RiskScoreFile {
 			}
 		}
 
+		this.proxies = proxies;
+
 		DataInputStream in = openTxtOrGzipStream(this.filename);
 		ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
 		checkFileFormat(reader, this.filename);
@@ -107,6 +117,11 @@ public class RiskScoreFile {
 	public void buildIndex(String chromosome, Chunk chunk) throws IOException {
 
 		assert (chromosome != null);
+
+		ProxyReader proxyReader = null;
+		if (proxies != null) {
+			proxyReader = new ProxyReader(proxies);
+		}
 
 		try {
 			DataInputStream in = openTxtOrGzipStream(filename);
@@ -143,7 +158,7 @@ public class RiskScoreFile {
 
 						} catch (NumberFormatException e) {
 							warning("Row " + row + ": '" + reader.getString(format.getEffectWeight())
-											+ "' is an invalid weight. Ignore variant.");
+									+ "' is an invalid weight. Ignore variant.");
 							ignoredVariants++;
 							continue;
 						}
@@ -165,8 +180,27 @@ public class RiskScoreFile {
 						String effectAllele = rawEffectAllele.trim();
 
 						ReferenceVariant variant = new ReferenceVariant(alleleA, effectAllele, effectWeight);
-						variants.put(position, variant);
 
+						variants.put(position, variant);
+						loadedVariants++;
+						// add possible proxies
+						if (proxyReader != null) {
+							ProxySnp[] proxySnps = proxyReader.getByPosition(chromosome, position, alleleA,
+									effectAllele);
+							for (ProxySnp proxySnp : proxySnps) {
+								// add allele mapping
+								try {
+									ReferenceVariant variant2 = new ReferenceVariant(proxySnp.mapAllele(alleleA),
+											proxySnp.mapAllele(effectAllele), effectWeight);
+									variant2.setParent(variant);
+									loadedProxies++;
+									variants.put(proxySnp.getPosition(), variant2);
+								} catch (Exception e) {
+									e.printStackTrace();
+									System.out.println("Mapping failed: " + position + ":" + e);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -201,8 +235,12 @@ public class RiskScoreFile {
 		return name;
 	}
 
-	public int getCacheSize() {
-		return variants.size();
+	public int getLoadedVariants() {
+		return loadedVariants;
+	}
+
+	public int getLoadedProxies() {
+		return loadedProxies;
 	}
 
 	public int getTotalVariants() {

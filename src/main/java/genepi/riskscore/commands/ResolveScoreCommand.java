@@ -42,6 +42,7 @@ public class ResolveScoreCommand implements Callable<Integer> {
 	boolean forceRsIds = false;
 
 	@Option(names = {
+
 			"--verbose" }, description = "Show debug messages", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean verbose = false;
 
@@ -140,16 +141,16 @@ public class ResolveScoreCommand implements Callable<Integer> {
 			int loaded = 0;
 			for (int i = 1; i <= 22; i++) {
 				System.out.println("Validate chromosome " + i + "...");
-				score = new RiskScoreFile(output, dbsnp);
+				score = new RiskScoreFile(output, dbsnp, null);
 				score.buildIndex(i + "");
-				loaded += score.getCacheSize();
+				loaded += score.getLoadedVariants();
 			}
 
 			// chr X
 			System.out.println("Validate chromosome X...");
-			score = new RiskScoreFile(output, dbsnp);
+			score = new RiskScoreFile(output, dbsnp, null);
 			score.buildIndex("X");
-			loaded += score.getCacheSize();
+			loaded += score.getLoadedVariants();
 
 			long end = System.currentTimeMillis();
 
