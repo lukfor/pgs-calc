@@ -30,15 +30,15 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 	public static boolean VERBOSE = false;
 
-	public static final Map<String, String> ALLELE_SWITCHES = new HashMap<String, String>();
+	public static final Map<Character, Character> ALLELE_SWITCHES = new HashMap<Character, Character>();
 
 	static {
-		ALLELE_SWITCHES.put("A", "T");
-		ALLELE_SWITCHES.put("T", "A");
-		ALLELE_SWITCHES.put("G", "C");
-		ALLELE_SWITCHES.put("C", "G");
+		ALLELE_SWITCHES.put('A', 'T');
+		ALLELE_SWITCHES.put('T', 'A');
+		ALLELE_SWITCHES.put('G', 'C');
+		ALLELE_SWITCHES.put('C', 'G');
 	}
-
+	
 	public LiftOverScoreTask(String input, String output, String chainFile) {
 		this.input = input;
 		this.output = output;
@@ -140,8 +140,8 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 								if (target.isNegativeStrand()) {
 
-									writer.setString(format.getEffectAllele(), switchAllel(effectAllele));
-									writer.setString(format.getOtherAllele(), switchAllel(otherAllele));
+									writer.setString(format.getEffectAllele(), flip(effectAllele));
+									writer.setString(format.getOtherAllele(), flip(otherAllele));
 								}
 
 								if (otherAllele != null && effectAllele != null) {
@@ -195,8 +195,13 @@ public class LiftOverScoreTask implements ITaskRunnable {
 
 	}
 
-	public static String switchAllel(String allele) {
-		return ALLELE_SWITCHES.get(allele);
+	protected static String flip(String allele) {
+		String flippedAllele = "";
+		for (int i = 0; i < allele.length(); i++) {
+			Character flipped = ALLELE_SWITCHES.get(allele.charAt(i));
+			flippedAllele += flipped;
+		}
+		return flippedAllele;
 	}
 
 	protected void log(String message) {
