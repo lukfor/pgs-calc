@@ -16,6 +16,7 @@ import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.ScoresFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
+import genepi.riskscore.model.RiskScoreSummary;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
 import genepi.riskscore.tasks.LiftOverScoreTask;
@@ -296,6 +297,17 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 		}
 
+		
+		if (verbose) {
+			for (RiskScoreSummary summary: report.getSummaries()) {
+
+				System.out.println();
+				System.out.println(summary);
+				System.out.println("-------------------------");
+				System.out.println();
+			}
+		}
+		
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();
