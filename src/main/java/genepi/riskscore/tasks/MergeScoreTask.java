@@ -89,7 +89,10 @@ public class MergeScoreTask implements ITaskRunnable {
 
 		}
 
-		for (int i = 0; i < files.length; i++) {
+		for (int i = 1; i < files.length; i++) {
+			if (files[i].next()) {
+				throw new Exception("Not all vcf files have the same number of samples.");
+			}
 			files[i].close();
 		}
 
