@@ -66,7 +66,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private String dbsnp = null;
 
 	private String proxies;
-	
+
 	private boolean fixStrandFlips = false;
 
 	private boolean removeAmbiguous = false;
@@ -134,7 +134,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 	public void setDbSnp(String dbsnp) {
 		this.dbsnp = dbsnp;
 	}
-	
+
 	public void setProxies(String proxies) {
 		this.proxies = proxies;
 	}
@@ -186,18 +186,14 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 			}
 
-			if (!empty) {
+			processVCF(monitor, chromosome, vcf, riskscores, empty);
 
-				processVCF(monitor, chromosome, vcf, riskscores);
+			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
+			outputFile.save(output);
 
-				OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
-				outputFile.save(output);
-
-				if (outputReportFilename != null) {
-					ReportFile reportFile = new ReportFile(summaries);
-					reportFile.save(outputReportFilename);
-				}
-
+			if (outputReportFilename != null) {
+				ReportFile reportFile = new ReportFile(summaries);
+				reportFile.save(outputReportFilename);
 			}
 
 			monitor.done();
@@ -246,8 +242,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	}
 
-	private void processVCF(ITaskMonitor monitor, String chromosome, String vcfFilename, RiskScoreFile[] riskscores)
-			throws Exception {
+	private void processVCF(ITaskMonitor monitor, String chromosome, String vcfFilename, RiskScoreFile[] riskscores,
+			boolean empty) throws Exception {
 
 		debug("Loading file " + vcfFilename + "...");
 
@@ -294,7 +290,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 					new String[] { "score", "sample", VariantFile.CHROMOSOME, VariantFile.POSITION, "effect" });
 		}
 
-		while (vcfReader.next() && !outOfChunk) {
+		while (vcfReader.next() && !outOfChunk && !empty) {
 
 			if (monitor.isCanceled()) {
 				return;
