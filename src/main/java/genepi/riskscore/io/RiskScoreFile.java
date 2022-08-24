@@ -194,7 +194,9 @@ public class RiskScoreFile {
 											proxySnp.mapAllele(effectAllele), effectWeight);
 									variant2.setParent(variant);
 									loadedProxies++;
-									variants.put(proxySnp.getPosition(), variant2);
+									if (!variants.containsKey(proxySnp.getPosition())) {
+										variants.put(proxySnp.getPosition(), variant2);
+									}
 								} catch (Exception e) {
 									e.printStackTrace();
 									System.out.println("Mapping failed: " + position + ":" + e);
