@@ -85,6 +85,7 @@ public class ReportFile {
 					List<Object> items = (List)samplesVariants;
 					for (Object item: items) {
 						Map<String, Object> itemObject = (Map<String, Object>) item;
+						System.out.println(itemObject);
 						Double count = (Double) itemObject.get("sample_number");
 						String population = itemObject.get("ancestry_broad").toString();
 						populationMap.addSamples(population, count.intValue());

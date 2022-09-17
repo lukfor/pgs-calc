@@ -3,15 +3,12 @@ package genepi.riskscore.tasks;
 import java.io.File;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.model.RiskScoreSummary;
-import genepi.riskscore.model.Sample;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
 import lukfor.reports.HtmlReport;
@@ -147,10 +144,14 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		if (samples != null) {
 			report.set("population_check", true);
 			report.set("populations", samples.getPopulations());
+			for (RiskScoreSummary score: this.report.getSummaries()) {
+				score.checkPopulation(samples.getPopulations());
+			}
 		} else {
 			report.set("population_check", false);
 			report.set("populations", null);
 		}
+		
 
 		report.setSelfContained(true);
 		report.generate(new File(output));

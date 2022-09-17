@@ -37,12 +37,16 @@ public class RiskScoreSummary {
 	private Object meta;
 
 	private Object data;
-	
+
 	private PopulationMap populations = null;
 
 	private String coverageLabel;
 
 	private int missingGenotypes = 0;
+
+	private String populationCheckMessage = "";
+
+	private boolean populationCheckStatus = true;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -217,13 +221,48 @@ public class RiskScoreSummary {
 	public void incMissingGenotypes() {
 		this.missingGenotypes++;
 	}
-	
+
 	public void setPopulations(PopulationMap populations) {
 		this.populations = populations;
 	}
-	
+
 	public PopulationMap getPopulations() {
 		return populations;
+	}
+
+	public void setPopulationCheckMessage(String populationCheckMessage) {
+		this.populationCheckMessage = populationCheckMessage;
+	}
+
+	public String getPopulationCheckMessage() {
+		return populationCheckMessage;
+	}
+
+	public void setPopulationCheckStatus(boolean populationCheckStatus) {
+		this.populationCheckStatus = populationCheckStatus;
+	}
+
+	public boolean isPopulationCheckStatus() {
+		return populationCheckStatus;
+	}
+
+	public void checkPopulation(PopulationMap populations) {
+
+		if (this.populations.getTotal() == 0) {
+			populationCheckMessage += "No population information available for this score. Be carefull for population stratification.";
+			populationCheckStatus = false;
+			return;
+		}
+
+		for (Population pop : populations.getPopulations()) {
+			// TODO: support names with ,... split...
+			if (!this.populations.supports(pop)) {
+				populationCheckMessage += "Excluded <b>" + pop.getCount() + " sample(s)</b> (" + pop.getName()
+						+ ") due to ancestry mismatch.<br>";
+				populationCheckStatus = false;
+			}
+		}
+
 	}
 
 	public void updateStatistics() {
