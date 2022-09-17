@@ -278,27 +278,14 @@ public class ApplyScoreCommandTest {
 	@Test
 	public void testCallSamplePopulation() throws IOException {
 
-		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/test.scores.csv",
-				"--out", "test-data-output/output.csv", "--samples", "test-data/samples-population.txt", "--report-html", "population.html" };
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/PGS000018.txt.gz,test-data/PGS000781.txt.gz,test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz",
+				"--out", "test-data-output/output.csv", "--samples", "test-data/samples-population.txt", "--report-html", "population.html","--meta", "pgs-catalog.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
 		ITableReader reader = new CsvTableReader("test-data-output/output.csv", ',');
-
 		assertEquals(true, reader.next());
-
-		double score = reader.getDouble("test.scores");
-		String sample = reader.getString("sample");
-		assertEquals("LF001", sample);
-		assertEquals(-(1 + 3), score, 0.0000001);
-
 		assertEquals(true, reader.next());
-
-		score = reader.getDouble("test.scores");
-		sample = reader.getString("sample");
-		assertEquals("LF002", sample);
-		assertEquals(-(3 + 7), score, 0.0000001);
-
 		assertEquals(false, reader.next());
 		reader.close();
 	}
@@ -403,71 +390,5 @@ public class ApplyScoreCommandTest {
 		assertEquals(0, result);
 
 	}
-
-	@Test
-	public void testDuplicate() {
-		// Whole file
-		String[] args = { "/Users/lukfor/Data/metsim/chr1.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr2.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr3.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr4.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr5.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr6.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr7.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr8.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr9.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr10.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr11.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr12.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr13.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr14.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr15.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr16.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr17.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr18.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr19.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr20.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chr21.clean.vcf.gz", "/Users/lukfor/Data/metsim/chr22.clean.vcf.gz",
-				"/Users/lukfor/Data/metsim/chrX.clean.vcf.gz", "--ref",
-				"/Users/lukfor/Data/pgs-catalog/pgs-catalog-20220712-hg38/scores/PGS002585.txt.gz", "--out",
-				//"/Users/lukfor/Data/pgs-catalog/pgs-catalog-20220731/scores/PGS002585.txt.gz", "--out",
-				"test-data-output/output2.csv", "--report-html", "test-data-output/report.html", "--report-json",
-				"test-data-output/report.json", "--write-variants", "test-data-output/variants.txt"};
-		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
-		assertEquals(0, result);
-
-	}
 	
-	
-	@Test
-	public void testDuplicate5() {
-		// Whole file
-		
-		String pattern = "/Users/lukfor/Data/metsim/topmed/chr${chr}.vcf.gz";
-		String regex = "\\$\\{chr\\}";
-		
-		String[] args = {
-				pattern.replaceAll(regex, "1"),
-				pattern.replaceAll(regex, "2"),
-				pattern.replaceAll(regex, "3"),
-				pattern.replaceAll(regex, "4"),
-				pattern.replaceAll(regex, "5"),
-				pattern.replaceAll(regex, "6"),
-				pattern.replaceAll(regex, "7"),
-				pattern.replaceAll(regex, "8"),
-				pattern.replaceAll(regex, "9"),
-				pattern.replaceAll(regex, "10"),
-				pattern.replaceAll(regex, "11"),
-				pattern.replaceAll(regex, "12"),
-				pattern.replaceAll(regex, "13"),
-				pattern.replaceAll(regex, "14"),
-				pattern.replaceAll(regex, "15"),
-				pattern.replaceAll(regex, "16"),
-				pattern.replaceAll(regex, "17"),
-				pattern.replaceAll(regex, "18"),
-				pattern.replaceAll(regex, "19"),
-				pattern.replaceAll(regex, "20"),
-				pattern.replaceAll(regex, "21"),
-				pattern.replaceAll(regex, "22"),
-				pattern.replaceAll(regex, "X"),
-				"--ref",
-				"/Users/lukfor/Data/pgs-catalog/pgs-catalog-20220712-hg38/scores/PGS000013.txt.gz", "--out",
-				//"/Users/lukfor/Data/pgs-catalog/pgs-catalog-20220731/scores/PGS000630.txt.gz", "--out",
-				"test-data-output/output2.csv", "--report-html", "test-data-output/report.html", "--report-json",
-				"test-data-output/report.json", "--write-variants", "test-data-output/variants.txt", "--verbose","--proxies", "/Users/lukfor/Data/proxy-map/proxy-map-eur.txt.gz", "--fix-strand-flips" };
-		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
-		assertEquals(0, result);
-
-	}
-
 }
