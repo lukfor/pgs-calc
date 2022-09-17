@@ -73,6 +73,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private boolean inverseDosage = false;
 
+	private boolean averaging = false;
+	
 	public static final String INFO_R2 = "R2";
 
 	public static final String DOSAGE_FORMAT = "DS";
@@ -289,6 +291,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 			effectsWriter.setColumns(
 					new String[] { "score", "sample", VariantFile.CHROMOSOME, VariantFile.POSITION, "effect" });
 		}
+		
+		int proxy = 0;
 
 		while (vcfReader.next() && !outOfChunk && !empty) {
 
@@ -410,9 +414,21 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 				if (referenceVariant.isUsed()) {
+					//System.out.println(variant + " ignored ");
 					continue;
 				}
 
+				if (!averaging && variant.hasMissingGenotypes(genotypeFormat)) {
+					summary.incMissingGenotypes();
+					continue;
+				}
+				/*if (referenceVariant.getParent() == null) {
+					System.out.println(variant);
+				} else {
+					proxy++;
+					System.out.println(variant + " --> proxy --> ");
+				}*/
+				
 				referenceVariant.setUsed(true);
 
 				if (variantsWriter != null) {
@@ -500,7 +516,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		}
 
 		vcfReader.close();
-
+debug("Used " + proxy + " proxies");
 		debug("Loaded " + countSamples + " samples and " + countVariants + " variants.");
 
 	}

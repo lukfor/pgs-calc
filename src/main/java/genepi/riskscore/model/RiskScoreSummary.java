@@ -31,14 +31,18 @@ public class RiskScoreSummary {
 	private int flipped = 0;
 
 	private int strandFlips = 0;
-	
+
 	private int proxiesUsed = 0;
 
 	private Object meta;
 
 	private Object data;
+	
+	private PopulationMap populations = null;
 
 	private String coverageLabel;
+
+	private int missingGenotypes = 0;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -189,17 +193,37 @@ public class RiskScoreSummary {
 	public void incStrandFlips() {
 		this.strandFlips++;
 	}
-	
+
 	public void setProxiesUsed(int proxiesUsed) {
 		this.proxiesUsed = proxiesUsed;
 	}
-	
+
 	public int getProxiesUsed() {
 		return proxiesUsed;
 	}
-	
+
 	public void incProxiesUsed() {
 		this.proxiesUsed++;
+	}
+
+	public int getMissingGenotypes() {
+		return missingGenotypes;
+	}
+
+	public void setMissingGenotypes(int missingGenotypes) {
+		this.missingGenotypes = missingGenotypes;
+	}
+
+	public void incMissingGenotypes() {
+		this.missingGenotypes++;
+	}
+	
+	public void setPopulations(PopulationMap populations) {
+		this.populations = populations;
+	}
+	
+	public PopulationMap getPopulations() {
+		return populations;
 	}
 
 	public void updateStatistics() {
@@ -233,6 +257,7 @@ public class RiskScoreSummary {
 		ambiguous += other.ambiguous;
 		flipped += other.flipped;
 		strandFlips += other.strandFlips;
+		missingGenotypes += other.missingGenotypes;
 		updateStatistics();
 	}
 
@@ -246,13 +271,14 @@ public class RiskScoreSummary {
 		buffer.append("    - Variants ignored: " + number(getVariantsIgnored()) + "\n");
 		buffer.append("    - Variants used: " + number(getVariantsUsed()) + " ("
 				+ percentage(getVariantsUsed(), getVariants()) + ")\n");
-		buffer.append("    - Proxies used: " + number(getProxiesUsed()) + "\n");		
+		buffer.append("    - Proxies used: " + number(getProxiesUsed()) + "\n");
 		buffer.append("    - Found in target and filtered by:\n");
 		buffer.append("      - ambiguous: " + number(getAmbiguous()) + "\n");
 		buffer.append("      - strand flip: " + number(getStrandFlips()) + "\n");
 		buffer.append("      - allele mismatch: " + number(getAlleleMissmatch()) + "\n");
 		buffer.append("      - multi allelic or indels: " + number(getMultiAllelic()) + "\n");
 		buffer.append("      - low R2 value: " + number(getR2Filtered()) + "\n");
+		buffer.append("      - missing genotypes: " + number(getMissingGenotypes()) + "\n");
 		buffer.append("      - variants file: " + number(getFiltered()) + "\n");
 		buffer.append("    - Strand Flips fixed: " + number(getFlipped()) + "\n");
 

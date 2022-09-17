@@ -2,8 +2,31 @@
 
   <div class="container-fluid">
     <div class="tab-content">
+
+        <div class="tab-pane active" id="samples" role="tabpanel">
+          <h3 class="mt-4">Samples</h3>
+          <hr>
+          <h5>General</h5>          
+          <ul>
+          {{if (show_samples)}}
+            <li>Samples: {{decimal(samples.size())}}</li>
+          {{end}}
+          </ul>
+          <h5>Populations</h5>
+          {{if population_check }}
+          <ul>
+          {{for pop in populations.getPopulations()}}
+          	<li>{{pop.name}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+          {{end}}
+          </ul>
+          {{else}}
+          <i>no ancestry information available</i>
+          {{end}}          
+		</div>
+
+
       {{for index,score in scores}}
-        <div class="tab-pane {{index == 0 ? "active" : ""}}" id="score{{index}}" role="tabpanel">
+        <div class="tab-pane {{index == 0 ? "" : ""}}" id="score{{index}}" role="tabpanel">
           <h3 class="mt-4">{{score.name}}</h3>
           <hr>
           <h5>Reference score</h5>
@@ -14,6 +37,16 @@
               <li>Trait: {{score.meta.trait_reported}}</li>
               {{if score.meta.trait_additional != null}}
                 <li>Additional Trait: {{score.meta.trait_additional}}</li>
+              {{end}}
+              {{if score.getPopulations() != null}}
+              <li>Samples: {{decimal(score.getPopulations().getTotal())}}</li>
+              <li>Population:
+                <ul>
+		          {{for pop in score.getPopulations().getPopulations()}}
+		          	<li>{{pop.name}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+		          {{end}}
+    	        </ul>
+              </li>
               {{end}}
               <li>Publication: <a href="https://doi.org/{{score.meta.publication.doi}}" target="_blank">{{score.meta.publication.firstauthor}} et.al, {{score.meta.publication.journal}} ({{score.meta.publication.date_publication}})</a></li>
             {{end}}

@@ -3,9 +3,13 @@
     <input class="field form-control mx-2 mb-3" id="s" name="s" type="text" value="" placeholder="Search by ID or trait" autocomplete="off">
   </div>
   <div class="list-group mx-2 sidebar-list" role="tablist">
+   	  <a data-toggle="list" href="#samples" data-samples="samples" role="tab"
+        class="list-group-item list-group-item-action my-1 active">
+        Samples
+      </a>
     {{for index,score in scores}}
       <a data-toggle="list" href="#score{{index}}" data-score="score{{index}}" role="tab" data-meta="{{score.name}}, {{if score.meta != null}}{{score.meta.trait_reported}}{{end}}"
-        class="list-group-item list-group-item-action my-1 coverage-{{score.coverageLabel}} {{index == 0 ? "active" : ""}}">
+        class="list-group-item list-group-item-action my-1 coverage-{{score.coverageLabel}} {{index == 0 ? "" : ""}}">
         {{score.name}}
         {{if score.meta != null}}<br><small>{{score.meta.trait_reported}}</small>{{end}}
       </a>

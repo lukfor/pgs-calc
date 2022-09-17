@@ -44,6 +44,8 @@ public class MinimalVariantContext {
 
 	private boolean dirtyGenotypes = true;
 
+	private boolean missingData = false;
+
 	public MinimalVariantContext(int samples) {
 		genotypes = new boolean[samples];
 		genotypesParsed = new float[samples];
@@ -240,6 +242,11 @@ public class MinimalVariantContext {
 		}
 	}
 
+	public boolean hasMissingGenotypes(String field) throws IOException {
+		getGenotypeDosages(field);
+		return missingData;
+	}
+
 	public float[] getGenotypeDosages(String field) throws IOException {
 
 		if (dirtyGenotypes) {
@@ -293,37 +300,46 @@ public class MinimalVariantContext {
 			String value = values[i];
 			String[] tiles2 = value.split(":");
 			String genotype = tiles2[indexGT];
-			float dosage = toDosage(genotype);
-			genotypesParsed[i] = dosage;
-		}
-	}
-
-	protected void parseDosages(String[] values, int indexDS, int indexGT) {
-		for (int i = 0; i < genotypesParsed.length; i++) {
-			String value = values[i];
-			String[] tiles2 = value.split(":");
-			if (tiles2.length == 1) {
-				// use genotype instead
-				String genotype = tiles2[indexGT];
-				genotypesParsed[i] = toDosage(genotype);
-			} else {
-				String dosage = tiles2[indexDS];
-				if (dosage.equals(".")) {
-					// use genotype instead
-					String genotype = tiles2[indexGT];
-					genotypesParsed[i] = toDosage(genotype);
-				} else {
-					try {
-						genotypesParsed[i] = Float.parseFloat(dosage);
-					} catch (Exception e) {
-						genotypesParsed[i] = -1;
-					}
-				}
+			try {
+				float dosage = toDosage(genotype);
+				genotypesParsed[i] = dosage;
+			} catch (Exception e) {
+				genotypesParsed[i] = -1;
+				missingData = true;
 			}
 		}
 	}
 
-	protected float toDosage(String genotype) {
+	protected void parseDosages(String[] values, int indexDS, int indexGT) {
+		missingData = false;
+		for (int i = 0; i < genotypesParsed.length; i++) {
+			String value = values[i];
+			String[] tiles2 = value.split(":");
+			try {
+				if (tiles2.length == 1) {
+					// use genotype instead
+					String genotype = tiles2[indexGT];
+					genotypesParsed[i] = toDosage(genotype);
+				} else {
+					String dosage = tiles2[indexDS];
+					if (dosage.equals(".")) {
+						// use genotype instead
+						String genotype = tiles2[indexGT];
+						genotypesParsed[i] = toDosage(genotype);
+					} else {
+
+						genotypesParsed[i] = Float.parseFloat(dosage);
+
+					}
+				}
+			} catch (Exception e) {
+				genotypesParsed[i] = -1;
+				missingData = true;
+			}
+		}
+	}
+
+	protected float toDosage(String genotype) throws Exception {
 		if (genotype.equals("0|0") || genotype.equals("0/0")) {
 			return 0;
 		} else if (genotype.equals("0|1") || genotype.equals("1|0") || genotype.equals("0/1")
@@ -332,7 +348,7 @@ public class MinimalVariantContext {
 		} else if (genotype.equals("1|1") || genotype.equals("1/1")) {
 			return 2;
 		} else {
-			return -1;
+			throw new Exception("Unknown genotype: " + genotype);
 		}
 	}
 

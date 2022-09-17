@@ -65,4 +65,13 @@ public class CreateHtmlReportCommandTest {
 
 	}
 	
+	@Test
+	public void testReportWithHtmlTemplateAndMetaData() throws Exception {
+
+		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.html", 				"--meta","test-data/pgs-catalog-small.json" };
+		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
+		assertEquals(0, result);
+
+	}
+	
 }

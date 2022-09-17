@@ -165,7 +165,7 @@ function filterScores(e) {
   var filter = input.toUpperCase()
   $('.list-group .list-group-item').each(function() {
     var anchor = $(this)
-    if (anchor.data('meta').toUpperCase().indexOf(filter) > -1) {
+    if (anchor.data('meta') == undefined || anchor.data('meta').toUpperCase().indexOf(filter) > -1) {
       anchor.removeClass('d-none')
     } else {
       anchor.addClass('d-none');
@@ -202,7 +202,7 @@ $(document).ready(function() {
   updateHighlightSample();
 
   selectedSamples = [];
-  selectedData = data['score0'];
+  /*selectedData = data['score0'];
   if (selectedData) {
     var plotData = createPlot(selectedData, highlightedSamples);
     var layout = createPlotLayout();
@@ -214,6 +214,7 @@ $(document).ready(function() {
     var hoverInfo = myPlot.on('plotly_selected', updateSelection);
   } else {
     $('#row-plots').hide();
-  }
+  }*/
+  $('#row-plots').hide();
 
 });

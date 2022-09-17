@@ -7,6 +7,7 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.MetaFile;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.tasks.CreateHtmlReportTask;
 import lukfor.progress.TaskService;
 import lukfor.progress.tasks.Task;
@@ -31,6 +32,8 @@ public class CreateHtmlReportCommand implements Callable<Integer> {
 	@Option(names = { "--template" }, description = "template to create html report", required = false)
 	String template = null;
 
+	@Option(names = { "--samples" }, description = "csv file with ancestry information for each sample", required = false)
+	String samples = null;
 	
 	public Integer call() throws Exception {
 
@@ -46,6 +49,11 @@ public class CreateHtmlReportCommand implements Callable<Integer> {
 		if (data != null) {
 			OutputFile outputFile = new OutputFile(data);
 			htmlReportTask.setData(outputFile);
+		}
+		if (samples != null) {
+			SamplesFile samplesFile = new SamplesFile(samples);
+			samplesFile.buildIndex();
+			htmlReportTask.setSamples(samplesFile);
 		}
 		if (template != null) {
 			htmlReportTask.setTemplate(template);
