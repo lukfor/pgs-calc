@@ -1,10 +1,13 @@
 data = [];
+excluded = [];
 {{for index,score in scores}}
   {{if score.data != null}}
     data['score{{index}}']= {{json(score.data)}};
+    excluded['score{{index}}'] = {{json(score.excluded)}};
   {{end}}
 {{end}}
 
 {{if (show_samples)}}
 samples = {{json(samples)}};
 {{end}}
+

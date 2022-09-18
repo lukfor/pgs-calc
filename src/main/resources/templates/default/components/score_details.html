@@ -29,6 +29,11 @@
         <div class="tab-pane {{index == 0 ? "" : ""}}" id="score{{index}}" role="tabpanel">
           <h3 class="mt-4">{{score.name}}</h3>
           <hr>
+          {{if score.populationCheckStatus == false}}
+          	<div class="alert alert-warning">
+          	  {{score.populationCheckMessage}}
+          	</div>
+          {{end}}
           <h5>Reference score</h5>
           <ul class="text-small">
             <li>Variants: {{decimal(score.variants)}}</li>
@@ -57,7 +62,11 @@
           <ul>
             <li>Coverage: {{decimal(score.variantsUsed)}} ({{percentage(score.coverage)}}) <span class="badge badge-{{score.coverageLabel}}">{{score.coverageLabel}}</span> </li>
             {{if (show_samples)}}
-            <li>Samples: {{decimal(samples.size())}}</li>
+	            {{if score.data != null}}
+	            	<li>Samples: {{decimal(score.samples)}} / {{decimal(samples.size())}} ({{percentage(score.samplesPercentage)}})</li>
+	            {{else}}
+	            	<li>Samples: {{decimal(samples.size())}}</li>	            
+            {{end}}
             {{end}}
           </ul>
         </div>

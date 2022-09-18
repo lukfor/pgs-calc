@@ -145,9 +145,13 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 			report.set("population_check", true);
 			report.set("populations", samples.getPopulations());
 			for (RiskScoreSummary score: this.report.getSummaries()) {
-				score.checkPopulation(samples.getPopulations());
+				score.checkPopulation(data.getSamples(), samples);
 			}
 		} else {
+			for (RiskScoreSummary score: this.report.getSummaries()) {
+				score.setPopulationCheckStatus(true);
+			}
+
 			report.set("population_check", false);
 			report.set("populations", null);
 		}

@@ -1,11 +1,11 @@
-function createPlot(selectedData, highlightedSamples) {
-
+function createPlot(selectedData, highlightedSamples, excludedData) {
+console.log(selectedData);
   //histogram of score
   var plotData = [];
   plotData.push({
     x: selectedData,
     type: 'histogram',
-    name: 'Distribution Score',
+    name: 'Included Samples',
     orientation: 'v',
     marker: {
       color: '#007bff',
@@ -15,6 +15,23 @@ function createPlot(selectedData, highlightedSamples) {
       }
     }
   });
+
+  if (excludedData && excludedData.length > 0) {
+
+  plotData.push({
+    x: excludedData,
+    type: 'histogram',
+    name: 'Excluded Samples',
+    orientation: 'v',
+    marker: {
+      color: '#cccccc',
+      line: {
+        color: 'white',
+        width: 1
+      }
+    }
+  });
+  }
 
   //scatter plot of selected samples
   if (highlightedSamples && highlightedSamples.length > 0) {
@@ -61,7 +78,8 @@ function createPlotLayout() {
     yaxis: {
       title: 'Count'
     },
-    bargap: 0
+    bargap: 0,
+    barmode: "stack"
   };
 };
 
@@ -146,6 +164,7 @@ function updateHighlightSample() {
 function updateScore(e) {
   var score = $(this).data('score');
   selectedData = data[score];
+  selectedExcluded = excluded[score];
   if (selectedData) {
     $('#row-plots').show();
     //clear table
@@ -174,7 +193,7 @@ function filterScores(e) {
 }
 
 function updatePlots() {
-  var plotData = createPlot(selectedData, highlightedSamples);
+  var plotData = createPlot(selectedData, highlightedSamples, selectedExcluded);
   var layout = createPlotLayout();
   Plotly.react('plot', plotData, layout, {
     displayModeBar: false
@@ -202,7 +221,7 @@ $(document).ready(function() {
   updateHighlightSample();
 
   selectedSamples = [];
-  /*selectedData = data['score0'];
+  selectedData = data['score0'];
   if (selectedData) {
     var plotData = createPlot(selectedData, highlightedSamples);
     var layout = createPlotLayout();
@@ -212,9 +231,6 @@ $(document).ready(function() {
 
     var myPlot = document.getElementById('plot');
     var hoverInfo = myPlot.on('plotly_selected', updateSelection);
-  } else {
-    $('#row-plots').hide();
-  }*/
-  $('#row-plots').hide();
-
+  }
+$('#row-plots').hide();
 });

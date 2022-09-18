@@ -1,6 +1,11 @@
 package genepi.riskscore.model;
 
 import java.text.DecimalFormat;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import genepi.riskscore.io.SamplesFile;
 
 public class RiskScoreSummary {
 
@@ -36,7 +41,7 @@ public class RiskScoreSummary {
 
 	private Object meta;
 
-	private Object data;
+	private double[] data;
 
 	private PopulationMap populations = null;
 
@@ -47,6 +52,12 @@ public class RiskScoreSummary {
 	private String populationCheckMessage = "";
 
 	private boolean populationCheckStatus = true;
+
+	private double[] excluded;
+
+	private int samples;
+
+	private float samplesPercentage;
 
 	public RiskScoreSummary(String name) {
 		this.name = name;
@@ -150,7 +161,7 @@ public class RiskScoreSummary {
 		return meta;
 	}
 
-	public void setData(Object data) {
+	public void setData(double[] data) {
 		this.data = data;
 	}
 
@@ -246,23 +257,85 @@ public class RiskScoreSummary {
 		return populationCheckStatus;
 	}
 
-	public void checkPopulation(PopulationMap populations) {
+	public void checkPopulation(List<String> samples, SamplesFile file) {
 
-		if (this.populations.getTotal() == 0) {
-			populationCheckMessage += "No population information available for this score. Be carefull for population stratification.";
+		populationCheckStatus = true;
+		
+		if (file == null) {
+			populationCheckMessage = "No population information available for your samples. Be careful for population stratification.";
 			populationCheckStatus = false;
 			return;
 		}
 
-		for (Population pop : populations.getPopulations()) {
+		if (this.populations.getTotal() == 0) {
+			populationCheckMessage = "No population information available for this score. Be careful for population stratification.";
+			populationCheckStatus = false;
+			return;
+		}
+
+		// excluded = new Vector<>();
+
+		populationCheckMessage = "";
+		Set<String> excludedSamples = new HashSet<String>();
+		for (Population pop : file.getPopulations().getPopulations()) {
 			// TODO: support names with ,... split...
+			// TODO: detected instead of excluded?
 			if (!this.populations.supports(pop)) {
 				populationCheckMessage += "Excluded <b>" + pop.getCount() + " sample(s)</b> (" + pop.getName()
 						+ ") due to ancestry mismatch.<br>";
 				populationCheckStatus = false;
+				excludedSamples.addAll(file.getSamples(pop));
 			}
 		}
 
+		if (data == null) {
+			return;
+		}
+
+		if (populationCheckStatus == false && !excludedSamples.isEmpty()) {
+			double[] oldData = data;
+			data = new double[oldData.length - excludedSamples.size()];
+			excluded = new double[excludedSamples.size()];
+			int dataIndex = 0;
+			int excludedIndex = 0;
+			for (int i = 0; i < oldData.length; i++) {
+				String sample = samples.get(i);
+				if (excludedSamples.contains(sample)) {
+					excluded[excludedIndex] = oldData[i];
+					excludedIndex++;
+				} else {
+					data[dataIndex] = oldData[i];
+					dataIndex++;
+				}
+			}
+		}
+
+		this.samples = data.length;
+		this.samplesPercentage = this.samples / (float) samples.size();
+	}
+
+	public double[] getExcluded() {
+		return excluded;
+	}
+
+	public void setExcluded(double[] excluded) {
+		this.excluded = excluded;
+	}
+
+	public int getSamples() {
+		return samples;
+	}
+
+	public void setSamples(int samples) {
+		this.samples = samples;
+	}
+
+	public float getSamplesPercentage() {
+		return samplesPercentage;
+	}
+
+	public void setSamplesPercentage(float samplesPercentage) {
+		this.samplesPercentage = samplesPercentage;
 	}
 
 	public void updateStatistics() {

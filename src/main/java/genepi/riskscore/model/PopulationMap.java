@@ -44,6 +44,10 @@ public class PopulationMap {
 		return total;
 	}
 	
+	public boolean supports(String population) {
+		return items.containsKey(population);
+	}
+	
 	public boolean supports(Population population) {
 		return items.containsKey(population.getName());
 	}
