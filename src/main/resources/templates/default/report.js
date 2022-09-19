@@ -62,7 +62,7 @@ console.log(selectedData);
 
 function createPlotLayout() {
   return {
-    showlegend: false,
+    showlegend: true,
     dragmode: 'select',
     hovermode: 'x',
     margin: {
