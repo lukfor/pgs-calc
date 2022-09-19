@@ -2,11 +2,11 @@ package genepi.riskscore.model;
 
 public class Population implements Comparable<Population> {
 
-	private String name;
+	public String name;
 
-	private int count = 0;
+	public int count = 0;
 
-	private float percentage = 0;
+	public float percentage = 0;
 
 	public String getName() {
 		return name;

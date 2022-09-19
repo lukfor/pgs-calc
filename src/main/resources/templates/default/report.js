@@ -206,6 +206,21 @@ function showCommand() {
   {{end}}
 }
 
+function showPopulation(){
+	var data = [{
+	  values: {{json(array(populations.getPopulations()).extract("count"))}},
+	  labels: {{json(array(populations.getPopulations()).extract("name"))}},
+	  type: 'pie'
+	}];
+	
+	var layout = {
+	  height: 400,
+	  width: 500
+	};
+	
+	Plotly.newPlot('population-plot', data, layout);
+}
+
 $(document).ready(function() {
 
   //event handler
@@ -232,5 +247,6 @@ $(document).ready(function() {
     var myPlot = document.getElementById('plot');
     var hoverInfo = myPlot.on('plotly_selected', updateSelection);
   }
-$('#row-plots').hide();
+  showPopulation();
+  $('#row-plots').hide();
 });
