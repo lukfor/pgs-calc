@@ -79,12 +79,9 @@ public class Population implements Comparable<Population> {
 			return "#800080";
 		case "American":
 			return "#800080";
-
-		case "unkown":
-			return "#B5B5B5";
 		}
 
-		return "#000000";
+		return "#B5B5B5";
 	}
 
 	@Override
