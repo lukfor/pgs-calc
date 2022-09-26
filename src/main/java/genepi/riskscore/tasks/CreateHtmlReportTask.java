@@ -157,7 +157,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		}
 		
 
-		//report.setSelfContained(true);
+		report.setSelfContained(true);
 		report.generate(new File(output));
 
 		monitor.update("Html Report created and written to '" + output + "'");
