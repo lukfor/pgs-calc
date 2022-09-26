@@ -267,7 +267,7 @@ public class RiskScoreSummary {
 			return;
 		}
 
-		if (this.populations.getTotal() == 0) {
+		if (this.populations == null || this.populations.getTotal() == 0) {
 			populationCheckMessage = "No population information available for this score. Be careful for population stratification.";
 			populationCheckStatus = false;
 			return;
