@@ -18,19 +18,19 @@ console.log(selectedData);
 
   if (excludedData && excludedData.length > 0) {
 
-  plotData.push({
-    x: excludedData,
-    type: 'histogram',
-    name: 'Excluded Samples',
-    orientation: 'v',
-    marker: {
-      color: '#cccccc',
-      line: {
-        color: 'white',
-        width: 1
+    plotData.push({
+      x: excludedData,
+      type: 'histogram',
+      name: 'Excluded Samples',
+      orientation: 'v',
+      marker: {
+        color: '#cccccc',
+        line: {
+          color: 'white',
+          width: 1
+        }
       }
-    }
-  });
+    });
   }
 
   //scatter plot of selected samples
@@ -210,14 +210,17 @@ function showPopulation(){
 	var data = [{
 	  values: {{json(array(populations.getPopulations()).extract("count"))}},
 	  labels: {{json(array(populations.getPopulations()).extract("name"))}},
+    marker: {
+      colors: {{json(array(populations.getPopulations()).extract("color"))}}
+    },
 	  type: 'pie'
 	}];
-	
+
 	var layout = {
 	  height: 400,
 	  width: 500
 	};
-	
+
 	Plotly.newPlot('population-plot', data, layout);
 }
 
