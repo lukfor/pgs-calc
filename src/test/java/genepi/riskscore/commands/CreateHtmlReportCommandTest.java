@@ -59,19 +59,20 @@ public class CreateHtmlReportCommandTest {
 	public void testReportWithTxtTemplateAndMetaData() throws Exception {
 
 		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.txt", "--template",
-				"txt","--meta","test-data/pgs-catalog-small.json" };
+				"txt", "--meta", "test-data/pgs-catalog-small.json" };
 		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
 		assertEquals(0, result);
 
 	}
-	
+
 	@Test
 	public void testReportWithHtmlTemplateAndMetaData() throws Exception {
 
-		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.html", 				"--meta","test-data/pgs-catalog-small.json" };
+		String[] args = { "--info", "test-data/report.json", "--out", "test-data-output/report.html", "--meta",
+				"test-data/pgs-catalog-small.json" };
 		int result = new CommandLine(new CreateHtmlReportCommand()).execute(args);
 		assertEquals(0, result);
 
 	}
-	
+
 }

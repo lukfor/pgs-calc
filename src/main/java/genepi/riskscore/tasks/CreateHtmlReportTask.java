@@ -141,21 +141,20 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		});
 
 		report.set("scores", this.report.getSummaries());
-		if (samples != null) {
+		if (samples != null && data != null) {
 			report.set("population_check", true);
 			report.set("populations", samples.getPopulations());
-			for (RiskScoreSummary score: this.report.getSummaries()) {
+			for (RiskScoreSummary score : this.report.getSummaries()) {
 				score.checkPopulation(data.getSamples(), samples);
 			}
 		} else {
-			for (RiskScoreSummary score: this.report.getSummaries()) {
+			for (RiskScoreSummary score : this.report.getSummaries()) {
 				score.setPopulationCheckStatus(true);
 			}
 
 			report.set("population_check", false);
 			report.set("populations", null);
 		}
-		
 
 		report.setSelfContained(true);
 		report.generate(new File(output));

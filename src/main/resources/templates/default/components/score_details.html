@@ -6,7 +6,7 @@
         <div class="tab-pane active" id="samples" role="tabpanel">
           <h3 class="mt-4">Samples</h3>
           <hr>
-          <h5>General</h5>          
+          <h5>General</h5>
           <ul>
           {{if (show_samples)}}
             <li>Samples: {{decimal(samples.size())}}</li>
@@ -22,9 +22,9 @@
           {{else}}
           <i>no ancestry information available</i>
           {{end}}
-          
-          <div id="population-plot"></div>          
-		</div>
+
+          <div id="population-plot"></div>
+        </div>
 
 
       {{for index,score in scores}}
@@ -46,28 +46,33 @@
                 <li>Additional Trait: {{score.meta.trait_additional}}</li>
               {{end}}
               {{if score.getPopulations() != null}}
-              <li>Samples: {{decimal(score.getPopulations().getTotal())}}</li>
-              <li>Population:
-                <ul>
-		          {{for pop in score.getPopulations().getPopulations()}}
-		          	<li>{{pop.name}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
-		          {{end}}
-    	        </ul>
-              </li>
+                <li>Samples: {{decimal(score.getPopulations().getTotal())}}</li>
+                <li>Population:
+                  <ul>
+                    {{for pop in score.getPopulations().getPopulations()}}
+                      <li>{{pop.name}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+                    {{end}}
+                  </ul>
+                </li>
               {{end}}
               <li>Publication: <a href="https://doi.org/{{score.meta.publication.doi}}" target="_blank">{{score.meta.publication.firstauthor}} et.al, {{score.meta.publication.journal}} ({{score.meta.publication.date_publication}})</a></li>
             {{end}}
-            <li>View in <a href="https://www.pgscatalog.org/score/{{score.name}}" target="_blank">PGS-Catalog</a></li>
+            {{if (score.name.startsWith("PGS"))}}
+              <li>View in <a href="https://www.pgscatalog.org/score/{{score.name}}" target="_blank">PGS-Catalog</a></li>
+            {{end}}
+            {{if (score.name.startsWith("PRSWEB_"))}}
+              <li>View in <a href="https://prsweb.sph.umich.edu:8443/displayData/showGraphSep?prswebprefix={{score.name}}" target="_blank">PRSWeb</a></li>
+            {{end}}
           </ul>
           <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
           <h5>Target study</h5>
           <ul>
             <li>Coverage: {{decimal(score.variantsUsed)}} ({{percentage(score.coverage)}}) <span class="badge badge-{{score.coverageLabel}}">{{score.coverageLabel}}</span> </li>
             {{if (show_samples)}}
-	            {{if score.data != null}}
+	            {{if score.data != null && score.populationCheckStatus}}
 	            	<li>Samples: {{decimal(score.samples)}} / {{decimal(samples.size())}} ({{percentage(score.samplesPercentage)}})</li>
 	            {{else}}
-	            	<li>Samples: {{decimal(samples.size())}}</li>	            
+	            	<li>Samples: {{decimal(samples.size())}}</li>
             {{end}}
             {{end}}
           </ul>

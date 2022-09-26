@@ -207,6 +207,7 @@ function showCommand() {
 }
 
 function showPopulation(){
+  {{if (population_check)}}
 	var data = [{
 	  values: {{json(array(populations.getPopulations()).extract("count"))}},
 	  labels: {{json(array(populations.getPopulations()).extract("name"))}},
@@ -222,6 +223,7 @@ function showPopulation(){
 	};
 
 	Plotly.newPlot('population-plot', data, layout);
+  {{end}}
 }
 
 $(document).ready(function() {
