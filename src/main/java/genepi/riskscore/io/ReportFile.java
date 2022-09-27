@@ -78,17 +78,18 @@ public class ReportFile {
 			Object data = meta.getDataById(summary.getName());
 			if (data != null) {
 				summary.setMeta(data);
-				Map<String,Object>  map = (Map<String,Object>) data;
+				Map<String, Object> map = (Map<String, Object>) data;
 				Object samplesVariants = map.get("samples_variants");
 				if (samplesVariants != null) {
-					PopulationMap populationMap  = new PopulationMap();
-					List<Object> items = (List)samplesVariants;
-					for (Object item: items) {
+					PopulationMap populationMap = new PopulationMap();
+					List<Object> items = (List) samplesVariants;
+					for (Object item : items) {
 						Map<String, Object> itemObject = (Map<String, Object>) item;
-						System.out.println(itemObject);
-						Double count = (Double) itemObject.get("sample_number");
-						String population = itemObject.get("ancestry_broad").toString();
-						populationMap.addSamples(population, count.intValue());
+						if (itemObject.containsKey("sample_number") && itemObject.containsKey("ancestry_broad")) {
+							Double count = (Double) itemObject.get("sample_number");
+							String population = itemObject.get("ancestry_broad").toString();
+							populationMap.addSamples(population, count.intValue());
+						}
 					}
 					summary.setPopulations(populationMap);
 				}
