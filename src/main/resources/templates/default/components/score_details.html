@@ -41,7 +41,18 @@
             <li>Variants: {{decimal(score.variants)}}</li>
             <li>Variants ignored: {{decimal(score.variantsIgnored)}}</li>
             {{if score.meta != null}}
-              <li>Trait: {{score.meta.trait}}</li>
+              <li>
+                Trait: {{score.meta.trait}}
+              </li>
+              {{if score.meta.efo != null}}
+              <li>Mapped Trait(s):
+                <ul>
+                  {{for efo in score.meta.efo}}
+                  <li><a href="{{efo.url}}" target ="_blank">{{efo.id}}</a>: {{efo.label}}<br><small>{{efo.description}}</small></li>
+                  {{end}}
+                </ul>
+              </li>
+              {{end}}
               {{if score.meta.traitAdditional != null}}
                 <li>Additional Trait: {{score.meta.traitAdditional}}</li>
               {{end}}

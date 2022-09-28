@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
@@ -27,12 +28,12 @@ public class MetaFile {
 		Gson gson = new Gson();
 		Type type = new TypeToken<Map<String, MetaScore>>() {
 		}.getType();
-		
+
 		MetaFile metaFile = new MetaFile();
-		metaFile.index = gson.fromJson(new FileReader(filename),  type);
+		metaFile.index = gson.fromJson(new FileReader(filename), type);
 		return metaFile;
 	}
-	
+
 	public MetaScore getById(String id) {
 		return index.get(id);
 	}
@@ -50,6 +51,8 @@ public class MetaFile {
 		private String id;
 
 		private String trait;
+
+		private List<Map<String, String>> efo;
 
 		private String traitAdditional;
 
@@ -87,6 +90,14 @@ public class MetaFile {
 
 		public void setTraitAdditional(String traitAdditional) {
 			this.traitAdditional = traitAdditional;
+		}
+
+		public List<Map<String, String>> getEfo() {
+			return efo;
+		}
+
+		public void setEfo(List<Map<String, String>> efo) {
+			this.efo = efo;
 		}
 
 		public ScorePopulationMap getPopulations() {

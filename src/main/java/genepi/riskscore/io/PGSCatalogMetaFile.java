@@ -115,6 +115,11 @@ public class PGSCatalogMetaFile {
 			score.setPublication(map);			
 		}
 		
+		Object efos = data.get("trait_efo");
+		if (efos != null) {
+			score.setEfo((List<Map<String, String>>) efos);
+		}
+		
 		score.setVariants(((Double) data.get("variants_number")).intValue());
 		score.setRepository("PGS-Catalog");
 		score.setLink("https://www.pgscatalog.org/score/" + id);
