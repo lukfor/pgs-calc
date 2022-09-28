@@ -47,27 +47,19 @@ public class Population implements Comparable<Population> {
 
 		switch (name) {
 
-		case "Africa":
-			return "#FF6600";
-		case "African":
+		case "AFR":
 			return "#FF6600";
 
-		case "Europe":
-			return "#0099E6";
-		case "European":
+		case "EUR":
 			return "#0099E6";
 
-		case "Middle East":
+		case "GME":
 			return "#DBEE06";
 
-		case "C/S Asia":
-			return "#F90026";
-		case "C/S Asian":
+		case "SAS":
 			return "#F90026";
 
-		case "East Asia":
-			return "#FF99E6";
-		case "East Asian":
+		case "EAS":
 			return "#FF99E6";
 
 		case "Oceania":
@@ -75,10 +67,9 @@ public class Population implements Comparable<Population> {
 		case "Oceanian":
 			return "#339933";
 
-		case "America":
+		case "AMR":
 			return "#800080";
-		case "American":
-			return "#800080";
+
 		}
 
 		return "#B5B5B5";
@@ -86,7 +77,7 @@ public class Population implements Comparable<Population> {
 
 	@Override
 	public int compareTo(Population o) {
-		return -Integer.compare(count, o.getCount());
+		return -Float.compare(percentage, o.getPercentage());
 	}
 
 }

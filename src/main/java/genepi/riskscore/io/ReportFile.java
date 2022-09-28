@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
+import genepi.riskscore.io.MetaFile.MetaScore;
 import genepi.riskscore.model.PopulationMap;
 import genepi.riskscore.model.RiskScoreSummary;
 
@@ -75,24 +76,9 @@ public class ReportFile {
 
 	public void mergeWithMeta(MetaFile meta) {
 		for (RiskScoreSummary summary : summaries) {
-			Object data = meta.getDataById(summary.getName());
+			MetaScore data = meta.getById(summary.getName());
 			if (data != null) {
 				summary.setMeta(data);
-				Map<String, Object> map = (Map<String, Object>) data;
-				Object samplesVariants = map.get("samples_variants");
-				if (samplesVariants != null) {
-					PopulationMap populationMap = new PopulationMap();
-					List<Object> items = (List) samplesVariants;
-					for (Object item : items) {
-						Map<String, Object> itemObject = (Map<String, Object>) item;
-						if (itemObject.containsKey("sample_number") && itemObject.containsKey("ancestry_broad")) {
-							Double count = (Double) itemObject.get("sample_number");
-							String population = itemObject.get("ancestry_broad").toString();
-							populationMap.addSamples(population, count.intValue());
-						}
-					}
-					summary.setPopulations(populationMap);
-				}
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import genepi.riskscore.io.MetaFile.MetaScore;
 import genepi.riskscore.io.SamplesFile;
 
 public class RiskScoreSummary {
@@ -39,11 +40,9 @@ public class RiskScoreSummary {
 
 	private int proxiesUsed = 0;
 
-	private Object meta;
+	private MetaScore meta;
 
 	private double[] data;
-
-	private PopulationMap populations = null;
 
 	private String coverageLabel;
 
@@ -153,11 +152,11 @@ public class RiskScoreSummary {
 		return coverage;
 	}
 
-	public void setMeta(Object meta) {
+	public void setMeta(MetaScore meta) {
 		this.meta = meta;
 	}
 
-	public Object getMeta() {
+	public MetaScore getMeta() {
 		return meta;
 	}
 
@@ -233,14 +232,6 @@ public class RiskScoreSummary {
 		this.missingGenotypes++;
 	}
 
-	public void setPopulations(PopulationMap populations) {
-		this.populations = populations;
-	}
-
-	public PopulationMap getPopulations() {
-		return populations;
-	}
-
 	public void setPopulationCheckMessage(String populationCheckMessage) {
 		this.populationCheckMessage = populationCheckMessage;
 	}
@@ -260,14 +251,14 @@ public class RiskScoreSummary {
 	public void checkPopulation(List<String> samples, SamplesFile file) {
 
 		populationCheckStatus = true;
-		
+
 		if (file == null) {
 			populationCheckMessage = "No population information available for your samples. Be careful for population stratification.";
 			populationCheckStatus = false;
 			return;
 		}
 
-		if (this.populations == null || this.populations.getTotal() == 0) {
+		if (this.meta == null || this.meta.getPopulations() == null || this.meta.getPopulations().getTotal() == 0) {
 			populationCheckMessage = "No population information available for this score. Be careful for population stratification.";
 			populationCheckStatus = false;
 			return;
@@ -280,7 +271,7 @@ public class RiskScoreSummary {
 		for (Population pop : file.getPopulations().getPopulations()) {
 			// TODO: support names with ,... split...
 			// TODO: detected instead of excluded?
-			if (!this.populations.supports(pop)) {
+			if (!meta.getPopulations().supports(pop)) {
 				populationCheckMessage += "Excluded <b>" + pop.getCount() + " sample(s)</b> (" + pop.getName()
 						+ ") due to ancestry mismatch.<br>";
 				populationCheckStatus = false;

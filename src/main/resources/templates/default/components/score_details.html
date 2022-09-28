@@ -41,27 +41,26 @@
             <li>Variants: {{decimal(score.variants)}}</li>
             <li>Variants ignored: {{decimal(score.variantsIgnored)}}</li>
             {{if score.meta != null}}
-              <li>Trait: {{score.meta.trait_reported}}</li>
-              {{if score.meta.trait_additional != null}}
-                <li>Additional Trait: {{score.meta.trait_additional}}</li>
+              <li>Trait: {{score.meta.trait}}</li>
+              {{if score.meta.traitAdditional != null}}
+                <li>Additional Trait: {{score.meta.traitAdditional}}</li>
               {{end}}
-              {{if score.getPopulations() != null}}
-                <li>Samples: {{decimal(score.getPopulations().getTotal())}}</li>
+              {{if score.meta.getPopulations() != null}}
+                <li>Samples: {{decimal(score.meta.getPopulations().getTotal())}}</li>
                 <li>Population:
                   <ul>
-                    {{for pop in score.getPopulations().getPopulations()}}
-                      <li>{{pop.name}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+                    {{for pop in score.meta.getPopulations().getPopulations()}}
+                      <li>{{pop.name}}: {{percentage(pop.percentage)}}</li>
                     {{end}}
                   </ul>
                 </li>
               {{end}}
-              <li>Publication: <a href="https://doi.org/{{score.meta.publication.doi}}" target="_blank">{{score.meta.publication.firstauthor}} et.al, {{score.meta.publication.journal}} ({{score.meta.publication.date_publication}})</a></li>
-            {{end}}
-            {{if (score.name.startsWith("PGS"))}}
-              <li>View in <a href="https://www.pgscatalog.org/score/{{score.name}}" target="_blank">PGS-Catalog</a></li>
-            {{end}}
-            {{if (score.name.startsWith("PRSWEB_"))}}
-              <li>View in <a href="https://prsweb.sph.umich.edu:8443/displayData/showGraphSep?prswebprefix={{score.name}}" target="_blank">PRSWeb</a></li>
+              {{if score.meta.publication != null}}
+              <li>Publication: <a href="https://doi.org/{{score.meta.publication.doi}}" target="_blank">{{score.meta.publication.firstauthor}} et.al, {{score.meta.publication.journal}} ({{score.meta.publication.date}})</a></li>
+              {{end}}
+              {{if score.meta.link != null}}
+                <li>View in <a href="{{score.meta.link}}" target="_blank">{{score.meta.repository}}</a></li>
+              {{end}}
             {{end}}
           </ul>
           <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
