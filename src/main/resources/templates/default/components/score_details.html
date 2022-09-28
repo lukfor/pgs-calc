@@ -16,7 +16,7 @@
           {{if population_check }}
           <ul>
           {{for pop in populations.getPopulations()}}
-          	<li>{{pop.name}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+          	<li>{{pop.label}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
           {{end}}
           </ul>
           {{else}}
