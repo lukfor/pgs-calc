@@ -272,7 +272,7 @@ public class RiskScoreSummary {
 			// TODO: support names with ,... split...
 			// TODO: detected instead of excluded?
 			if (!meta.getPopulations().supports(pop)) {
-				populationCheckMessage += "Excluded <b>" + pop.getCount() + " sample(s)</b> (" + pop.getName()
+				populationCheckMessage += "Excluded <b>" + pop.getCount() + " sample(s)</b> (" + pop.getLabel()
 						+ ") due to ancestry mismatch.<br>";
 				populationCheckStatus = false;
 				excludedSamples.addAll(file.getSamples(pop));
@@ -401,6 +401,12 @@ public class RiskScoreSummary {
 		double percentage = (obtained / total) * 100;
 		DecimalFormat df = new DecimalFormat("###.##'%'");
 		return df.format(percentage);
+	}
+
+	public void updateColorAndLabel() {
+		if (meta != null && meta.getPopulations() != null) {
+			meta.getPopulations().updateColorAndLabel();
+		}
 	}
 
 }

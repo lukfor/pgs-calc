@@ -210,7 +210,7 @@ function showPopulation(){
   {{if (population_check)}}
 	var data = [{
 	  values: {{json(array(populations.getPopulations()).extract("count"))}},
-	  labels: {{json(array(populations.getPopulations()).extract("name"))}},
+	  labels: {{json(array(populations.getPopulations()).extract("label"))}},
     marker: {
       colors: {{json(array(populations.getPopulations()).extract("color"))}}
     },

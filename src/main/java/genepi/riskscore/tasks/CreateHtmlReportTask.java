@@ -130,6 +130,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 				}
 			}
 			this.report.getSummaries().get(i).updateStatistics();
+			this.report.getSummaries().get(i).updateColorAndLabel();
 		}
 
 		// sort summaries by pgs name

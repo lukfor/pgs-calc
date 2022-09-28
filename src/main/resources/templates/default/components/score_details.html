@@ -48,7 +48,7 @@
               <li>Mapped Trait(s):
                 <ul>
                   {{for efo in score.meta.efo}}
-                  <li><a href="{{efo.url}}" target ="_blank">{{efo.id}}</a>: {{efo.label}}<br><small>{{efo.description}}</small></li>
+                  <li><a href="{{efo.url}}" target ="_blank">{{efo.id}}</a>: {{efo.label}}</li>
                   {{end}}
                 </ul>
               </li>
@@ -61,7 +61,7 @@
                 <li>Population:
                   <ul>
                     {{for pop in score.meta.getPopulations().getPopulations()}}
-                      <li>{{pop.name}}: {{percentage(pop.percentage)}}</li>
+                      <li>{{pop.label}}: {{percentage(pop.percentage)}}</li>
                     {{end}}
                   </ul>
                 </li>

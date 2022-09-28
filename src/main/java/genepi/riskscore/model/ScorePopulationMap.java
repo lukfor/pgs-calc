@@ -47,4 +47,10 @@ public class ScorePopulationMap {
 		return items.containsKey(population.getName());
 	}
 
+	public void updateColorAndLabel() {
+		for (Population item: items.values()) {
+			item.updateColorAndLabel();
+		}
+	}
+	
 }
