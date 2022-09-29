@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 
 import genepi.io.FileUtil;
 import genepi.riskscore.App;
-import genepi.riskscore.io.MetaFile;
+import genepi.riskscore.io.PGSCatalogMetaFile;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -28,14 +28,14 @@ public class DownloadMetaCommand implements Callable<Integer> {
 
 		String chunkFilename = "pgs_catalog_chunk.json";
 
-		MetaFile file = null;
+		PGSCatalogMetaFile file = null;
 		while (next != null) {
 
 			System.out.println("Download " + next);
 			InputStream in = new URL(next).openStream();
 			Files.copy(in, Paths.get(chunkFilename), StandardCopyOption.REPLACE_EXISTING);
 
-			MetaFile file1 = MetaFile.load(chunkFilename);
+			PGSCatalogMetaFile file1 = PGSCatalogMetaFile.load(chunkFilename);
 			if (file == null) {
 				file = file1;
 			} else {

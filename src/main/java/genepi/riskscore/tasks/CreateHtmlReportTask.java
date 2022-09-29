@@ -7,6 +7,7 @@ import java.util.Date;
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
@@ -25,6 +26,8 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 	private ReportFile report;
 
 	private OutputFile data;
+
+	private SamplesFile samples;
 
 	private boolean showCommand = true;
 
@@ -52,6 +55,10 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	public void setData(OutputFile data) {
 		this.data = data;
+	}
+
+	public void setSamples(SamplesFile samples) {
+		this.samples = samples;
 	}
 
 	public void setShowCommand(boolean showCommand) {
@@ -123,6 +130,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 				}
 			}
 			this.report.getSummaries().get(i).updateStatistics();
+			this.report.getSummaries().get(i).updateColorAndLabel();
 		}
 
 		// sort summaries by pgs name
@@ -134,6 +142,20 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		});
 
 		report.set("scores", this.report.getSummaries());
+		if (samples != null && data != null) {
+			report.set("population_check", true);
+			report.set("populations", samples.getPopulations());
+			for (RiskScoreSummary score : this.report.getSummaries()) {
+				score.checkPopulation(data.getSamples(), samples);
+			}
+		} else {
+			for (RiskScoreSummary score : this.report.getSummaries()) {
+				score.setPopulationCheckStatus(true);
+			}
+
+			report.set("population_check", false);
+			report.set("populations", null);
+		}
 
 		report.setSelfContained(true);
 		report.generate(new File(output));

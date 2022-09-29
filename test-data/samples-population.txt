@@ -1,0 +1,3 @@
+sample	population
+LF001	EUR
+LF002	SAS

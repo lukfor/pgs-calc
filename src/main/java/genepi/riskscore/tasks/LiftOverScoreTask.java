@@ -7,6 +7,7 @@ import java.util.Map;
 import genepi.io.table.reader.CsvTableReader;
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.formats.PGSCatalogFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import htsjdk.samtools.liftover.LiftOver;
 import htsjdk.samtools.util.Interval;
 import lukfor.progress.tasks.ITaskRunnable;
@@ -38,7 +39,7 @@ public class LiftOverScoreTask implements ITaskRunnable {
 		ALLELE_SWITCHES.put('G', 'C');
 		ALLELE_SWITCHES.put('C', 'G');
 	}
-	
+
 	public LiftOverScoreTask(String input, String output, String chainFile) {
 		this.input = input;
 		this.output = output;
@@ -48,7 +49,10 @@ public class LiftOverScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		PGSCatalogFormat format = new PGSCatalogFormat(input, false);
+		RiskScoreFormatImpl format = new PGSCatalogFormat(input, false);
+		if (new File(input + ".format").exists()) {
+			format = RiskScoreFormatImpl.load(input + ".format");
+		}
 
 		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
 		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
@@ -120,8 +124,6 @@ public class LiftOverScoreTask implements ITaskRunnable {
 					int start = originalPosition;
 					int stop = originalPosition + length - 1;
 
-					
-					
 					Interval source = new Interval(contig, start, stop, false, id);
 
 					Interval target = liftOver.liftOver(source);

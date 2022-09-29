@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,69 +13,140 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import genepi.io.text.LineWriter;
+import genepi.riskscore.model.ScorePopulationMap;
 
 public class MetaFile {
 
-	protected Map<String, Object> index;
-
-	protected List list;
-
-	protected String next;
+	protected Map<String, MetaScore> index;
 
 	private MetaFile() {
 
 	}
 
 	public static MetaFile load(String filename) throws JsonIOException, JsonSyntaxException, FileNotFoundException {
-		MetaFile file = new MetaFile();
-		// file.data
+
 		Gson gson = new Gson();
-		Type type = new TypeToken<List<Map>>() {
+		Type type = new TypeToken<Map<String, MetaScore>>() {
 		}.getType();
-		Object data = gson.fromJson(new FileReader(filename), Object.class);
 
-		Object results = ((AbstractMap<String, Object>) data).get("results");
-		if (((AbstractMap<String, Object>) data).get("next") != null) {
-			file.next = ((AbstractMap<String, Object>) data).get("next").toString();
-		} else {
-			file.next = null;
-		}
-		file.list = (List) results;
-
-		file.index = new HashMap<String, Object>();
-		for (Object score : file.list) {
-			Object id = ((AbstractMap<String, Object>) score).get("id");
-			file.index.put(id.toString(), score);
-		}
-		return file;
+		MetaFile metaFile = new MetaFile();
+		metaFile.index = gson.fromJson(new FileReader(filename), type);
+		return metaFile;
 	}
 
-	public Object getDataById(String id) {
+	public MetaScore getById(String id) {
 		return index.get(id);
-	}
-
-	public void merge(MetaFile metaFile) {
-		list.addAll(metaFile.list);
-	}
-
-	public int getScores() {
-		return list.size();
-	}
-
-	public String getNext() {
-		return next;
 	}
 
 	public void save(String filename) throws IOException {
 		Gson gson = new Gson();
-		Type type = new TypeToken<List<Map>>() {
-		}.getType();
-		Map<String, Object> o = new HashMap<>();
-		o.put("results", list);
-		String json = gson.toJson(o);
+		String json = gson.toJson(index);
 		LineWriter writer = new LineWriter(filename);
 		writer.write(json);
 		writer.close();
+	}
+
+	public static class MetaScore {
+
+		private String id;
+
+		private String trait;
+
+		private List<Map<String, String>> efo;
+
+		private String traitAdditional;
+
+		private ScorePopulationMap populations;
+
+		private Map<String, String> publication;
+
+		private int variants;
+
+		private String repository;
+
+		private String link;
+
+		private int samples;
+
+		public String getId() {
+			return id;
+		}
+
+		public void setId(String id) {
+			this.id = id;
+		}
+
+		public String getTrait() {
+			return trait;
+		}
+
+		public void setTrait(String trait) {
+			this.trait = trait;
+		}
+
+		public String getTraitAdditional() {
+			return traitAdditional;
+		}
+
+		public void setTraitAdditional(String traitAdditional) {
+			this.traitAdditional = traitAdditional;
+		}
+
+		public List<Map<String, String>> getEfo() {
+			return efo;
+		}
+
+		public void setEfo(List<Map<String, String>> efo) {
+			this.efo = efo;
+		}
+
+		public ScorePopulationMap getPopulations() {
+			return populations;
+		}
+
+		public void setPopulations(ScorePopulationMap populations) {
+			this.populations = populations;
+		}
+
+		public Map<String, String> getPublication() {
+			return publication;
+		}
+
+		public void setPublication(Map<String, String> publication) {
+			this.publication = publication;
+		}
+
+		public int getVariants() {
+			return variants;
+		}
+
+		public void setVariants(int variants) {
+			this.variants = variants;
+		}
+
+		public String getRepository() {
+			return repository;
+		}
+
+		public void setRepository(String repository) {
+			this.repository = repository;
+		}
+
+		public String getLink() {
+			return link;
+		}
+
+		public void setLink(String link) {
+			this.link = link;
+		}
+
+		public int getSamples() {
+			return samples;
+		}
+
+		public void setSamples(int samples) {
+			this.samples = samples;
+		}
 
 	}
 

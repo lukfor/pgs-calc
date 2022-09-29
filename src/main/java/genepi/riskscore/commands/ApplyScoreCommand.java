@@ -14,6 +14,7 @@ import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.PGSCatalogIDFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.io.ScoresFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.RiskScoreSummary;
@@ -90,7 +91,6 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--proxies" }, description = "Proxy Index file", required = false)
 	String proxies = null;
 
-	
 	@Option(names = {
 			"--fix-strand-flips" }, description = "Fix strand flips when possible", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean fixStrandFlips = false;
@@ -189,8 +189,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			if (dbsnp != null) {
 				task.setDbSnp(dbsnp);
 			}
-			task.setProxies(proxies);			
-			
+			task.setProxies(proxies);
+
 			task.setVcfFilename(vcf);
 			task.setMinR2(minR2);
 			task.setGenotypeFormat(genotypeFormat);
@@ -270,6 +270,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
 			htmlReportTask.setData(data);
+			if (includeSamplesFilename != null) {
+				SamplesFile samplesFile = new SamplesFile(includeSamplesFilename);
+				samplesFile.buildIndex();
+				htmlReportTask.setSamples(samplesFile);
+			}
 			htmlReportTask.setOutput(reportHtml);
 			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {
 				cleanUp();
@@ -289,6 +294,11 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			CreateHtmlReportTask htmlReportTask = new CreateHtmlReportTask();
 			htmlReportTask.setReport(report);
 			htmlReportTask.setData(data);
+			if (includeSamplesFilename != null) {
+				SamplesFile samplesFile = new SamplesFile(includeSamplesFilename);
+				samplesFile.buildIndex();
+				htmlReportTask.setSamples(samplesFile);
+			}
 			htmlReportTask.setTemplate("txt");
 			htmlReportTask.setOutput(reportCsv);
 			if (isFailed(TaskService.monitor(App.STYLE_SHORT_TASK).run(htmlReportTask))) {
@@ -297,9 +307,8 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 		}
 
-		
 		if (verbose) {
-			for (RiskScoreSummary summary: report.getSummaries()) {
+			for (RiskScoreSummary summary : report.getSummaries()) {
 
 				System.out.println();
 				System.out.println(summary);
@@ -307,7 +316,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 				System.out.println();
 			}
 		}
-		
+
 		System.out.println();
 		System.out.println("Execution Time: " + formatTime(watch.getElapsedTimeSecs()));
 		System.out.println();

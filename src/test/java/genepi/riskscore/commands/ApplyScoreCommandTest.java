@@ -70,6 +70,24 @@ public class ApplyScoreCommandTest {
 		assertEquals(EXPECTED_SAMPLES, samples);
 		reader.close();
 	}
+	
+	@Test
+	public void testCallWithPRSwebFormat() {
+
+		String[] args = { "test-data/chr20.dose.vcf.gz", "--ref", "test-data/PRSWEB_PHECODE153_CRC-Huyghe_PT_UKB_20200608_WEIGHTS.txt", "--out", "test-data-output/output.csv" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		int samples = 0;
+		ITableReader reader = new CsvTableReader("test-data-output/output.csv", ',');
+		while (reader.next()) {
+			samples++;
+
+		}
+		assertEquals(2, reader.getColumns().length);
+		assertEquals(EXPECTED_SAMPLES, samples);
+		reader.close();
+	}
 
 	@Test
 	public void testCallWithMultiplePGSIDs() {
@@ -200,7 +218,7 @@ public class ApplyScoreCommandTest {
 	public void testCallMultipleFilesAndCheckOutputFile() throws IOException {
 
 		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/test.scores.csv",
-				"--out", "test-data-output/output.csv" };
+				"--out", "test-data-output/output.csv","--report-html","test.html" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
@@ -271,6 +289,21 @@ public class ApplyScoreCommandTest {
 		assertEquals("LF002", sample);
 		assertEquals(-(3 + 7), score, 0.0000001);
 
+		assertEquals(false, reader.next());
+		reader.close();
+	}
+	
+	@Test
+	public void testCallSamplePopulation() throws IOException {
+
+		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/PGS000018.txt.gz,test-data/PGS000781.txt.gz,test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz",
+				"--out", "test-data-output/output.csv", "--samples", "test-data/samples-population.txt", "--report-html", "population.html","--meta", "test-data/pgs-catalog-small.json" };
+		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
+		assertEquals(0, result);
+
+		ITableReader reader = new CsvTableReader("test-data-output/output.csv", ',');
+		assertEquals(true, reader.next());
+		assertEquals(true, reader.next());
 		assertEquals(false, reader.next());
 		reader.close();
 	}
@@ -375,5 +408,5 @@ public class ApplyScoreCommandTest {
 		assertEquals(0, result);
 
 	}
-
+	
 }

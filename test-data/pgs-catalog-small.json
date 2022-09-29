@@ -1,323 +1,70 @@
 {
-  "count": 211,
-  "next": null,
-  "previous": null,
-  "results": [{
+  "PGS000027": {
     "id": "PGS000027",
-    "name": "GPS_BMI",
-    "ftp_scoring_file": "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000027/ScoringFiles/PGS000027.txt.gz",
-    "publication": {
-      "id": "PGP000017",
-      "title": "Polygenic Prediction of Weight and Obesity Trajectories from Birth to Adulthood.",
-      "doi": "10.1016/j.cell.2019.03.028",
-      "PMID": 31002795,
-      "journal": "Cell",
-      "firstauthor": "Khera AV",
-      "date_publication": "2019-04-01"
+    "trait": "Body Mass Index",
+    "populations": {
+      "items": {
+        "EUR": {
+          "name": "EUR",
+          "count": -1,
+          "percentage": 0.991,
+          "color": "#B5B5B5"
+        },
+        "AMR": {
+          "name": "AMR",
+          "count": -1,
+          "percentage": 0.005,
+          "color": "#B5B5B5"
+        },
+        "AFR": {
+          "name": "AFR",
+          "count": -1,
+          "percentage": 0.004,
+          "color": "#B5B5B5"
+        }
+      },
+      "total": 238944
     },
-    "matches_publication": true,
-    "samples_variants": [{
-      "sample_number": 1276,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "Hispanic or Latin American",
-      "ancestry_free": "NR",
-      "ancestry_country": "NR",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002783",
-      "source_PMID": "25673413",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 236781,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "NR",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002783",
-      "source_PMID": "25673413",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 887,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "African American or Afro-Caribbean",
-      "ancestry_free": "NR",
-      "ancestry_country": "U.S.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002783",
-      "source_PMID": "25673413",
-      "cohorts": [],
-      "cohorts_additional": null
-    }],
-    "samples_training": [{
-      "sample_number": 119951,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": null,
-      "ancestry_country": null,
-      "ancestry_additional": null,
-      "source_GWAS_catalog": null,
-      "source_PMID": null,
-      "cohorts": [{
-        "name_short": "UKB",
-        "name_full": "UK Biobank "
-      }],
-      "cohorts_additional": "UKB Phase 1"
-    }],
-    "trait_reported": "Body Mass Index",
-    "trait_additional": null,
-    "trait_efo": [{
-      "id": "EFO_0004340",
-      "label": "body mass index",
-      "description": "['An indicator of body density as determined by the relationship of BODY WEIGHT\\xa0to\\xa0BODY HEIGHT. BMI=weight (kg)/height squared (m2). BMI correlates with body fat (ADIPOSE TISSUE). Their relationship varies with age and gender. For adults, BMI falls into these categories: below 18.5 (underweight); 18.5-24.9 (normal); 25.0-29.9 (overweight); 30.0 and above (obese). (National Center for Health Statistics, Centers for Disease Control and Prevention)']",
-      "url": "http://www.ebi.ac.uk/efo/EFO_0004340"
-    }],
-    "method_name": "LDpred",
-    "method_params": "ρ = 0.03; LD reference panel = 503 European samples from 1000 Genomes phase 3",
-    "variants_number": 2100302,
-    "variants_interactions": 0,
-    "variants_genomebuild": "hg19"
-  }, {
+    "variants": 2100302,
+    "repository": "PGS-Catalog",
+    "samples": 238944,
+    "link": "https://www.pgscatalog.org/score/PGS000027"
+  },
+  "PGS000028": {
     "id": "PGS000028",
-    "name": "PRS",
-    "ftp_scoring_file": "http://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores/PGS000028/ScoringFiles/PGS000028.txt.gz",
-    "publication": {
-      "id": "PGP000018",
-      "title": "Breast cancer risk prediction using a clinical risk model and polygenic risk score.",
-      "doi": "10.1007/s10549-016-3953-2",
-      "PMID": 27565998,
-      "journal": "Breast Cancer Res Treat",
-      "firstauthor": "Shieh Y",
-      "date_publication": "2016-08-26"
+    "trait": "Breast cancer",
+    "populations": {
+      "items": {
+        "EUR": {
+          "name": "EUR",
+          "count": -1,
+          "percentage": 0.807,
+          "color": "#B5B5B5"
+        },
+        "AMR": {
+          "name": "AMR",
+          "count": -1,
+          "percentage": 0.033,
+          "color": "#B5B5B5"
+        },
+        "EAS": {
+          "name": "EAS",
+          "count": -1,
+          "percentage": 0.134,
+          "color": "#B5B5B5"
+        },
+        "AFR": {
+          "name": "AFR",
+          "count": -1,
+          "percentage": 0.025999999,
+          "color": "#B5B5B5"
+        }
+      },
+      "total": 144871
     },
-    "matches_publication": true,
-    "samples_variants": [{
-      "sample_number": 5242,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "East Asian",
-      "ancestry_free": "NR",
-      "ancestry_country": "China",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST001420",
-      "source_PMID": "22383897",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 4928,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "Finland, U.S., Australia, Germany, U.K.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002305",
-      "source_PMID": "24325915",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 2727,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "Sweden, U.S., Poland, Australia, Italy, Netherlands, Canada, Germany, U.K., Spain, France",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST001916",
-      "source_PMID": "23544013",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 9450,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "East Asian",
-      "ancestry_free": "NR",
-      "ancestry_country": "Republic of Korea, China",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002537",
-      "source_PMID": "25038754",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 8556,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "U.K.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST000678",
-      "source_PMID": "20453838",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 39387,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "Finland, Sweden, U.S., Poland, Australia, Germany, U.K.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST001930",
-      "source_PMID": "23535733",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 4741,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "East Asian",
-      "ancestry_free": "NR",
-      "ancestry_country": "Japan",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002234",
-      "source_PMID": "2414319",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 3748,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "African American or Afro-Caribbean",
-      "ancestry_free": "NR",
-      "ancestry_country": "U.S.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST001683",
-      "source_PMID": "22976474",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 32530,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "Finland, Sweden, U.S., Poland, Australia, Italy, Netherlands, Greece, Germany, U.K., Spain, France, Norway, Denmark",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST001683",
-      "source_PMID": "22976474",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 22627,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "Finland, Sweden, U.S., Australia, Netherlands, Germany, U.K.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST001937",
-      "source_PMID": "23535729",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 4710,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "Hispanic or Latin American",
-      "ancestry_free": "NR",
-      "ancestry_country": "U.S.",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002662",
-      "source_PMID": "25327703",
-      "cohorts": [],
-      "cohorts_additional": null
-    }, {
-      "sample_number": 6225,
-      "sample_cases": null,
-      "sample_controls": null,
-      "sample_percent_male": null,
-      "sample_age": null,
-      "phenotyping_free": null,
-      "followup_time": null,
-      "ancestry_broad": "European",
-      "ancestry_free": "NR",
-      "ancestry_country": "U.S., Australia, Canada, Germany",
-      "ancestry_additional": null,
-      "source_GWAS_catalog": "GCST002346",
-      "source_PMID": "2449363",
-      "cohorts": [],
-      "cohorts_additional": null
-    }],
-    "samples_training": [],
-    "trait_reported": "Breast cancer",
-    "trait_additional": null,
-    "trait_efo": [{
-      "id": "EFO_0000305",
-      "label": "breast carcinoma",
-      "description": "A carcinoma that arises from epithelial cells of the breast [MONDO: DesignPattern]",
-      "url": "http://www.ebi.ac.uk/efo/EFO_0000305"
-    }],
-    "method_name": "composite likelihood ratio",
-    "method_params": "SNPs with p<5x10-8 in studies of invasive breast cancer in Caucasian, Asian, or Hispanic populations, or proxy SNP on  Illumina Oncoarray in strong LD (r2>0.9)",
-    "variants_number": 83,
-    "variants_interactions": 0,
-    "variants_genomebuild": "hg38"
-  }]
+    "variants": 83,
+    "repository": "PGS-Catalog",
+    "samples": 144871,
+    "link": "https://www.pgscatalog.org/score/PGS000028"
+  }
 }

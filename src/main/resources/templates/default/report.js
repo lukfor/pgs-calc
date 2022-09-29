@@ -1,11 +1,11 @@
-function createPlot(selectedData, highlightedSamples) {
-
+function createPlot(selectedData, highlightedSamples, excludedData) {
+console.log(selectedData);
   //histogram of score
   var plotData = [];
   plotData.push({
     x: selectedData,
     type: 'histogram',
-    name: 'Distribution Score',
+    name: 'Included Samples',
     orientation: 'v',
     marker: {
       color: '#007bff',
@@ -15,6 +15,23 @@ function createPlot(selectedData, highlightedSamples) {
       }
     }
   });
+
+  if (excludedData && excludedData.length > 0) {
+
+    plotData.push({
+      x: excludedData,
+      type: 'histogram',
+      name: 'Excluded Samples',
+      orientation: 'v',
+      marker: {
+        color: '#cccccc',
+        line: {
+          color: 'white',
+          width: 1
+        }
+      }
+    });
+  }
 
   //scatter plot of selected samples
   if (highlightedSamples && highlightedSamples.length > 0) {
@@ -45,7 +62,7 @@ function createPlot(selectedData, highlightedSamples) {
 
 function createPlotLayout() {
   return {
-    showlegend: false,
+    showlegend: true,
     dragmode: 'select',
     hovermode: 'x',
     margin: {
@@ -61,7 +78,8 @@ function createPlotLayout() {
     yaxis: {
       title: 'Count'
     },
-    bargap: 0
+    bargap: 0,
+    barmode: "stack"
   };
 };
 
@@ -146,6 +164,7 @@ function updateHighlightSample() {
 function updateScore(e) {
   var score = $(this).data('score');
   selectedData = data[score];
+  selectedExcluded = excluded[score];
   if (selectedData) {
     $('#row-plots').show();
     //clear table
@@ -165,7 +184,7 @@ function filterScores(e) {
   var filter = input.toUpperCase()
   $('.list-group .list-group-item').each(function() {
     var anchor = $(this)
-    if (anchor.data('meta').toUpperCase().indexOf(filter) > -1) {
+    if (anchor.data('meta') == undefined || anchor.data('meta').toUpperCase().indexOf(filter) > -1) {
       anchor.removeClass('d-none')
     } else {
       anchor.addClass('d-none');
@@ -174,7 +193,7 @@ function filterScores(e) {
 }
 
 function updatePlots() {
-  var plotData = createPlot(selectedData, highlightedSamples);
+  var plotData = createPlot(selectedData, highlightedSamples, selectedExcluded);
   var layout = createPlotLayout();
   Plotly.react('plot', plotData, layout, {
     displayModeBar: false
@@ -184,6 +203,26 @@ function updatePlots() {
 function showCommand() {
   {{if (show_command)}}
   bootbox.alert('<pre>pgs-calc {{application_args}}</pre>');
+  {{end}}
+}
+
+function showPopulation(){
+  {{if (population_check)}}
+	var data = [{
+	  values: {{json(array(populations.getPopulations()).extract("count"))}},
+	  labels: {{json(array(populations.getPopulations()).extract("label"))}},
+    marker: {
+      colors: {{json(array(populations.getPopulations()).extract("color"))}}
+    },
+	  type: 'pie'
+	}];
+
+	var layout = {
+	  height: 400,
+	  width: 500
+	};
+
+	Plotly.newPlot('population-plot', data, layout);
   {{end}}
 }
 
@@ -212,8 +251,7 @@ $(document).ready(function() {
 
     var myPlot = document.getElementById('plot');
     var hoverInfo = myPlot.on('plotly_selected', updateSelection);
-  } else {
-    $('#row-plots').hide();
   }
-
+  showPopulation();
+  $('#row-plots').hide();
 });

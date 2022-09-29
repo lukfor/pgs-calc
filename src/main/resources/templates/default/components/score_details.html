@@ -2,29 +2,88 @@
 
   <div class="container-fluid">
     <div class="tab-content">
+
+        <div class="tab-pane active" id="samples" role="tabpanel">
+          <h3 class="mt-4">Samples</h3>
+          <hr>
+          <h5>General</h5>
+          <ul>
+          {{if (show_samples)}}
+            <li>Samples: {{decimal(samples.size())}}</li>
+          {{end}}
+          </ul>
+          <h5>Populations</h5>
+          {{if population_check }}
+          <ul>
+          {{for pop in populations.getPopulations()}}
+          	<li>{{pop.label}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+          {{end}}
+          </ul>
+          {{else}}
+          <i>no ancestry information available</i>
+          {{end}}
+
+          <div id="population-plot"></div>
+        </div>
+
+
       {{for index,score in scores}}
-        <div class="tab-pane {{index == 0 ? "active" : ""}}" id="score{{index}}" role="tabpanel">
+        <div class="tab-pane {{index == 0 ? "" : ""}}" id="score{{index}}" role="tabpanel">
           <h3 class="mt-4">{{score.name}}</h3>
           <hr>
+          {{if score.populationCheckStatus == false}}
+          	<div class="alert alert-warning">
+          	  {{score.populationCheckMessage}}
+          	</div>
+          {{end}}
           <h5>Reference score</h5>
           <ul class="text-small">
             <li>Variants: {{decimal(score.variants)}}</li>
             <li>Variants ignored: {{decimal(score.variantsIgnored)}}</li>
             {{if score.meta != null}}
-              <li>Trait: {{score.meta.trait_reported}}</li>
-              {{if score.meta.trait_additional != null}}
-                <li>Additional Trait: {{score.meta.trait_additional}}</li>
+              <li>
+                Trait: {{score.meta.trait}}
+              </li>
+              {{if score.meta.efo != null}}
+              <li>Mapped Trait(s):
+                <ul>
+                  {{for efo in score.meta.efo}}
+                  <li><a href="{{efo.url}}" target ="_blank">{{efo.id}}</a>: {{efo.label}}</li>
+                  {{end}}
+                </ul>
+              </li>
               {{end}}
-              <li>Publication: <a href="https://doi.org/{{score.meta.publication.doi}}" target="_blank">{{score.meta.publication.firstauthor}} et.al, {{score.meta.publication.journal}} ({{score.meta.publication.date_publication}})</a></li>
+              {{if score.meta.traitAdditional != null}}
+                <li>Additional Trait: {{score.meta.traitAdditional}}</li>
+              {{end}}
+              {{if score.meta.getPopulations() != null}}
+                <li>Samples: {{decimal(score.meta.getPopulations().getTotal())}}</li>
+                <li>Population:
+                  <ul>
+                    {{for pop in score.meta.getPopulations().getPopulations()}}
+                      <li>{{pop.label}}: {{percentage(pop.percentage)}}</li>
+                    {{end}}
+                  </ul>
+                </li>
+              {{end}}
+              {{if score.meta.publication != null}}
+              <li>Publication: <a href="https://doi.org/{{score.meta.publication.doi}}" target="_blank">{{score.meta.publication.firstauthor}} et.al, {{score.meta.publication.journal}} ({{score.meta.publication.date}})</a></li>
+              {{end}}
+              {{if score.meta.link != null}}
+                <li>View in <a href="{{score.meta.link}}" target="_blank">{{score.meta.repository}}</a></li>
+              {{end}}
             {{end}}
-            <li>View in <a href="https://www.pgscatalog.org/score/{{score.name}}" target="_blank">PGS-Catalog</a></li>
           </ul>
           <!--<small class="text-muted pull-right">All meta obtained from <a href="https://www.pgscatalog.org">PGS-Catalog</a></small>-->
           <h5>Target study</h5>
           <ul>
             <li>Coverage: {{decimal(score.variantsUsed)}} ({{percentage(score.coverage)}}) <span class="badge badge-{{score.coverageLabel}}">{{score.coverageLabel}}</span> </li>
             {{if (show_samples)}}
-            <li>Samples: {{decimal(samples.size())}}</li>
+	            {{if score.data != null && score.populationCheckStatus}}
+	            	<li>Samples: {{decimal(score.samples)}} / {{decimal(samples.size())}} ({{percentage(score.samplesPercentage)}})</li>
+	            {{else}}
+	            	<li>Samples: {{decimal(samples.size())}}</li>
+            {{end}}
             {{end}}
           </ul>
         </div>

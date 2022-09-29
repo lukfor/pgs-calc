@@ -12,6 +12,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
+import genepi.riskscore.io.MetaFile.MetaScore;
+import genepi.riskscore.model.PopulationMap;
 import genepi.riskscore.model.RiskScoreSummary;
 
 public class ReportFile {
@@ -74,7 +76,7 @@ public class ReportFile {
 
 	public void mergeWithMeta(MetaFile meta) {
 		for (RiskScoreSummary summary : summaries) {
-			Object data = meta.getDataById(summary.getName());
+			MetaScore data = meta.getById(summary.getName());
 			if (data != null) {
 				summary.setMeta(data);
 			}
