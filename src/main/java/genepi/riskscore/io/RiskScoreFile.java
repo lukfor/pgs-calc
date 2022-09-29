@@ -43,7 +43,7 @@ public class RiskScoreFile {
 	public static boolean VERBOSE = false;
 
 	public RiskScoreFile(String filename, String dbsnp, String proxyFile) throws Exception {
-		this(filename, RiskScoreFormat.PGS_CATALOG, dbsnp, proxyFile);
+		this(filename, RiskScoreFormat.AUTO_DETECT, dbsnp, proxyFile);
 	}
 
 	public RiskScoreFile(String filename, RiskScoreFormat format, String dbsnp, String proxies) throws Exception {

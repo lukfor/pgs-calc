@@ -49,7 +49,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String outputReportFilename = null;
 
-	private RiskScoreFormat defaultFormat = RiskScoreFormat.PGS_CATALOG;
+	private RiskScoreFormat defaultFormat = RiskScoreFormat.AUTO_DETECT;
 
 	private Map<String, RiskScoreFormat> formats = new HashMap<String, RiskScoreFormat>();
 
