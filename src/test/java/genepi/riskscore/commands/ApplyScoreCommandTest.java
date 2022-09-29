@@ -297,7 +297,7 @@ public class ApplyScoreCommandTest {
 	public void testCallSamplePopulation() throws IOException {
 
 		String[] args = { "test-data/test.chr1.vcf", "test-data/test.chr2.vcf", "--ref", "test-data/PGS000018.txt.gz,test-data/PGS000781.txt.gz,test-data/PGS000957.txt.gz,test-data/PGS000958.txt.gz",
-				"--out", "test-data-output/output.csv", "--samples", "test-data/samples-population.txt", "--report-html", "population.html","--meta", "pgs-catalog.json" };
+				"--out", "test-data-output/output.csv", "--samples", "test-data/samples-population.txt", "--report-html", "population.html","--meta", "test-data/pgs-catalog-small.json" };
 		int result = new CommandLine(new ApplyScoreCommand()).execute(args);
 		assertEquals(0, result);
 
