@@ -4,9 +4,10 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import genepi.io.table.reader.CsvTableReader;
-import genepi.io.table.writer.CsvTableWriter;
-import genepi.riskscore.io.formats.PGSCatalogFormat;
+import genepi.riskscore.io.csv.CsvWithHeaderTableReader;
+import genepi.riskscore.io.csv.CsvWithHeaderTableWriter;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import htsjdk.samtools.liftover.LiftOver;
 import htsjdk.samtools.util.Interval;
@@ -49,13 +50,14 @@ public class LiftOverScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		RiskScoreFormatImpl format = new PGSCatalogFormat(input, false);
+		RiskScoreFormatImpl format = RiskScoreFormatFactory.buildFormat(input, RiskScoreFormat.AUTO_DETECT);
 		if (new File(input + ".format").exists()) {
 			format = RiskScoreFormatImpl.load(input + ".format");
 		}
 
-		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
-		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
+		CsvWithHeaderTableReader reader = new CsvWithHeaderTableReader(input, format.getSeparator());
+		CsvWithHeaderTableWriter writer = new CsvWithHeaderTableWriter(output, format.getSeparator(), reader.getHeader());
+
 
 		LiftOver liftOver = new LiftOver(new File(chainFile));
 

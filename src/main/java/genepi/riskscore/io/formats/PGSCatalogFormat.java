@@ -59,7 +59,7 @@ public class PGSCatalogFormat extends RiskScoreFormatImpl {
 
 	protected PGSCatalogVariantsFormat detectVersionAndFormat(String filename, boolean forceRsId) throws IOException {
 		DataInputStream in = openTxtOrGzipStream(filename);
-		ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
+		ITableReader reader = new CsvTableReader(in, getSeparator());
 		PGSCatalogVariantsFormat format = detectVersionAndFormat(reader, forceRsId);
 		reader.close();
 		return format;

@@ -9,17 +9,17 @@ import com.google.gson.JsonSyntaxException;
 
 public class RiskScoreFormatImpl {
 
-	public static final char SEPARATOR = '\t';
+	private static final char SEPARATOR = '\t';
 
-	public static final String CHROMOSOME = "chr";
+	private static final String CHROMOSOME = "chr";
+	
+	private static final String POSITION = "position_hg19";
 
-	public static final String POSITION = "position_hg19";
+	private static final String EFFECT_WEIGHT = "effect_weight";
 
-	public static final String EFFECT_WEIGHT = "effect_weight";
+	private static final String OTHER_ALLELE = "A2";
 
-	public static final String OTHER_ALLELE = "A2";
-
-	public static final String EFFECT_ALLELE = "effect_allele";
+	private static final String EFFECT_ALLELE = "effect_allele";
 
 	private String chromosome = CHROMOSOME;
 
@@ -30,6 +30,8 @@ public class RiskScoreFormatImpl {
 	private String otherAllele = OTHER_ALLELE;
 
 	private String effectAllele = EFFECT_ALLELE;
+	
+	private char separator = SEPARATOR;
 
 	public String getChromosome() {
 		return chromosome;
@@ -71,6 +73,14 @@ public class RiskScoreFormatImpl {
 		return effectAllele;
 	}
 
+	public void setSeparator(char separator) {
+		this.separator = separator;
+	}
+	
+	public char getSeparator() {
+		return separator;
+	}
+	
 	public static RiskScoreFormatImpl load(String filename)
 			throws JsonSyntaxException, JsonIOException, FileNotFoundException {
 

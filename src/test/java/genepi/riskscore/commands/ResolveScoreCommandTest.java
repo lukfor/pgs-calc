@@ -102,4 +102,14 @@ public class ResolveScoreCommandTest {
 		assertEquals(11276, variants);
 		reader.close();
 	}
+	
+	@Test
+	public void testResolvePRSWeb() {
+		String[] args = { "--in", "test-data/PRSWEB_PHECODE153_CRC-Huyghe_PT_UKB_20200608_WEIGHTS.txt", "--out", "test-data-output/PRSWEB_PHECODE153_CRC-Huyghe_PT_UKB_20200608_WEIGHTS.hg38.txt", "--dbsnp",
+				DBSNP_INDEX, "--chain", "test-data/chains/hg19ToHg38.over.chain.gz" };
+		int result = new CommandLine(new ResolveScoreCommand()).execute(args);
+		assertEquals(0, result);
+	}
+	
+	
 }

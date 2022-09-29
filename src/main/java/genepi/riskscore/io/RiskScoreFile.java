@@ -85,7 +85,7 @@ public class RiskScoreFile {
 		this.proxies = proxies;
 
 		DataInputStream in = openTxtOrGzipStream(this.filename);
-		ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
+		ITableReader reader = new CsvTableReader(in, this.format.getSeparator());
 		checkFileFormat(reader, this.filename);
 		reader.close();
 
@@ -126,7 +126,7 @@ public class RiskScoreFile {
 		try {
 			DataInputStream in = openTxtOrGzipStream(filename);
 
-			ITableReader reader = new CsvTableReader(in, RiskScoreFormatImpl.SEPARATOR);
+			ITableReader reader = new CsvTableReader(in, format.getSeparator());
 			while (reader.next()) {
 				totalVariants++;
 				int row = totalVariants;

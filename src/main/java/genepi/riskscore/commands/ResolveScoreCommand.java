@@ -11,7 +11,8 @@ import genepi.io.text.LineReader;
 import genepi.riskscore.App;
 import genepi.riskscore.io.PGSCatalog;
 import genepi.riskscore.io.RiskScoreFile;
-import genepi.riskscore.io.formats.PGSCatalogFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.tasks.ApplyScoreTask;
 import genepi.riskscore.tasks.LiftOverScoreTask;
@@ -74,12 +75,12 @@ public class ResolveScoreCommand implements Callable<Integer> {
 				}
 			}
 
-			RiskScoreFormatImpl format = new PGSCatalogFormat(input, forceRsIds);
+			RiskScoreFormatImpl format = RiskScoreFormatFactory.buildFormat(input, RiskScoreFormat.AUTO_DETECT);
 			System.out.println("Input File Format: " + format);
 
 			System.out.println("--------------------------------------");
 
-			if (format.hasRsIds()) {
+			if (format.hasRsIds() || forceRsIds) {
 
 				System.out.println("Resolve rsIDs using index file '" + dbsnp + "'...");
 

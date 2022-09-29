@@ -1,9 +1,11 @@
 package genepi.riskscore.tasks;
 
-import genepi.io.table.reader.CsvTableReader;
-import genepi.io.table.writer.CsvTableWriter;
+import genepi.riskscore.io.csv.CsvWithHeaderTableReader;
+import genepi.riskscore.io.csv.CsvWithHeaderTableWriter;
 import genepi.riskscore.io.dbsnp.DbSnpReader;
-import genepi.riskscore.io.formats.PGSCatalogFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
+import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
 
@@ -40,10 +42,10 @@ public class ResolveScoreTask implements ITaskRunnable {
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
-		PGSCatalogFormat format = new PGSCatalogFormat(input, false);
+		RiskScoreFormatImpl format = RiskScoreFormatFactory.buildFormat(input, RiskScoreFormat.AUTO_DETECT);
 
-		CsvTableReader reader = new CsvTableReader(input, PGSCatalogFormat.SEPARATOR);
-		CsvTableWriter writer = new CsvTableWriter(output, PGSCatalogFormat.SEPARATOR, false);
+		CsvWithHeaderTableReader reader = new CsvWithHeaderTableReader(input, format.getSeparator());
+		CsvWithHeaderTableWriter writer = new CsvWithHeaderTableWriter(output, format.getSeparator(), reader.getHeader());
 
 		DbSnpReader dbSnpReader = new DbSnpReader(dbsnpFilename);
 
@@ -68,7 +70,8 @@ public class ResolveScoreTask implements ITaskRunnable {
 					writer.setString(format.getEffectWeight(), effectWeight);
 
 					String otherAllele = "";
-					if (reader.hasColumn(format.getOtherAllele()) && !reader.getString(format.getOtherAllele()).isEmpty()) {
+					if (reader.hasColumn(format.getOtherAllele())
+							&& !reader.getString(format.getOtherAllele()).isEmpty()) {
 						otherAllele = reader.getString(format.getOtherAllele());
 						otherAlleleSource++;
 						found++;
