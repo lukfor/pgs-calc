@@ -1,37 +1,36 @@
 package genepi.riskscore.io;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 
 import genepi.io.text.LineWriter;
+import genepi.riskscore.io.meta.JsonMetaFileReader;
+import genepi.riskscore.io.meta.TabMetaFileReader;
 import genepi.riskscore.model.ScorePopulationMap;
 
 public class MetaFile {
 
 	protected Map<String, MetaScore> index;
 
-	private MetaFile() {
-
+	public MetaFile(Map<String, MetaScore> index) {
+		this.index = index;
 	}
 
-	public static MetaFile load(String filename) throws JsonIOException, JsonSyntaxException, FileNotFoundException {
+	public static MetaFile load(String filename) throws JsonIOException, JsonSyntaxException, IOException {
 
-		Gson gson = new Gson();
-		Type type = new TypeToken<Map<String, MetaScore>>() {
-		}.getType();
+		if (filename.endsWith(".json")) {
+			return JsonMetaFileReader.load(filename);
+		} else if (filename.endsWith(".csv") || filename.endsWith(".txt") || filename.endsWith("tab")) {
+			return TabMetaFileReader.load(filename);
+		} else {
+			throw new IOException("Unsupported file format");
+		}
 
-		MetaFile metaFile = new MetaFile();
-		metaFile.index = gson.fromJson(new FileReader(filename), type);
-		return metaFile;
 	}
 
 	public MetaScore getById(String id) {

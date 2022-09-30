@@ -9,7 +9,7 @@ import java.util.concurrent.Callable;
 
 import genepi.io.FileUtil;
 import genepi.riskscore.App;
-import genepi.riskscore.io.PGSCatalogMetaFile;
+import genepi.riskscore.io.meta.PGSCatalogMetaFile;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 

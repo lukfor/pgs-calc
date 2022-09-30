@@ -1,4 +1,4 @@
-package genepi.riskscore.io;
+package genepi.riskscore.io.meta;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;

@@ -1,0 +1,2 @@
+id	trait	trait.type	method	ancestry_distribution	trait.efo	publication.doi	publication.firstauthor	publication.journal	publication.date	variants	samples	url.weights	url.details	repository
+PRSWEB_PHECODE153_CRC-Huyghe_PT_UKB_20200608	Colorectal cancer		LD Clumping (MAF >= 1%, r^2 <= 0.1) & P-value thresholding							87		https://prsweb.sph.umich.edu:8443/displayData/downloadFile?filename=PRSWEB_PHECODE153_CRC-Huyghe_PT_UKB_20200608&type=weight	https://prsweb.sph.umich.edu:8443/displayData/showGraphSep?prswebprefix=PRSWEB_PHECODE153_CRC-Huyghe_PT_UKB_20200608	Cancer-PRSweb
