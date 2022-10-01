@@ -88,7 +88,7 @@ public class TabMetaFileReader {
 		}
 
 		String doi = reader.getString(COLUMN_PUBLICATION_DOI);
-		if (!doi.trim().isBlank()) {
+		if (!doi.trim().isEmpty()) {
 			Map<String, String> publication = new HashMap<String, String>();
 			publication.put("doi", doi);
 			publication.put("firstauthor", reader.getString(COLUMN_PUBLICATION_FIRSTAUTHOR));
