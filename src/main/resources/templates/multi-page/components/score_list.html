@@ -1,0 +1,21 @@
+<div class="bg-light border-right" id="sidebar-wrapper">
+  <div class="input-group sidebar-search border-bottom ">
+    <input class="field form-control mx-2 mb-3" id="s" name="s" type="text" value="" placeholder="Search by ID or trait" autocomplete="off">
+  </div>
+  <div class="list-group mx-2 sidebar-list" >
+   	  <a href="scores/samples.html" target="details" id="sample-item" data-samples="samples" class="list-group-item list-group-item-action my-1 active">
+        Samples
+      </a>
+    {{for index,score in scores}}
+      <a  href="scores/{{score.name}}.html"  target="details" data-meta="{{score.name}}, {{if score.meta != null}}{{score.meta.trait}}{{end}}"
+        class="list-group-item list-group-item-action my-1 coverage-{{score.coverageLabel}} {{index == 0 ? "" : ""}}">
+        {{if score.name.length() > 30}}
+        <small>{{score.name}}</small>
+        {{else}}
+        {{score.name}}
+        {{end}}
+        {{if score.meta != null}}<br><small>{{score.meta.trait}}</small>{{end}}
+      </a>
+    {{end}}
+  </div>
+</div>

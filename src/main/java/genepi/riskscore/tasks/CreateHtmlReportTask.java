@@ -1,9 +1,14 @@
 package genepi.riskscore.tasks;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
+import genepi.io.FileUtil;
 import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
@@ -20,6 +25,10 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 	public static final String DEFAULT_TEMPLATE = "default";
 
 	public static final String INDEX_FILE = "index.html";
+
+	public static final String SCORE_FILE = "score.html";
+
+	public static final String SAMPLES_FILE = "samples.html";
 
 	private String output;
 
@@ -93,8 +102,60 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		assert (report != null);
 		assert (output != null);
 
-		HtmlReport report = new HtmlReport(TEMPLATE_DIRECTORY + "/" + template);
-		report.setMainFilename(INDEX_FILE);
+		// add data do summaries
+		for (int i = 0; i < this.report.getSummaries().size(); i++) {
+			// ignore empty scores
+			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
+				if (data != null) {
+					this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
+				}
+			}
+			this.report.getSummaries().get(i).updateStatistics();
+			this.report.getSummaries().get(i).updateColorAndLabel();
+		}
+
+		// sort summaries by pgs name
+		this.report.getSummaries().sort(new Comparator<RiskScoreSummary>() {
+			@Override
+			public int compare(RiskScoreSummary o1, RiskScoreSummary o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+
+		String templateLocation = TEMPLATE_DIRECTORY + "/" + template;
+
+		// create index
+		HtmlReport htmlReport = buildReport(templateLocation, INDEX_FILE);
+		htmlReport.set("scores", this.report.getSummaries());
+		htmlReport.generate(new File(output));
+
+		String scoresOutput = FileUtil.path(new File(output).getParent(), "scores");
+
+		if (exists(templateLocation, SCORE_FILE)) {
+			// FileUtil.deleteDirectory(scores);
+			FileUtil.createDirectory(scoresOutput);
+			for (int i = 0; i < this.report.getSummaries().size(); i++) {
+				RiskScoreSummary score = this.report.getSummaries().get(i);
+				HtmlReport htmlReportScore = buildReport(templateLocation, SCORE_FILE);
+				List<RiskScoreSummary> currentScore = new Vector<RiskScoreSummary>();
+				currentScore.add(score);
+				htmlReportScore.set("scores", currentScore);
+				htmlReportScore.generate(new File(FileUtil.path(scoresOutput, score.getName() + ".html")));
+			}
+		}
+		if (exists(templateLocation, SAMPLES_FILE)) {
+			htmlReport = buildReport(templateLocation, SAMPLES_FILE);
+			htmlReport.set("scores", this.report.getSummaries());
+			htmlReport.generate(new File(FileUtil.path(scoresOutput, "samples.html")));
+		}
+		monitor.update("Html Report created and written to '" + output + "'");
+		monitor.done();
+
+	}
+
+	private HtmlReport buildReport(String root, String indexFile) throws IOException {
+		HtmlReport report = new HtmlReport(root);
+		report.setMainFilename(indexFile);
 
 		// general informations
 		report.set("createdOn", new Date());
@@ -121,27 +182,6 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 			report.set("samples", null);
 		}
 
-		// add data do summaries
-		for (int i = 0; i < this.report.getSummaries().size(); i++) {
-			// ignore empty scores
-			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
-				if (data != null) {
-					this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
-				}
-			}
-			this.report.getSummaries().get(i).updateStatistics();
-			this.report.getSummaries().get(i).updateColorAndLabel();
-		}
-
-		// sort summaries by pgs name
-		this.report.getSummaries().sort(new Comparator<RiskScoreSummary>() {
-			@Override
-			public int compare(RiskScoreSummary o1, RiskScoreSummary o2) {
-				return o1.getName().compareTo(o2.getName());
-			}
-		});
-
-		report.set("scores", this.report.getSummaries());
 		if (samples != null && data != null) {
 			report.set("population_check", true);
 			report.set("populations", samples.getPopulations());
@@ -158,11 +198,19 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		}
 
 		report.setSelfContained(true);
-		report.generate(new File(output));
 
-		monitor.update("Html Report created and written to '" + output + "'");
-		monitor.done();
+		return report;
 
+	}
+
+	public boolean exists(String root, String filename) {
+		try {
+			InputStream stream = this.getClass().getResource(root + "/" + filename).openStream();
+			stream.close();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 }

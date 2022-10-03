@@ -1,0 +1,20 @@
+<h3 class="mt-4">Samples</h3>
+<hr>
+<h5>General</h5>
+<ul>
+{{if (show_samples)}}
+  <li>Samples: {{decimal(samples.size())}}</li>
+{{end}}
+</ul>
+<h5>Populations</h5>
+{{if population_check }}
+<ul>
+{{for pop in populations.getPopulations()}}
+  <li>{{pop.label}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
+{{end}}
+</ul>
+{{else}}
+<i>no ancestry information available</i>
+{{end}}
+
+<div id="population-plot"></div>

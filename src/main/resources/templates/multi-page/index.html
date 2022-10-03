@@ -11,7 +11,7 @@
 
   <!-- Bootstrap core CSS -->
   {{include_style("https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css")}}
-  {{include_style("report.css")}}
+  {{include_style("../default/report.css")}}
 
   {{include_script("report.json")}}
 
@@ -25,7 +25,7 @@
   <nav class="navbar navbar-expand-lg fixed-top navbar-light bg-light border-bottom">
     <a class="navbar-brand" href="https://github.com/lukfor/pgs-calc" target="_blank">
       <div class="d-inline-block align-top" alt="">
-        {{image("images/logo.svg")}}
+        {{image("../default/images/logo.svg")}}
       </div>
       &nbsp;{{application_name}} {{version}}
     </a>
@@ -44,18 +44,6 @@
         </li>
         {{end}}
         {{end}}
-        {{if (show_samples)}}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="highlight-samples-navigation" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span id="highlight-samples-header">Highlighted Samples (0)</span>
-          </a>
-          <div class="dropdown-menu" aria-labelledby="highlight-samples-nav">
-            <a class="dropdown-item" id="add-highlighted-samples-button" href="#">Add samples..</a>
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" id="clear-highlighted-samples-button" href="#">Clear</a>
-          </div>
-        </li>
-        {{end}}
       </ul>
     </div>
   </nav>
@@ -63,22 +51,7 @@
 
   <div id="wrapper">
     {{include "components/score_list.html"}}
-
-    <div id="page-content-wrapper">
-
-      <div class="container-fluid">
-        <div class="tab-content">
-
-            <div class="tab-pane active" id="samples" role="tabpanel">
-              {{include "components/samples.html"}}
-            </div>
-
-    {{include "components/score_details.html"}}
-  </div>
-    </div>
-
-      {{include "components/distribution.html"}}
-
+    <iframe style="padding-left: 250px;margin-top: 60px; border: 0px" name="details" width="100%" height="1500px;" src="scores/samples.html"></iframe>
   </div>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -88,6 +61,8 @@
   {{include_script("https://cdn.plot.ly/plotly-latest.min.js")}}
   {{include_script("https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js")}}
 
-  {{include_script("report.js")}}
+  {{include_script("../default/report.js")}}
+  {{include_script("components/score_list.js")}}
+
 
 </html>

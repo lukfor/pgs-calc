@@ -1,12 +1,14 @@
 function createPlot(selectedData, highlightedSamples, excludedData) {
-console.log(selectedData);
+
   //histogram of score
   var plotData = [];
+
   plotData.push({
     x: selectedData,
     type: 'histogram',
     name: 'Included Samples',
     orientation: 'v',
+    autobin: true,
     marker: {
       color: '#007bff',
       line: {
@@ -162,6 +164,11 @@ function updateHighlightSample() {
 }
 
 function updateScore(e) {
+
+  if (data == undefined) {
+    return;
+  }
+
   var score = $(this).data('score');
   selectedData = data[score];
   selectedExcluded = excluded[score];
@@ -251,7 +258,13 @@ $(document).ready(function() {
 
     var myPlot = document.getElementById('plot');
     var hoverInfo = myPlot.on('plotly_selected', updateSelection);
+  } else {
+    $('#row-plots').hide();
   }
-  showPopulation();
-  $('#row-plots').hide();
+
+  if($('#population-plot').length){
+    showPopulation();
+    $('#row-plots').hide();
+  }
+
 });
