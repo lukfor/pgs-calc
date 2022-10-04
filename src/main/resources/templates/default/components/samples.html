@@ -7,7 +7,7 @@
 {{end}}
 </ul>
 <h5>Populations</h5>
-{{if population_check }}
+{{if populations != null }}
 <ul>
 {{for pop in populations.getPopulations()}}
   <li>{{pop.label}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>

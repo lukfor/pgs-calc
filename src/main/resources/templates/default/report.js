@@ -214,7 +214,7 @@ function showCommand() {
 }
 
 function showPopulation(){
-  {{if (population_check)}}
+  {{if (populations != null)}}
 	var data = [{
 	  values: {{json(array(populations.getPopulations()).extract("count"))}},
 	  labels: {{json(array(populations.getPopulations()).extract("label"))}},
