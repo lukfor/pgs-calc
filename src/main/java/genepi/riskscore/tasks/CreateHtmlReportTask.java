@@ -13,6 +13,7 @@ import genepi.riskscore.App;
 import genepi.riskscore.io.OutputFile;
 import genepi.riskscore.io.ReportFile;
 import genepi.riskscore.io.SamplesFile;
+import genepi.riskscore.model.PopulationMap;
 import genepi.riskscore.model.RiskScoreSummary;
 import lukfor.progress.tasks.ITaskRunnable;
 import lukfor.progress.tasks.monitors.ITaskMonitor;
@@ -185,7 +186,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		if (samples != null) {
 			report.set("populations", samples.getPopulations());
 		} else {
-			report.set("populations", null);
+			report.set("populations", new PopulationMap());
 		}
 		
 		if (samples != null && data != null) {

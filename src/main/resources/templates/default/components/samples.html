@@ -4,10 +4,14 @@
 <ul>
 {{if (show_samples)}}
   <li>Samples: {{decimal(samples.size())}}</li>
+{{else}}
+  {{if (populations.getTotal() >  0) }}
+    <li>Samples: {{decimal(populations.getTotal())}}</li>
+  {{end}}
 {{end}}
 </ul>
 <h5>Populations</h5>
-{{if populations != null }}
+{{if (populations.getTotal() >  0) }}
 <ul>
 {{for pop in populations.getPopulations()}}
   <li>{{pop.label}}: {{decimal(pop.count)}} ({{percentage(pop.percentage)}})</li>
