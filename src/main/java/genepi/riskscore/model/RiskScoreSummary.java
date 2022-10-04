@@ -253,13 +253,13 @@ public class RiskScoreSummary {
 		populationCheckStatus = true;
 
 		if (file == null) {
-			populationCheckMessage = "No population information available for your samples. Be careful for population stratification.";
+			populationCheckMessage = "No population information available for your samples. Be aware of possible population stratification.";
 			populationCheckStatus = false;
 			return;
 		}
 
 		if (this.meta == null || this.meta.getPopulations() == null || this.meta.getPopulations().getTotal() == 0) {
-			populationCheckMessage = "No population information available for this score. Be careful for population stratification.";
+			populationCheckMessage = "No population information available for this score. Be aware of possible population stratification.";
 			populationCheckStatus = false;
 			return;
 		}

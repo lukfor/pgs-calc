@@ -41,6 +41,8 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 	private boolean showCommand = true;
 
+	private boolean showDistribution = true;
+
 	private String application = App.APP;
 
 	private String applicationName = "PGS-Server";
@@ -95,6 +97,10 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		this.template = template;
 	}
 
+	public void setShowDistribution(boolean showDistribution) {
+		this.showDistribution = showDistribution;
+	}
+
 	@Override
 	public void run(ITaskMonitor monitor) throws Exception {
 
@@ -107,7 +113,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		for (int i = 0; i < this.report.getSummaries().size(); i++) {
 			// ignore empty scores
 			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
-				if (data != null) {
+				if (data != null && showDistribution) {
 					this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
 				}
 			}
@@ -188,7 +194,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		} else {
 			report.set("populations", new PopulationMap());
 		}
-		
+
 		if (samples != null && data != null) {
 			report.set("population_check", true);
 			for (RiskScoreSummary score : this.report.getSummaries()) {
@@ -201,6 +207,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 			report.set("population_check", false);
 		}
 
+		report.set("showDistribution", showDistribution);
 		report.setSelfContained(true);
 
 		return report;
