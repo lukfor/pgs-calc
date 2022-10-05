@@ -4,8 +4,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import com.google.gson.Gson;
@@ -13,7 +13,6 @@ import com.google.gson.JsonIOException;
 import com.google.gson.reflect.TypeToken;
 
 import genepi.riskscore.io.MetaFile.MetaScore;
-import genepi.riskscore.model.PopulationMap;
 import genepi.riskscore.model.RiskScoreSummary;
 
 public class ReportFile {
@@ -81,6 +80,41 @@ public class ReportFile {
 				summary.setMeta(data);
 			}
 		}
+	}
+
+	public void mergeWithData(OutputFile data) {
+		for (int i = 0; i < getSummaries().size(); i++) {
+			// ignore empty scores
+			if (getSummaries().get(i).getVariantsUsed() > 0) {
+				if (data != null) {
+					getSummaries().get(i).setData(data.getValuesByScore(i));
+				}
+			}
+			getSummaries().get(i).updateStatistics();
+			getSummaries().get(i).updateColorAndLabel();
+		}
+
+		// sort summaries by pgs name
+		getSummaries().sort(new Comparator<RiskScoreSummary>() {
+			@Override
+			public int compare(RiskScoreSummary o1, RiskScoreSummary o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+	}
+
+	public void checkPopulations(SamplesFile samples, OutputFile data) {
+
+		if (samples != null && data != null) {
+			for (RiskScoreSummary score : getSummaries()) {
+				score.checkPopulation(data.getSamples(), samples);
+			}
+		} else {
+			for (RiskScoreSummary score : getSummaries()) {
+				score.setPopulationCheckStatus(true);
+			}
+		}
+
 	}
 
 	public List<RiskScoreSummary> getSummaries() {

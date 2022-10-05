@@ -109,26 +109,14 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		assert (report != null);
 		assert (output != null);
 
-		// add data do summaries
-		for (int i = 0; i < this.report.getSummaries().size(); i++) {
-			// ignore empty scores
-			if (this.report.getSummaries().get(i).getVariantsUsed() > 0) {
-				if (data != null && showDistribution) {
-					this.report.getSummaries().get(i).setData(data.getValuesByScore(i));
-				}
-			}
-			this.report.getSummaries().get(i).updateStatistics();
-			this.report.getSummaries().get(i).updateColorAndLabel();
+		if (data != null && showDistribution) {
+			report.mergeWithData(data);
+		} else {
+			report.mergeWithData(null);
 		}
 
-		// sort summaries by pgs name
-		this.report.getSummaries().sort(new Comparator<RiskScoreSummary>() {
-			@Override
-			public int compare(RiskScoreSummary o1, RiskScoreSummary o2) {
-				return o1.getName().compareTo(o2.getName());
-			}
-		});
-
+		report.checkPopulations(samples, data);
+		
 		String templateLocation = TEMPLATE_DIRECTORY + "/" + template;
 
 		// create index
@@ -159,6 +147,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 		monitor.done();
 
 	}
+
 
 	private HtmlReport buildReport(String root, String indexFile) throws IOException {
 		HtmlReport report = new HtmlReport(root);
@@ -197,13 +186,7 @@ public class CreateHtmlReportTask implements ITaskRunnable {
 
 		if (samples != null && data != null) {
 			report.set("population_check", true);
-			for (RiskScoreSummary score : this.report.getSummaries()) {
-				score.checkPopulation(data.getSamples(), samples);
-			}
 		} else {
-			for (RiskScoreSummary score : this.report.getSummaries()) {
-				score.setPopulationCheckStatus(true);
-			}
 			report.set("population_check", false);
 		}
 
