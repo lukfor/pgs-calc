@@ -30,11 +30,11 @@ public class App {
 
 	public static final String APP = "pgs-calc";
 
-	public static final String VERSION = "1.5.3";
+	public static final String VERSION = "1.5.4";
 
 	public static final String URL = "https://github.com/lukfor/pgs-calc";
 
-	public static final String COPYRIGHT = "(c) 2020 - 2022 Lukas Forer";
+	public static final String COPYRIGHT = "(c) 2020 - 2023 Lukas Forer";
 
 	public static String[] ARGS = new String[0];
 
