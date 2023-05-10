@@ -282,7 +282,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (outputVariantFilename != null) {
 			variantsWriter = new CsvTableWriter(outputVariantFilename, VariantFile.SEPARATOR);
 			variantsWriter.setColumns(new String[] { VariantFile.SCORE, VariantFile.CHROMOSOME, VariantFile.POSITION,
-					VariantFile.R2, VariantFile.INCLUDE });
+					VariantFile.R2, VariantFile.WEIGHT, VariantFile.INCLUDE });
 		}
 
 		CsvTableWriter effectsWriter = null;
@@ -436,6 +436,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 					variantsWriter.setString(VariantFile.CHROMOSOME, variant.getContig());
 					variantsWriter.setInteger(VariantFile.POSITION, variant.getStart());
 					variantsWriter.setDouble(VariantFile.R2, variant.getInfoAsDouble(INFO_R2, 0));
+					variantsWriter.setDouble(VariantFile.WEIGHT, referenceVariant.getEffectWeight());
 					variantsWriter.setInteger(VariantFile.INCLUDE, 1);
 					variantsWriter.next();
 				}
@@ -501,6 +502,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 						variantsWriter.setString(VariantFile.CHROMOSOME, chromosome);
 						variantsWriter.setInteger(VariantFile.POSITION, position);
 						variantsWriter.setString(VariantFile.R2, "");
+						variantsWriter.setDouble(VariantFile.WEIGHT, variant.getEffectWeight());
 						variantsWriter.setInteger(VariantFile.INCLUDE, 0);
 						variantsWriter.next();
 

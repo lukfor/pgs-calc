@@ -29,6 +29,8 @@ public class VariantFile {
 	public static final String R2 = "r2";
 
 	public static final String INCLUDE = "INCLUDE";
+	
+	public static final String WEIGHT = "effect_weight";
 
 	public VariantFile(String filename) throws Exception {
 
