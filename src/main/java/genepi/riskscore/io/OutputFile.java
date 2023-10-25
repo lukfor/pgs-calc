@@ -2,7 +2,9 @@ package genepi.riskscore.io;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class OutputFile {
@@ -13,11 +15,18 @@ public class OutputFile {
 
 	private List<String> scores;
 
+	private Map<String, Integer> scoresIndex = new HashMap<String, Integer>();
+	
 	public OutputFile(String filename) throws IOException {
 
 		OutputFileReader outputFile = new OutputFileReader(filename);
 
 		scores = outputFile.getScores();
+		int index = 0;
+		for (String score: scores) {
+			scoresIndex.put(score, index);
+			index++;
+		}
 
 		samples = new Vector<String>();
 		data = new Vector<double[]>();
@@ -45,15 +54,16 @@ public class OutputFile {
 	public List<String> getScores() {
 		return scores;
 	}
-
+	
 	public double getValue(int score, int sample) {
 		return data.get(sample)[score];
 	}
 
-	public double[] getValuesByScore(int score) {
+	public double[] getValuesByScore(String score) {
+		int scoreIndex = scoresIndex.get(score);
 		double[] values = new double[samples.size()];
 		for (int i = 0; i < values.length; i++) {
-			values[i] = getValue(score, i);
+			values[i] = getValue(scoreIndex, i);
 		}
 		return values;
 	}

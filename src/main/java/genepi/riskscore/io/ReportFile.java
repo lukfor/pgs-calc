@@ -87,7 +87,7 @@ public class ReportFile {
 			// ignore empty scores
 			if (getSummaries().get(i).getVariantsUsed() > 0) {
 				if (data != null) {
-					getSummaries().get(i).setData(data.getValuesByScore(i));
+					getSummaries().get(i).setData(data.getValuesByScore(getSummaries().get(i).getName()));
 				}
 			}
 			getSummaries().get(i).updateStatistics();

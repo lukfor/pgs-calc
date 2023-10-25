@@ -154,9 +154,11 @@ public class MergeScoreTaskTest {
 		assertEquals(file1.getSamples().size(), file2.getSamples().size());
 		assertEquals(file1.getScores().size(), file2.getScores().size());
 		for (int i = 0; i < file1.getScores().size(); i++) {
-			assertEquals(file1.getScores().get(i), file2.getScores().get(i));
-			double[] values1 = file1.getValuesByScore(i);
-			double[] values2 = file2.getValuesByScore(i);
+			String name1 = file1.getScores().get(i);
+			String name2 = file2.getScores().get(i);
+			assertEquals(name1, name2);
+			double[] values1 = file1.getValuesByScore(name1);
+			double[] values2 = file2.getValuesByScore(name2);
 			assertEquals(values1.length, values2.length);
 			assertEquals(values1.length, file1.getSamples().size());
 			for (int j = 0; j < values1.length; j++) {
