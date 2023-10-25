@@ -27,9 +27,9 @@
 
 	<distributionManagement>
 		<repository>
-			<id>jfrog-genepi-maven</id>
-			<name>jfrog-genepi-maven</name>
-			<url>https://genepi.jfrog.io/artifactory/maven/</url>
+			<id>imed-genepi-maven</id>
+			<name>imed-genepi-maven</name>
+			<url>https://genepi.i-med.ac.at/maven</url>
 		</repository>
 	</distributionManagement>
 
@@ -39,9 +39,9 @@
 
 	<repositories>
 		<repository>
-			<id>jfrog-genepi-maven</id>
-			<name>jfrog-genepi-maven</name>
-			<url>https://genepi.jfrog.io/artifactory/maven/</url>
+			<id>imed-genepi-maven</id>
+			<name>imed-genepi-maven</name>
+			<url>https://genepi.i-med.ac.at/maven</url>
 		</repository>
 	</repositories>
 
