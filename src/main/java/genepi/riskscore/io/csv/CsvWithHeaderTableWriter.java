@@ -2,6 +2,7 @@ package genepi.riskscore.io.csv;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,17 @@ public class CsvWithHeaderTableWriter extends AbstractTableWriter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public CsvWithHeaderTableWriter( char separator, List<String> header) {
+		for (String line : header) {
+			System.out.println(line.replace("\n", "").replace("\r", ""));
+		}
+		if (!header.isEmpty()) {
+			System.out.println("# Updated by " + App.APP + " " + App.VERSION + "\n");
+		}
+		writer = new CSVWriter(new OutputStreamWriter(System.out), separator, CSVWriter.NO_QUOTE_CHARACTER,
+				CSVWriter.NO_ESCAPE_CHARACTER);
 	}
 
 	@Override
