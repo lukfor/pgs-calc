@@ -9,12 +9,8 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
-import genepi.riskscore.io.Chunk;
-import genepi.riskscore.io.OutputFileWriter;
-import genepi.riskscore.io.ReportFile;
+import genepi.riskscore.io.*;
 import genepi.riskscore.io.scores.MergedRiskScoreCollection;
-import genepi.riskscore.io.SamplesFile;
-import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.scores.IRiskScoreCollection;
@@ -174,7 +170,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			}
 
 			//TODO "## PGS-Collection v1"
-			if (riskScoreFilenames.length == 1 && RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith("#Date=")) {
+			if (riskScoreFilenames.length == 1 && new File(riskScoreFilenames[0]).exists() && RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith("#Date=")) {
 				collection = new MergedRiskScoreCollection(riskScoreFilenames[0]);
 			} else {
 				collection = new RiskScoreCollection(riskScoreFilenames, formats);
