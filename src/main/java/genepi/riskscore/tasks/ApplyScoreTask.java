@@ -169,8 +169,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 				throw new Exception("Reference score or collection can not be null or empty.");
 			}
 
-			//TODO "## PGS-Collection v1"
-			if (riskScoreFilenames.length == 1 && new File(riskScoreFilenames[0]).exists() && RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith("#Date=")) {
+			//TODO: move to factory
+			if (riskScoreFilenames.length == 1 && new File(riskScoreFilenames[0]).exists() &&
+					RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith(MergedRiskScoreCollection.HEADER)) {
 				collection = new MergedRiskScoreCollection(riskScoreFilenames[0]);
 			} else {
 				collection = new RiskScoreCollection(riskScoreFilenames, formats);

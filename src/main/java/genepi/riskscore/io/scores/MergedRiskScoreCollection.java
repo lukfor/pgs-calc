@@ -32,6 +32,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 
 	private Map<Integer, Map<Integer, ReferenceVariant>> variantsIndex = new HashMap<Integer, Map<Integer, ReferenceVariant>>();
 
+	public static String HEADER = "# PGS-Collection v1";
+
 	public static  String COLUMN_CHROMOSOME = "chr_name";
 
 	public static  String COLUMN_POSITION = "chr_position";
