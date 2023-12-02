@@ -111,6 +111,11 @@ public class RiskScoreSummary {
 		return variants;
 	}
 
+	public void incVariants() {
+		this.variants++;
+		coverage = getVariantsUsed() / getVariants();
+	}
+
 	public void setVariants(int count) {
 		this.variants = count;
 		coverage = getVariantsUsed() / getVariants();

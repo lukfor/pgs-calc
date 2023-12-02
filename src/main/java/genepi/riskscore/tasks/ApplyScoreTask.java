@@ -12,9 +12,10 @@ import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.OutputFileWriter;
 import genepi.riskscore.io.ReportFile;
-import genepi.riskscore.io.RiskScoreFile;
+import genepi.riskscore.io.scores.MergedRiskScoreCollection;
 import genepi.riskscore.io.SamplesFile;
 import genepi.riskscore.io.VariantFile;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.scores.IRiskScoreCollection;
 import genepi.riskscore.io.scores.RiskScoreCollection;
@@ -151,9 +152,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 			throw new Exception("Please specify a output filename.");
 		}
 
-		if (riskScoreFilenames == null || riskScoreFilenames.length == 0) {
-			throw new Exception("Reference can not be null or empty.");
-		}
 		try {
 
 			// read chromosome from first variant
@@ -171,7 +169,17 @@ public class ApplyScoreTask implements ITaskRunnable {
 			monitor.begin(taskName, new File(vcf).length());
 			monitor.worked(0);
 
-			collection = new RiskScoreCollection(riskScoreFilenames, formats);
+			if (riskScoreFilenames == null || riskScoreFilenames.length == 0){
+				throw new Exception("Reference score or collection can not be null or empty.");
+			}
+
+			//TODO "## PGS-Collection v1"
+			if (riskScoreFilenames.length == 1 && RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith("#Date=")) {
+				collection = new MergedRiskScoreCollection(riskScoreFilenames[0]);
+			} else {
+				collection = new RiskScoreCollection(riskScoreFilenames, formats);
+			}
+
 			collection.buildIndex(chromosome, chunk, dbsnp, proxies);
 
 			processVCF(monitor, chromosome, vcf, collection);
@@ -227,7 +235,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		for (int i = 0; i < countSamples; i++) {
 			String sample = vcfReader.getGenotypedSamples().get(i);
 			if (samplesFile == null || samplesFile.contains(sample)) {
-				RiskScore riskScore = new RiskScore(chromosome, sample, riskScoreFilenames.length);
+				RiskScore riskScore = new RiskScore(chromosome, sample, collection.getSize());
 				riskScores.add(riskScore);
 			}
 		}
@@ -279,7 +287,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 			}
-
 			for (int j = 0; j < collection.getSize(); j++) {
 
 				RiskScoreSummary summary = collection.getSummaries()[j];
@@ -307,9 +314,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 				ReferenceVariant referenceVariant = collection.getVariant(j, position);
 
 				float effectWeight = referenceVariant.getEffectWeight();
-
 				String referenceAllele = variant.getReferenceAllele();
-
 				// ignore deletions
 				if (variant.getAlternateAllele().length() == 0) {
 					summary.incMultiAllelic();

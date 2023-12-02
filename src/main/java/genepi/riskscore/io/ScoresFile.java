@@ -41,7 +41,11 @@ public class ScoresFile {
 		while (reader.next()) {
 			String id = reader.get();
 			if (!id.trim().isEmpty() && !ids.contains(id)) {
-				ids.add(FileUtil.path(path, id));
+				if (id.startsWith("/")){
+					ids.add(id);
+				}else {
+					ids.add(FileUtil.path(path, id));
+				}
 			}
 		}
 		reader.close();

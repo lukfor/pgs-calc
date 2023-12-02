@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import genepi.io.FileUtil;
+import genepi.io.table.reader.CsvTableReader;
+import genepi.io.table.reader.ITableReader;
 
 public class RiskScoreFormatFactory {
 
@@ -16,6 +18,10 @@ public class RiskScoreFormatFactory {
 	public static RiskScoreFormatImpl buildFormat(String filename, RiskScoreFormat format) throws IOException {
 		switch (format) {
 		case AUTO_DETECT:
+
+			if (PGSCatalogHarmonizedFormat.acceptFile(filename)){
+				return new PGSCatalogHarmonizedFormat();
+			}
 
 			String headerLine = readHeader(filename);
 			if (headerLine.startsWith("## PRSweb")) {
@@ -35,13 +41,13 @@ public class RiskScoreFormatFactory {
 	}
 	
 	
-	protected static String readHeader(String filename) throws IOException {
+	public static String readHeader(String filename) throws IOException {
 		DataInputStream in = openTxtOrGzipStream(filename);
 		String line = in.readLine();
 		in.close();
 		return line;
 	}
-	
+
 	private static DataInputStream openTxtOrGzipStream(String filename) throws IOException {
 		FileInputStream inputStream = new FileInputStream(filename);
 		InputStream in2 = FileUtil.decompressStream(inputStream);

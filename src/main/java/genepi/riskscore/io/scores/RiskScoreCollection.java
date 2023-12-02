@@ -29,10 +29,6 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 
 	private Map<String, RiskScoreFormat> formats;
 
-	public RiskScoreCollection(String... filenames) {
-		this.filenames = filenames;
-	}
-
 	public RiskScoreCollection(String[] filenames, Map<String, RiskScoreFormat> formats) {
 		this.filenames = filenames;
 		this.formats = formats;
