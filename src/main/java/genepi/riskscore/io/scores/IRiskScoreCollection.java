@@ -32,4 +32,5 @@ public interface IRiskScoreCollection {
 
 	public RiskScoreSummary[] getSummaries();
 
+    public void clearIndex();
 }

@@ -189,6 +189,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 				reportFile.save(outputReportFilename);
 			}
 
+			//cleanup
+			collection.clearIndex();
+
 			monitor.done();
 		} catch (Exception e) {
 			if (VERBOSE) {

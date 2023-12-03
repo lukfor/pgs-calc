@@ -1,5 +1,7 @@
 package genepi.riskscore.commands;
 
+import java.io.File;
+import java.io.OutputStreamWriter;
 import java.util.*;
 import java.util.concurrent.Callable;
 
@@ -13,6 +15,7 @@ import genepi.riskscore.io.formats.PGSCatalogFormat;
 import genepi.riskscore.io.formats.PGSCatalogHarmonizedFormat;
 import genepi.riskscore.io.formats.RiskScoreFormatImpl;
 import genepi.riskscore.io.scores.MergedRiskScoreCollection;
+import htsjdk.samtools.util.BlockCompressedOutputStream;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -24,7 +27,7 @@ public class CreateCollectionCommand implements Callable<Integer> {
     private String output = null;
 
     @Parameters(description = "score files")
-    private String[] filenames;
+    private String[] files;
 
     public static String[] chromosomeOrder = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "X", "Y", "XY"};
 
@@ -39,17 +42,29 @@ public class CreateCollectionCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
+        PGSCatalogHarmonizedFormat format = new PGSCatalogHarmonizedFormat();
+
+        List<String> validFilenames = new Vector<String>(files.length);
+        //validate files
+        for (String filename: files){
+            if (checkFileFormat(filename, format)){
+                validFilenames.add(filename);
+            }
+        }
+
+        String[] filenames = new String[validFilenames.size()];
+        filenames = validFilenames.toArray(filenames);
         String[] names = new String[filenames.length];
+        int[] totalVariants = new int[filenames.length];
+        int[] ignoredVariants = new int[filenames.length];
         CsvWithHeaderTableReader[] readers = new CsvWithHeaderTableReader[filenames.length];
-        RiskScoreFormatImpl[] formats = new RiskScoreFormatImpl[filenames.length];
         Variant[] variants = new Variant[filenames.length];
 
         for (int i = 0; i < filenames.length; i++) {
             names[i] = RiskScoreFile.getName(filenames[i]);
-            formats[i] = new PGSCatalogHarmonizedFormat();
-            readers[i] = new CsvWithHeaderTableReader(filenames[i], formats[i].getSeparator());
+            readers[i] = new CsvWithHeaderTableReader(filenames[i], format.getSeparator());
             try {
-                variants[i] = readVariant(readers[i], formats[i]);
+                variants[i] = readVariant(readers[i], format);
             } catch (Exception e) {
                 throw new RuntimeException("File " + filenames[i], e);
             }
@@ -57,12 +72,13 @@ public class CreateCollectionCommand implements Callable<Integer> {
 
         List<String> header = new Vector<String>();
         header.add(MergedRiskScoreCollection.HEADER);
-        header.add("#Date=" + new Date());
-        header.add("#Scores=" + filenames.length);
+        header.add("# Date=" + new Date());
+        header.add("# Scores=" + filenames.length);
+
 
         CsvWithHeaderTableWriter writer = null;
         if (output != null) {
-            writer = new CsvWithHeaderTableWriter(output, '\t', header);
+            writer = new CsvWithHeaderTableWriter(new OutputStreamWriter(new BlockCompressedOutputStream(new File(output))), '\t', header);
         } else {
             writer = new CsvWithHeaderTableWriter('\t', header);
         }
@@ -80,16 +96,24 @@ public class CreateCollectionCommand implements Callable<Integer> {
             addVariant(writer, variant);
             for (int i = 0; i < variants.length; i++) {
                 if (variants[i] != null && variants[i].matches(variant)) {
-                    writeVariant(writer, names[i], variants[i].getNormalizedEffect(variant));
+                    variants[i].align(variant);
+                    writeVariant(writer, names[i], variants[i]);
                     Variant nextVariant = null;
-                    try {
-                        nextVariant = readVariant(readers[i], formats[i]);
-                    } catch (Exception e) {
-                        throw new RuntimeException("File " + filenames[i], e);
+                    boolean read = true;
+                    while(read) {
+                        try {
+                            nextVariant = readVariant(readers[i], format);
+                            read = false;
+                        }catch (VariantReadingException e){
+                            ignoredVariants[i]++;
+                        } catch (Exception e) {
+                            throw new RuntimeException("File " + filenames[i], e);
+                        }
                     }
                     if (nextVariant != null && nextVariant.isBefore(variants[i])) {
                         throw new RuntimeException(filenames[i] + ": Not sorted. " + nextVariant + " is before " + variants[i]);
                     }
+                    totalVariants[i]++;
                     variants[i] = nextVariant;
                 } else {
                     writeMissing(writer, names[i]);
@@ -106,6 +130,18 @@ public class CreateCollectionCommand implements Callable<Integer> {
             reader.close();
         }
 
+        if (output != null) {
+            CsvWithHeaderTableWriter writerMeta = new CsvWithHeaderTableWriter(output + MergedRiskScoreCollection.META_EXTENSION, '\t', header);
+            writerMeta.setColumns(new String[]{"score","variants","ignored"});
+            for (int i = 0; i < names.length; i++){
+                writerMeta.setString("score",names[i]);
+                writerMeta.setInteger("variants",totalVariants[i]);
+                writerMeta.setInteger("ignored",ignoredVariants[i]);
+                writerMeta.next();
+            }
+            writerMeta.close();
+        }
+
         System.err.println("Wrote " + variantsWritten + " unique variants and " + filenames.length + " scores.");
 
         return 0;
@@ -117,7 +153,7 @@ public class CreateCollectionCommand implements Callable<Integer> {
     }
 
     public void setFilenames(String[] filenames) {
-        this.filenames = filenames;
+        this.files = filenames;
     }
 
 
@@ -156,19 +192,57 @@ public class CreateCollectionCommand implements Callable<Integer> {
         return result;
     }
 
-    public Variant readVariant(ITableReader reader, RiskScoreFormatImpl format) {
+    public Variant readVariant(ITableReader reader, RiskScoreFormatImpl format) throws VariantReadingException {
+        int row = 0;
+
         if (!reader.next()) {
             return null;
         }
-        Variant variant = new Variant();
-        variant.setChromosome(reader.getString(format.getChromosome()));
-        if (reader.getString(format.getPosition()).isEmpty()) {
-            throw new RuntimeException("Not position found.");
+
+        String chromosome = reader.getString(format.getChromosome());
+        if (!chromosomeOrderIndex.containsKey(chromosome)){
+            throw new VariantReadingException("Row " + row + ": Chromosome is invalid.");
         }
-        variant.setPosition(reader.getInteger(format.getPosition()));
-        variant.setEffectAllele(reader.getString(format.getEffectAllele()));
-        variant.setOtherAllele(reader.getString(format.getOtherAllele()));
-        variant.setEffect(reader.getDouble(format.getEffectWeight()));
+
+        if (reader.getString(format.getPosition()).isEmpty()) {
+            throw new VariantReadingException("Row " + row + ": Position is empty. Ignore variant.");
+        }
+
+        int position = 0;
+        try {
+            position = reader.getInteger(format.getPosition());
+
+        } catch (NumberFormatException e) {
+            throw new VariantReadingException("Row " + row + ": '" + reader.getString(format.getPosition())
+                    + "' is an invalid position. Ignore variant.");
+        }
+
+        float effectWeight = 0;
+        try {
+            effectWeight = ((Double) (reader.getDouble(format.getEffectWeight()))).floatValue();
+        } catch (NumberFormatException e) {
+            throw new VariantReadingException("Row " + row + ": '" + reader.getString(format.getEffectWeight())
+                    + "' is an invalid weight. Ignore variant.");
+        }
+
+        String rawOtherA = reader.getString(format.getOtherAllele());
+        if (rawOtherA.isEmpty()) {
+            throw new VariantReadingException("Row " + row + ": Other allele is empty. Ignore variant.");
+        }
+        String otherAllele = rawOtherA.trim();
+
+        String rawEffectAllele = reader.getString(format.getEffectAllele());
+        if (rawEffectAllele.isEmpty()) {
+            throw new VariantReadingException("Row " + row + ": Effect allele is empty. Ignore variant.");
+        }
+        String effectAllele = rawEffectAllele.trim();
+
+        Variant variant = new Variant();
+        variant.setChromosome(chromosome);
+        variant.setPosition(position);
+        variant.setEffectAllele(effectAllele);
+        variant.setOtherAllele(otherAllele);
+        variant.setEffect(effectWeight);
         return variant;
     }
 
@@ -180,8 +254,8 @@ public class CreateCollectionCommand implements Callable<Integer> {
         writer.setString(MergedRiskScoreCollection.COLUMN_OTHER_ALLELE, variant.getOtherAllele());
     }
 
-    public void writeVariant(ITableWriter writer, String score, double effect) {
-        writer.setDouble(score, effect);
+    public void writeVariant(ITableWriter writer, String score, Variant variant) {
+        writer.setDouble(score, variant.getEffect());
     }
 
     public void writeMissing(ITableWriter writer, String score) {
@@ -235,16 +309,24 @@ public class CreateCollectionCommand implements Callable<Integer> {
             this.otherAllele = otherAllele;
         }
 
-        public double getNormalizedEffect(Variant variant) {
+        public void align(Variant variant) {
             if (this.hasSameAlleles(variant)) {
-                return effect;
+                return;
             }
 
             if (this.hasSwappedAlleles(variant)) {
-                return -effect;
+                swapAlleles();
+                return;
             }
 
             throw new RuntimeException("Error. Wrong alleles!!");
+        }
+
+        public void swapAlleles(){
+            String _otherAllele = otherAllele;
+            otherAllele = effectAllele;
+            effectAllele = _otherAllele;
+            effect = -effect;
         }
 
         private boolean hasSameAlleles(Variant variant) {
@@ -293,6 +375,35 @@ public class CreateCollectionCommand implements Callable<Integer> {
         public boolean matches(Variant variant) {
             return hasSamePosition(variant) && (hasSameAlleles(variant) || hasSwappedAlleles(variant));
         }
+    }
+
+
+    private boolean checkFileFormat(String filename, RiskScoreFormatImpl format) throws Exception {
+        CsvWithHeaderTableReader reader = new CsvWithHeaderTableReader(filename, format.getSeparator());
+        reader.close();
+        if (!reader.hasColumn(format.getChromosome())) {
+            System.out.println("Column '" + format.getChromosome() + "' not found in '" + filename + "'. Ignore.");
+            return false;
+        }
+        if (!reader.hasColumn(format.getPosition())) {
+            System.out.println("Column '" + format.getPosition() + "' not found in '" + filename + "'. Ignore.");
+            return false;
+        }
+        if (!reader.hasColumn(format.getEffectWeight())) {
+            System.out.println("Column '" + format.getEffectWeight() + "' not found in '" + filename + "'. Ignore.");
+            return false;
+        }
+        if (!reader.hasColumn(format.getOtherAllele())) {
+            System.out.println("Column '" + format.getOtherAllele() + "' not found in '" + filename + "'. Ignore.");
+            return false;
+        }
+        if (!reader.hasColumn(format.getEffectAllele())) {
+            System.out.println("Column '" + format.getEffectAllele() + "' not found in '" + filename + "'. Ignore.");
+            return false;
+        }
+
+        return true;
+
     }
 
 }

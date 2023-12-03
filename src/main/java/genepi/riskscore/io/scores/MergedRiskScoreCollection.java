@@ -9,10 +9,8 @@ import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScoreSummary;
 import jxl.format.PaperSize;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
 
 public class MergedRiskScoreCollection implements IRiskScoreCollection {
 
@@ -33,6 +31,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	private Map<Integer, Map<Integer, ReferenceVariant>> variantsIndex = new HashMap<Integer, Map<Integer, ReferenceVariant>>();
 
 	public static String HEADER = "# PGS-Collection v1";
+
+	public static String META_EXTENSION = ".info";
 
 	public static  String COLUMN_CHROMOSOME = "chr_name";
 
@@ -73,6 +73,22 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	@Override
 	public void buildIndex(String chromosome, Chunk chunk, String dbsnp, String proxies) throws Exception {
 
+		String metaFilename = filename + META_EXTENSION;
+		File metaFile = new File(metaFilename);
+		if (!metaFile.exists()){
+			throw new RuntimeException("No meta file '" + metaFilename + "' found.");
+		}
+
+		Map<String, Integer> metaIndex = new HashMap<String, Integer>();
+		Map<String, Integer> metaIndex2 = new HashMap<String, Integer>();
+		CsvWithHeaderTableReader readerMeta = new CsvWithHeaderTableReader(metaFilename, '\t');
+		while(readerMeta.next()){
+			metaIndex.put(readerMeta.getString("score"), readerMeta.getInteger("variants"));
+			metaIndex2.put(readerMeta.getString("score"), readerMeta.getInteger("ignored"));
+		}
+		readerMeta.close();
+
+
 		CsvWithHeaderTableReader reader = new CsvWithHeaderTableReader(filename, '\t');
 		String[] columns = reader.getColumns();
 
@@ -85,6 +101,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 				continue;
 			}
 			summaries[index] = new RiskScoreSummary(column);
+			summaries[index].setVariants(metaIndex.get(column));
+			summaries[index].setVariantsIgnored(0);//TODO: merge sums them up. metaIndex2.get(column));
 			variantsIndex.put(index, new HashMap<Integer, ReferenceVariant>());
 			index++;
 		}
@@ -125,16 +143,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 				//TODO: rethink: better position -> score index? easier to check..
 				ReferenceVariant variant = new ReferenceVariant(otherAllele, effectAllele, weight.floatValue());
 				variantsIndex.get(index).put(position, variant);
-
-				//TODO; just testing; we need all variants from whole file!
-				summaries[index].incVariants();
 				index++;
 			}
-
-			//TODO: total variants. meta file?
-			//go to chunk or complete file.
-			//summaries[i].setVariants(riskscore.getTotalVariants());
-			//summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
 
 		}
 
@@ -171,6 +181,11 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	@Override
 	public Set<Map.Entry<Integer, ReferenceVariant>> getAllVariants(int index) {
 		return variantsIndex.get(index).entrySet();
+	}
+
+	@Override
+	public void clearIndex() {
+		variantsIndex = null;
 	}
 
 	@Override

@@ -122,6 +122,13 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 	}
 
 	@Override
+	public void clearIndex() {
+		for (RiskScoreFile riskscore: riskscores) {
+			riskscore.clearIndex();
+		}
+	}
+
+	@Override
 	public boolean isEmpty() {
 		for (RiskScoreFile riskscore : riskscores) {
 			if (riskscore.getLoadedVariants() > 0) {
