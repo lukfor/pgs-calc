@@ -1,9 +1,11 @@
 package genepi.riskscore.io.scores;
 
+import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.csv.CsvWithHeaderTableReader;
+import genepi.riskscore.io.csv.TabixTableReader;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScoreSummary;
@@ -33,6 +35,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	public static String HEADER = "# PGS-Collection v1";
 
 	public static String META_EXTENSION = ".info";
+
+	public static String INDEX_EXTENSION = ".tbi";
 
 	public static  String COLUMN_CHROMOSOME = "chr_name";
 
@@ -88,8 +92,10 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 		}
 		readerMeta.close();
 
-
-		CsvWithHeaderTableReader reader = new CsvWithHeaderTableReader(filename, '\t');
+		if (chunk == null){
+			chunk = new Chunk();
+		}
+		TabixTableReader reader = new TabixTableReader(filename, chromosome, chunk.getStart(), chunk.getEnd());
 		String[] columns = reader.getColumns();
 
 		numberRiskScores = columns.length - COLUMNS.size();
@@ -114,19 +120,6 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 
 			String _chromosome = reader.getString(COLUMN_CHROMOSOME);
 			int position = reader.getInteger(COLUMN_POSITION);
-			if (!_chromosome.equals(chromosome)){
-				continue;
-			}
-			if (chunk != null) {
-				if (position < chunk.getStart()) {
-					continue;
-				}
-
-				if (position > chunk.getEnd()) {
-					break;
-				}
-			}
-
 			String otherAllele = reader.getString(COLUMN_OTHER_ALLELE);
 			String effectAllele = reader.getString(COLUMN_EFFECT_ALLELE);
 
