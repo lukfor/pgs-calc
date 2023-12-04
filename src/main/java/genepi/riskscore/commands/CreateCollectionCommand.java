@@ -63,10 +63,17 @@ public class CreateCollectionCommand implements Callable<Integer> {
         for (int i = 0; i < filenames.length; i++) {
             names[i] = RiskScoreFile.getName(filenames[i]);
             readers[i] = new CsvWithHeaderTableReader(filenames[i], format.getSeparator());
-            try {
-                variants[i] = readVariant(readers[i], format);
-            } catch (Exception e) {
-                throw new RuntimeException("File " + filenames[i], e);
+            boolean read = true;
+            while(read) {
+                try {
+                    variants[i] = readVariant(readers[i], format);
+                    read = false;
+                }catch (VariantReadingException e){
+                    totalVariants[i]++;
+                    ignoredVariants[i]++;
+                } catch (Exception e) {
+                    throw new RuntimeException("File " + filenames[i], e);
+                }
             }
         }
 
@@ -225,12 +232,19 @@ public class CreateCollectionCommand implements Callable<Integer> {
             throw new VariantReadingException("Row " + row + ": '" + reader.getString(format.getEffectWeight())
                     + "' is an invalid weight. Ignore variant.");
         }
-
-        String rawOtherA = reader.getString(format.getOtherAllele());
+        String rawOtherA = "";
+        if (reader.hasColumn(format.getOtherAllele())) {
+            rawOtherA = reader.getString(format.getOtherAllele());
+        } else {
+            rawOtherA = reader.getString("hm_inferOtherAllele");
+        }
         if (rawOtherA.isEmpty()) {
             throw new VariantReadingException("Row " + row + ": Other allele is empty. Ignore variant.");
         }
         String otherAllele = rawOtherA.trim();
+        if (otherAllele.contains("/")){
+            throw new VariantReadingException("Row " + row + ": Other allele contains multiple alleles. Ignore variant.");
+        }
 
         String rawEffectAllele = reader.getString(format.getEffectAllele());
         if (rawEffectAllele.isEmpty()) {
@@ -395,14 +409,15 @@ public class CreateCollectionCommand implements Callable<Integer> {
             return false;
         }
         if (!reader.hasColumn(format.getOtherAllele())) {
-            System.out.println("Column '" + format.getOtherAllele() + "' not found in '" + filename + "'. Ignore.");
-            return false;
+            if (!reader.hasColumn("hm_inferOtherAllele")) {
+                System.out.println("Column '" + format.getOtherAllele() + "' not found in '" + filename + "'. Ignore.");
+                return false;
+            }
         }
         if (!reader.hasColumn(format.getEffectAllele())) {
             System.out.println("Column '" + format.getEffectAllele() + "' not found in '" + filename + "'. Ignore.");
             return false;
         }
-
         return true;
 
     }
