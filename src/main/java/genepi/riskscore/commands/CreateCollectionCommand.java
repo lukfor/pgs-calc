@@ -105,6 +105,7 @@ public class CreateCollectionCommand implements Callable<Integer> {
                             nextVariant = readVariant(readers[i], format);
                             read = false;
                         }catch (VariantReadingException e){
+                            totalVariants[i]++;
                             ignoredVariants[i]++;
                         } catch (Exception e) {
                             throw new RuntimeException("File " + filenames[i], e);
