@@ -287,12 +287,15 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 			}
+			if (!collection.contains(position, variant.getReferenceAllele(), variant.getAlternateAllele())){
+				continue;
+			}
+
 			for (int j = 0; j < collection.getSize(); j++) {
 
 				RiskScoreSummary summary = collection.getSummaries()[j];
 
-				boolean isPartOfRiskScore = collection.contains(j, position);
-
+				boolean isPartOfRiskScore = collection.contains(j, position, variant.getReferenceAllele(), variant.getAlternateAllele());
 				if (!isPartOfRiskScore) {
 					summary.incNotFound();
 					continue;
@@ -304,15 +307,13 @@ public class ApplyScoreTask implements ITaskRunnable {
 						continue;
 					}
 				}
-
 				// Imputation Quality Filter
 				double r2 = variant.getInfoAsDouble(INFO_R2, 0);
 				if (r2 < minR2) {
 					summary.incR2Filtered();
 					continue;
 				}
-				ReferenceVariant referenceVariant = collection.getVariant(j, position);
-
+				ReferenceVariant referenceVariant = collection.getVariant(j, position, variant.getReferenceAllele(), variant.getAlternateAllele());
 				float effectWeight = referenceVariant.getEffectWeight();
 				String referenceAllele = variant.getReferenceAllele();
 				// ignore deletions

@@ -20,11 +20,13 @@ public interface IRiskScoreCollection {
 
 	public RiskScoreSummary getSummary(int index);
 
-	public boolean contains(int index, int position);
+	public boolean contains(int position, String alleleA, String alleleB);
+
+	public boolean contains(int index, int position, String alleleA, String alleleB);
 
 	public Set<Entry<Integer, ReferenceVariant>> getAllVariants(int index);
 
-	public ReferenceVariant getVariant(int index, int position);
+	public ReferenceVariant getVariant(int index, int position, String alleleA, String alleleB);
 
 	public int getSize();
 	

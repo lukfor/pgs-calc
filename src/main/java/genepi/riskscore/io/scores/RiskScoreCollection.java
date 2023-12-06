@@ -102,12 +102,17 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 	}
 
 	@Override
-	public boolean contains(int index, int position) {
+	public boolean contains( int position, String alleleA, String alleleB) {
+		return true;
+	}
+
+	@Override
+	public boolean contains(int index, int position, String alleleA, String alleleB) {
 		return riskscores[index].contains(position);
 	}
 
 	@Override
-	public ReferenceVariant getVariant(int index, int position) {
+	public ReferenceVariant getVariant(int index, int position, String alleleA, String alleleB) {
 		return riskscores[index].getVariant(position);
 	}
 

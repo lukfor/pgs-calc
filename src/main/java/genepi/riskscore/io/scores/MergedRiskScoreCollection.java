@@ -1,15 +1,10 @@
 package genepi.riskscore.io.scores;
 
-import genepi.io.table.reader.ITableReader;
 import genepi.riskscore.io.Chunk;
-import genepi.riskscore.io.RiskScoreFile;
-import genepi.riskscore.io.VariantFile;
 import genepi.riskscore.io.csv.CsvWithHeaderTableReader;
 import genepi.riskscore.io.csv.TabixTableReader;
-import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScoreSummary;
-import jxl.format.PaperSize;
 
 import java.io.File;
 import java.util.*;
@@ -30,7 +25,7 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 
 	private boolean verbose = false;
 
-	private Map<Integer, Map<Integer, ReferenceVariant>> variantsIndex = new HashMap<Integer, Map<Integer, ReferenceVariant>>();
+	private Map<String, MergedVariant> variantsIndex = new HashMap<String, MergedVariant>();
 
 	public static String HEADER = "# PGS-Collection v1";
 
@@ -47,6 +42,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	public static  String COLUMN_OTHER_ALLELE = "other_allele";
 
 	public static Set<String> COLUMNS = new HashSet<String>();
+
+	private ReferenceVariant reference = new ReferenceVariant();
 
 	static {
 		COLUMNS.add(COLUMN_CHROMOSOME);
@@ -109,20 +106,27 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 			summaries[index] = new RiskScoreSummary(column);
 			summaries[index].setVariants(metaIndex.get(column));
 			summaries[index].setVariantsIgnored(0);//TODO: merge sums them up. metaIndex2.get(column));
-			variantsIndex.put(index, new HashMap<Integer, ReferenceVariant>());
 			index++;
 		}
 
 
 		int total = 0;
 
-		while(reader.next()){
+		while(reader.next()) {
 
 			String _chromosome = reader.getString(COLUMN_CHROMOSOME);
 			int position = reader.getInteger(COLUMN_POSITION);
 			String otherAllele = reader.getString(COLUMN_OTHER_ALLELE);
 			String effectAllele = reader.getString(COLUMN_EFFECT_ALLELE);
 
+			String key = createKey(position, effectAllele, otherAllele);
+			MergedVariant variant = null;
+			if (variantsIndex.containsKey(key)) {
+				variant = variantsIndex.get(key);
+			} else{
+				variant = new MergedVariant(effectAllele, otherAllele);
+				variantsIndex.put(key, variant);
+			}
 			index = 0;
 			for (String column: columns){
 				if (COLUMNS.contains(column)){
@@ -133,9 +137,7 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 					continue;
 				}
 				Double weight = reader.getDouble(column);
-				//TODO: rethink: better position -> score index? easier to check..
-				ReferenceVariant variant = new ReferenceVariant(otherAllele, effectAllele, weight.floatValue());
-				variantsIndex.get(index).put(position, variant);
+				variant.add(index, weight.floatValue());
 				index++;
 			}
 
@@ -155,25 +157,36 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 		return summaries[index];
 	}
 
-	@Override
-	public boolean contains(int index, int position) {
-		if(!variantsIndex.containsKey(index)){
-			return false;
-		}
-		if (!variantsIndex.get(index).containsKey(position)){
-			return false;
-		}
-		return true;
-	}
 
 	@Override
-	public ReferenceVariant getVariant(int index, int position) {
-		return variantsIndex.get(index).get(position);
+	public boolean contains(int position, String alleleA, String alleleB) {
+		String key = createKey(position, alleleA, alleleB);
+		return variantsIndex.containsKey(key);
+	}
+	@Override
+	public boolean contains(int index, int position, String alleleA, String alleleB) {
+		String key = createKey(position, alleleA, alleleB);
+		if(!variantsIndex.containsKey(key)){
+			return false;
+		}
+        return variantsIndex.get(key).contains(index);
+    }
+
+	@Override
+	public ReferenceVariant getVariant(int index, int position,  String alleleA, String alleleB) {
+		String key = createKey(position, alleleA, alleleB);
+		MergedVariant a = variantsIndex.get(key);
+		//ReferenceVariant reference = new ReferenceVariant(a.otherAllele, a.effectAllele, a.getWeight(index));
+		reference.setOtherAllele(a.otherAllele);
+		reference.setEffectAllele(a.effectAllele);
+		reference.setEffectWeight(a.getWeight(index));
+		reference.setUsed(false);
+		return reference;
 	}
 
 	@Override
 	public Set<Map.Entry<Integer, ReferenceVariant>> getAllVariants(int index) {
-		return variantsIndex.get(index).entrySet();
+		throw new RuntimeException("Not yet implemented!");
 	}
 
 	@Override
@@ -198,6 +211,43 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
+	}
+
+
+	public class MergedVariant {
+
+		private String effectAllele = "";
+
+		private String otherAllele = "";
+
+		private Map<Integer, Float> weights;
+
+		public MergedVariant(String effectAllele, String otherAllele){
+			this.effectAllele = effectAllele;
+			this.otherAllele = otherAllele;
+			weights = new HashMap<Integer, Float>();
+		}
+
+		public void add(int score, float weight){
+			weights.put(score, weight);
+		}
+
+		public float getWeight(int score){
+			return weights.get(score);
+		}
+
+		public boolean contains(int score) {
+			return weights.containsKey(score);
+		}
+
+	}
+
+	public static String createKey(int position, String alleleA, String alleleB){
+		if (alleleA.compareTo(alleleB) < 1){
+			return position + "_" + alleleA + "_" + alleleB;
+		} else {
+			return position + "_" + alleleB + "_" + alleleA;
+		}
 	}
 
 }
