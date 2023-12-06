@@ -5,7 +5,7 @@
 
 	<groupId>lukfor</groupId>
 	<artifactId>pgs-calc</artifactId>
-	<version>1.5.5</version>
+	<version>1.6.0</version>
 	<packaging>jar</packaging>
 
 	<name>pgs-calc</name>
