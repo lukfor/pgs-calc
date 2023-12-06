@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 import genepi.io.table.reader.ITableReader;
 import genepi.io.table.writer.ITableWriter;
+import genepi.io.text.LineReader;
 import genepi.riskscore.App;
 import genepi.riskscore.io.RiskScoreFile;
 import genepi.riskscore.io.csv.CsvWithHeaderTableReader;
@@ -26,6 +27,9 @@ public class CreateCollectionCommand implements Callable<Integer> {
     @Option(names = "--out", description = "output score file", required = false)
     private String output = null;
 
+    @Option(names = "--scores", description = "list of input files. One filename per line.", required = false)
+    private String scores;
+
     @Parameters(description = "score files")
     private String[] files;
 
@@ -44,12 +48,49 @@ public class CreateCollectionCommand implements Callable<Integer> {
 
         PGSCatalogHarmonizedFormat format = new PGSCatalogHarmonizedFormat();
 
+        if (!new File(scores).exists()){
+            System.err.println("Score file'" + scores + "' not found.");
+            System.exit(1);
+        }
+
+        if (scores != null){
+            List<String> filenames = new Vector<String>();
+            LineReader reader = new LineReader(scores);
+            while(reader.next()) {
+                String filename = reader.get().trim();
+                if (!filename.isEmpty()) {
+                    if (new File(filename).exists()) {
+                        filenames.add(filename);
+                    }else {
+                        System.err.println("Ignore input file '" + filename + "'.");
+                    }
+                }
+            }
+            reader.close();
+            if (filenames.isEmpty()){
+                System.err.println("No input files found.");
+                System.exit(1);
+            }
+            files = new String[filenames.size()];
+            files = filenames.toArray(files);
+        }
+
+        if (files == null){
+            System.err.println("No input files found.");
+            System.exit(1);
+        }
+
         List<String> validFilenames = new Vector<String>(files.length);
         //validate files
         for (String filename: files){
             if (checkFileFormat(filename, format)){
                 validFilenames.add(filename);
             }
+        }
+
+        if (validFilenames.isEmpty()) {
+            System.err.println("No valid input files found.");
+            System.exit(1);
         }
 
         String[] filenames = new String[validFilenames.size()];
