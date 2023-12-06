@@ -8,20 +8,7 @@ import static lukfor.progress.Components.TIME;
 
 import java.util.concurrent.Callable;
 
-import genepi.riskscore.commands.ApplyScoreCommand;
-import genepi.riskscore.commands.ClearCacheCommand;
-import genepi.riskscore.commands.CreateChunksCommand;
-import genepi.riskscore.commands.CreateHtmlReportCommand;
-import genepi.riskscore.commands.DownloadMetaCommand;
-import genepi.riskscore.commands.DownloadScoreCommand;
-import genepi.riskscore.commands.LiftOverScoreCommand;
-import genepi.riskscore.commands.MergeEffectsCommand;
-import genepi.riskscore.commands.MergeInfoCommand;
-import genepi.riskscore.commands.MergeScoreCommand;
-import genepi.riskscore.commands.MergeVariantsCommand;
-import genepi.riskscore.commands.ProcessHaploRegCommand;
-import genepi.riskscore.commands.ResolveScoreCommand;
-import genepi.riskscore.commands.ValidateScoreCommand;
+import genepi.riskscore.commands.*;
 import lukfor.progress.renderer.ProgressIndicatorGroup;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -61,7 +48,7 @@ public class App {
 			MergeInfoCommand.class, MergeVariantsCommand.class, MergeEffectsCommand.class, ResolveScoreCommand.class,
 			CreateHtmlReportCommand.class, DownloadMetaCommand.class, LiftOverScoreCommand.class,
 			DownloadScoreCommand.class, ClearCacheCommand.class, ValidateScoreCommand.class,
-			ProcessHaploRegCommand.class, CreateChunksCommand.class })
+			ProcessHaploRegCommand.class, CreateChunksCommand.class, CreateCollectionCommand.class })
 	public static class DefaultCommand implements Callable<Integer> {
 
 		@Override

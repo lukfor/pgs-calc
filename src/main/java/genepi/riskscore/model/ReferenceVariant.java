@@ -18,6 +18,22 @@ public class ReferenceVariant {
 		this.effectWeight = effectWeight;
 	}
 
+	public ReferenceVariant(){
+
+	}
+
+	public void setEffectWeight(float effectWeight) {
+		this.effectWeight = effectWeight;
+	}
+
+	public void setOtherAllele(String otherAllele) {
+		this.otherAllele = otherAllele;
+	}
+
+	public void setEffectAllele(String effectAllele) {
+		this.effectAllele = effectAllele;
+	}
+
 	public float getEffectWeight() {
 		return effectWeight;
 	}
@@ -62,4 +78,8 @@ public class ReferenceVariant {
 		return parent;
 	}
 
+	@Override
+	public String toString() {
+		return effectAllele + "_" + otherAllele + ":" + effectWeight;
+	}
 }

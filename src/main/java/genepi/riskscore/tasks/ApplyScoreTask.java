@@ -9,13 +9,12 @@ import java.util.Map.Entry;
 import java.util.Vector;
 
 import genepi.io.table.writer.CsvTableWriter;
-import genepi.riskscore.io.Chunk;
-import genepi.riskscore.io.OutputFileWriter;
-import genepi.riskscore.io.ReportFile;
-import genepi.riskscore.io.RiskScoreFile;
-import genepi.riskscore.io.SamplesFile;
-import genepi.riskscore.io.VariantFile;
+import genepi.riskscore.io.*;
+import genepi.riskscore.io.scores.MergedRiskScoreCollection;
+import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
+import genepi.riskscore.io.scores.IRiskScoreCollection;
+import genepi.riskscore.io.scores.RiskScoreCollection;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
@@ -55,10 +54,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String genotypeFormat = DOSAGE_FORMAT;
 
-	private int numberRiskScores = 0;
-
-	private RiskScoreSummary[] summaries;
-
 	private String output;
 
 	private String outputEffectsFilename;
@@ -74,6 +69,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private boolean inverseDosage = false;
 
 	private boolean averaging = false;
+
+	private IRiskScoreCollection collection;
 	
 	public static final String INFO_R2 = "R2";
 
@@ -151,9 +148,6 @@ public class ApplyScoreTask implements ITaskRunnable {
 			throw new Exception("Please specify a output filename.");
 		}
 
-		if (riskScoreFilenames == null || riskScoreFilenames.length == 0) {
-			throw new Exception("Reference can not be null or empty.");
-		}
 		try {
 
 			// read chromosome from first variant
@@ -171,32 +165,32 @@ public class ApplyScoreTask implements ITaskRunnable {
 			monitor.begin(taskName, new File(vcf).length());
 			monitor.worked(0);
 
-			numberRiskScores = riskScoreFilenames.length;
-			summaries = new RiskScoreSummary[numberRiskScores];
-			for (int i = 0; i < numberRiskScores; i++) {
-				String name = RiskScoreFile.getName(riskScoreFilenames[i]);
-				summaries[i] = new RiskScoreSummary(name);
+			if (riskScoreFilenames == null || riskScoreFilenames.length == 0){
+				throw new Exception("Reference score or collection can not be null or empty.");
 			}
 
-			RiskScoreFile[] riskscores = loadReferenceFiles(monitor, chromosome, dbsnp, proxies, riskScoreFilenames);
-
-			boolean empty = true;
-			for (RiskScoreFile riskscore : riskscores) {
-				if (riskscore.getLoadedVariants() > 0) {
-					empty = false;
-					break;
-				}
+			//TODO: move to factory
+			if (riskScoreFilenames.length == 1 && new File(riskScoreFilenames[0]).exists() &&
+					RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith(MergedRiskScoreCollection.HEADER)) {
+				collection = new MergedRiskScoreCollection(riskScoreFilenames[0]);
+			} else {
+				collection = new RiskScoreCollection(riskScoreFilenames, formats);
 			}
 
-			processVCF(monitor, chromosome, vcf, riskscores, empty);
+			collection.buildIndex(chromosome, chunk, dbsnp, proxies);
 
-			OutputFileWriter outputFile = new OutputFileWriter(riskScores, summaries);
+			processVCF(monitor, chromosome, vcf, collection);
+
+			OutputFileWriter outputFile = new OutputFileWriter(riskScores, collection.getSummaries());
 			outputFile.save(output);
 
 			if (outputReportFilename != null) {
-				ReportFile reportFile = new ReportFile(summaries);
+				ReportFile reportFile = new ReportFile(collection.getSummaries());
 				reportFile.save(outputReportFilename);
 			}
+
+			//cleanup
+			collection.clearIndex();
 
 			monitor.done();
 		} catch (Exception e) {
@@ -215,37 +209,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	}
 
-	private RiskScoreFile[] loadReferenceFiles(ITaskMonitor monitor, String chromosome, String dbsnp, String proxies,
-			String... riskScoreFilenames) throws Exception {
-
-		RiskScoreFile[] riskscores = new RiskScoreFile[numberRiskScores];
-		for (int i = 0; i < numberRiskScores; i++) {
-
-			debug("Loading file " + riskScoreFilenames[i] + "...");
-
-			RiskScoreFormat format = formats.get(riskScoreFilenames[i]);
-			RiskScoreFile riskscore = new RiskScoreFile(riskScoreFilenames[i], format, dbsnp, proxies);
-
-			if (chunk != null) {
-				riskscore.buildIndex(chromosome, chunk);
-			} else {
-				riskscore.buildIndex(chromosome);
-			}
-
-			summaries[i].setVariants(riskscore.getTotalVariants());
-			summaries[i].setVariantsIgnored(riskscore.getIgnoredVariants());
-
-			debug("Loaded " + riskscore.getLoadedVariants() + " weights for chromosome " + chromosome);
-			riskscores[i] = riskscore;
-			monitor.worked(0);
-		}
-
-		return riskscores;
-
-	}
-
-	private void processVCF(ITaskMonitor monitor, String chromosome, String vcfFilename, RiskScoreFile[] riskscores,
-			boolean empty) throws Exception {
+	private void processVCF(ITaskMonitor monitor, String chromosome, String vcfFilename,IRiskScoreCollection collection) throws Exception {
 
 		debug("Loading file " + vcfFilename + "...");
 
@@ -271,7 +235,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		for (int i = 0; i < countSamples; i++) {
 			String sample = vcfReader.getGenotypedSamples().get(i);
 			if (samplesFile == null || samplesFile.contains(sample)) {
-				RiskScore riskScore = new RiskScore(chromosome, sample, riskScoreFilenames.length);
+				RiskScore riskScore = new RiskScore(chromosome, sample, collection.getSize());
 				riskScores.add(riskScore);
 			}
 		}
@@ -294,7 +258,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		
 		int proxy = 0;
 
-		while (vcfReader.next() && !outOfChunk && !empty) {
+		while (vcfReader.next() && !outOfChunk && !collection.isEmpty()) {
 
 			if (monitor.isCanceled()) {
 				return;
@@ -323,14 +287,15 @@ public class ApplyScoreTask implements ITaskRunnable {
 				}
 
 			}
+			if (!collection.contains(position, variant.getReferenceAllele(), variant.getAlternateAllele())){
+				continue;
+			}
 
-			for (int j = 0; j < riskScoreFilenames.length; j++) {
+			for (int j = 0; j < collection.getSize(); j++) {
 
-				RiskScoreSummary summary = summaries[j];
+				RiskScoreSummary summary = collection.getSummaries()[j];
 
-				RiskScoreFile riskscore = riskscores[j];
-				boolean isPartOfRiskScore = riskscore.contains(position);
-
+				boolean isPartOfRiskScore = collection.contains(j, position, variant.getReferenceAllele(), variant.getAlternateAllele());
 				if (!isPartOfRiskScore) {
 					summary.incNotFound();
 					continue;
@@ -342,20 +307,15 @@ public class ApplyScoreTask implements ITaskRunnable {
 						continue;
 					}
 				}
-
 				// Imputation Quality Filter
 				double r2 = variant.getInfoAsDouble(INFO_R2, 0);
 				if (r2 < minR2) {
 					summary.incR2Filtered();
 					continue;
 				}
-
-				ReferenceVariant referenceVariant = riskscore.getVariant(position);
-
+				ReferenceVariant referenceVariant = collection.getVariant(j, position, variant.getReferenceAllele(), variant.getAlternateAllele());
 				float effectWeight = referenceVariant.getEffectWeight();
-
 				String referenceAllele = variant.getReferenceAllele();
-
 				// ignore deletions
 				if (variant.getAlternateAllele().length() == 0) {
 					summary.incMultiAllelic();
@@ -477,10 +437,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (variantsWriter != null) {
 
 			// write all unused variants to file!
-			for (int j = 0; j < riskScoreFilenames.length; j++) {
-				RiskScoreSummary summary = summaries[j];
-				RiskScoreFile riskscore = riskscores[j];
-				for (Entry<Integer, ReferenceVariant> item : riskscore.getVariants().entrySet()) {
+			for (int j = 0; j < collection.getSize(); j++) {
+				RiskScoreSummary summary = collection.getSummaries()[j];
+				for (Entry<Integer, ReferenceVariant> item : collection.getAllVariants(j)) {
 					ReferenceVariant variant = item.getValue();
 					int position = item.getKey();
 
@@ -518,7 +477,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		}
 
 		vcfReader.close();
-debug("Used " + proxy + " proxies");
+		debug("Used " + proxy + " proxies");
 		debug("Loaded " + countSamples + " samples and " + countVariants + " variants.");
 
 	}
@@ -545,7 +504,7 @@ debug("Used " + proxy + " proxies");
 	}
 
 	public RiskScoreSummary[] getSummaries() {
-		return summaries;
+		return collection.getSummaries();
 	}
 
 	int getCountVariants() {

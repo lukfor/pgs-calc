@@ -277,4 +277,7 @@ public class RiskScoreFile {
 		}
 	}
 
+	public void clearIndex() {
+		variants = null;
+	}
 }
