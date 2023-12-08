@@ -48,7 +48,7 @@ public class App {
 			MergeInfoCommand.class, MergeVariantsCommand.class, MergeEffectsCommand.class, ResolveScoreCommand.class,
 			CreateHtmlReportCommand.class, DownloadMetaCommand.class, LiftOverScoreCommand.class,
 			DownloadScoreCommand.class, ClearCacheCommand.class, ValidateScoreCommand.class,
-			ProcessHaploRegCommand.class, CreateChunksCommand.class, CreateCollectionCommand.class })
+			ProcessHaploRegCommand.class, CreateChunksCommand.class, CreateCollectionCommand.class, FilterMetaCommand.class })
 	public static class DefaultCommand implements Callable<Integer> {
 
 		@Override

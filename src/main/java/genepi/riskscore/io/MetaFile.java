@@ -1,8 +1,10 @@
 package genepi.riskscore.io;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
@@ -37,6 +39,10 @@ public class MetaFile {
 		return index.get(id);
 	}
 
+	public Collection<MetaScore> getAll(){
+		return index.values();
+	}
+
 	public void save(String filename) throws IOException {
 		Gson gson = new Gson();
 		String json = gson.toJson(index);
@@ -58,6 +64,8 @@ public class MetaFile {
 		private ScorePopulationMap populations;
 
 		private Map<String, String> publication;
+
+		private List<String> categories = new Vector<String>();
 
 		private int variants;
 
@@ -147,6 +155,20 @@ public class MetaFile {
 			this.samples = samples;
 		}
 
+		public List<String> getCategories() {
+			return categories;
+		}
+
+		public void addCategory(String category){
+			if (categories.contains(category)){
+				return;
+			}
+			this.categories.add(category);
+		}
+
+		public void setCategories(List<String> categories) {
+			this.categories = categories;
+		}
 	}
 
 }

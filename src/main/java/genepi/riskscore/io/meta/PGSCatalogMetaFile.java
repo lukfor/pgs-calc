@@ -28,7 +28,7 @@ public class PGSCatalogMetaFile {
 
 	}
 
-	public static PGSCatalogMetaFile load(String filename)
+	public static PGSCatalogMetaFile load(String filename, PGSCatalogCategoryFile categoryFile)
 			throws JsonIOException, JsonSyntaxException, FileNotFoundException {
 		PGSCatalogMetaFile file = new PGSCatalogMetaFile();
 		// file.data
@@ -48,6 +48,13 @@ public class PGSCatalogMetaFile {
 		file.index = new HashMap<String, MetaScore>();
 		for (Object score : list) {
 			MetaScore metaScore = parsePGSCatalog((AbstractMap<String, Object>) score);
+			for (Map<String, String> efo: metaScore.getEfo()){
+				String id = efo.get("id");
+				List<String> categories = categoryFile.getCategories(id);
+				for (String category: categories){
+					metaScore.addCategory(category);
+				}
+			}
 			file.index.put(metaScore.getId(), metaScore);
 		}
 		return file;

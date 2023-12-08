@@ -48,12 +48,13 @@ public class CreateCollectionCommand implements Callable<Integer> {
 
         PGSCatalogHarmonizedFormat format = new PGSCatalogHarmonizedFormat();
 
-        if (!new File(scores).exists()){
-            System.err.println("Score file'" + scores + "' not found.");
-            System.exit(1);
-        }
-
         if (scores != null){
+
+            if (!new File(scores).exists()){
+                System.err.println("Score file'" + scores + "' not found.");
+                System.exit(1);
+            }
+
             List<String> filenames = new Vector<String>();
             LineReader reader = new LineReader(scores);
             while(reader.next()) {
