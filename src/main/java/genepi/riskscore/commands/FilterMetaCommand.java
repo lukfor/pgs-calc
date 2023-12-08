@@ -70,5 +70,19 @@ public class FilterMetaCommand implements Callable<Integer> {
 		return true;
 	}
 
+	public void setMeta(String meta) {
+		this.meta = meta;
+	}
 
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public void setPopulation(String population) {
+		this.population = population;
+	}
+
+	public void setOut(String out) {
+		this.out = out;
+	}
 }

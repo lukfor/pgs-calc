@@ -69,6 +69,10 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	@Option(names = { "--samples" }, description = "Include only samples from this file", required = false)
 	String includeSamplesFilename = null;
 
+	@Option(names = { "--includeScores",
+			"--include-scores" }, description = "Include only scores from this file. Works only with score collections.", required = false)
+	String includeScoresFilename = null;
+
 	@Option(names = { "--report-json", "--info" }, description = "Write statistics to json file", required = false)
 	String reportJson = null;
 
@@ -202,6 +206,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			}
 			task.setIncludeVariantFilename(includeVariantFilename);
 			task.setIncludeSamplesFilename(includeSamplesFilename);
+			task.setIncludeScoreFilename(includeScoresFilename);
 			task.setOutput(taskPrefix + ".scores.txt");
 			task.setFixStrandFlips(fixStrandFlips);
 			task.setRemoveAmbiguous(removeAmbiguous);

@@ -62,6 +62,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private String proxies;
 
+	private String includeScoreFilename = null;
+
 	private boolean fixStrandFlips = false;
 
 	private boolean removeAmbiguous = false;
@@ -112,6 +114,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	public void setIncludeSamplesFilename(String includeSamplesFilename) {
 		this.includeSamplesFilename = includeSamplesFilename;
+	}
+
+	public void setIncludeScoreFilename(String includeScoreFilename) {
+		this.includeScoreFilename = includeScoreFilename;
 	}
 
 	public void setGenotypeFormat(String genotypeFormat) {
@@ -172,7 +178,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 			//TODO: move to factory
 			if (riskScoreFilenames.length == 1 && new File(riskScoreFilenames[0]).exists() &&
 					RiskScoreFormatFactory.readHeader(riskScoreFilenames[0]).startsWith(MergedRiskScoreCollection.HEADER)) {
-				collection = new MergedRiskScoreCollection(riskScoreFilenames[0]);
+				collection = new MergedRiskScoreCollection(riskScoreFilenames[0], includeScoreFilename);
 			} else {
 				collection = new RiskScoreCollection(riskScoreFilenames, formats);
 			}
