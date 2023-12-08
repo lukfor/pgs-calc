@@ -1,5 +1,6 @@
 package genepi.riskscore.io.scores;
 
+import genepi.io.text.LineReader;
 import genepi.riskscore.io.Chunk;
 import genepi.riskscore.io.csv.CsvWithHeaderTableReader;
 import genepi.riskscore.io.csv.TabixTableReader;
@@ -22,6 +23,8 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	private int numberRiskScores;
 
 	private String filename;
+
+	private String includeScoresFilename;
 
 	private boolean verbose = false;
 
@@ -52,8 +55,9 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 		COLUMNS.add(COLUMN_OTHER_ALLELE);
 	}
 
-	public MergedRiskScoreCollection(String filename) {
+	public MergedRiskScoreCollection(String filename, String includeScoresFilename) {
 		this.filename = filename;
+		this.includeScoresFilename = includeScoresFilename;
 	}
 
 	@Override
@@ -73,6 +77,19 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 
 	@Override
 	public void buildIndex(String chromosome, Chunk chunk, String dbsnp, String proxies) throws Exception {
+
+		List<String> includedScores = new Vector<String>();
+
+		if (includeScoresFilename != null) {
+			LineReader lineReader = new LineReader(includeScoresFilename);
+			while(lineReader.next()){
+				String score = lineReader.get().trim();
+				if (!score.isEmpty()) {
+					includedScores.add(score);
+				}
+			}
+			lineReader.close();
+		}
 
 		String metaFilename = filename + META_EXTENSION;
 		File metaFile = new File(metaFilename);
@@ -95,12 +112,25 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 		TabixTableReader reader = new TabixTableReader(filename, chromosome, chunk.getStart(), chunk.getEnd());
 		String[] columns = reader.getColumns();
 
-		numberRiskScores = columns.length - COLUMNS.size();
+		Map<String, Integer> scoreToColumn = new HashMap<String, Integer>();
+		summaries = new RiskScoreSummary[numberRiskScores];
+		for (int i = 0; i < columns.length; i++){
+			String column = columns[i];
+			if (COLUMNS.contains(column)){
+				continue;
+			}
+			if (!includedScores.isEmpty() && !includedScores.contains(column)){
+				continue;
+			}
+			scoreToColumn.put(column, i);
+		}
 
+
+		numberRiskScores = scoreToColumn.size();
 		summaries = new RiskScoreSummary[numberRiskScores];
 		int index = 0;
 		for (String column: columns){
-			if (COLUMNS.contains(column)){
+			if (!scoreToColumn.containsKey(column)){
 				continue;
 			}
 			summaries[index] = new RiskScoreSummary(column);
@@ -129,7 +159,7 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 			}
 			index = 0;
 			for (String column: columns){
-				if (COLUMNS.contains(column)){
+				if (!scoreToColumn.containsKey(column)){
 					continue;
 				}
 				if (reader.getString(column).equals("") || reader.getString(column).equals(".")){
