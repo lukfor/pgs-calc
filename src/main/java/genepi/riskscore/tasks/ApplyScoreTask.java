@@ -72,6 +72,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 	private boolean averaging = false;
 
+	private boolean imputeMissing = false;
+
 	private IRiskScoreCollection collection;
 	
 	public static final String INFO_R2 = "R2";
@@ -384,9 +386,9 @@ public class ApplyScoreTask implements ITaskRunnable {
 					continue;
 				}
 
-				if (!averaging && variant.hasMissingGenotypes(genotypeFormat)) {
-					summary.incMissingGenotypes();
-					continue;
+				if (!imputeMissing && !averaging && variant.hasMissingGenotypes(genotypeFormat)) {
+						summary.incMissingGenotypes();
+						continue;
 				}
 				/*if (referenceVariant.getParent() == null) {
 					System.out.println(variant);
@@ -409,11 +411,22 @@ public class ApplyScoreTask implements ITaskRunnable {
 
 				float[] dosages = variant.getGenotypeDosages(genotypeFormat);
 
+				float mean = 0;
+				for (int i = 0; i < countSamples; i++) {
+					float dosage = dosages[i];
+					if (dosage >=0 ) {
+						mean += dosage;
+					}
+				}
+				mean = mean / (float) countSamples;
 				int indexSample = 0;
 				for (int i = 0; i < countSamples; i++) {
 					String sample = vcfReader.getGenotypedSamples().get(i);
 					if (samplesFile == null || samplesFile.contains(sample)) {
 						float dosage = dosages[i];
+						if (dosage == -1 ) {
+							dosage = mean;
+						}
 						if (dosage >= 0) {
 							double effect = 0;
 							if (inverseDosage && switched) {
@@ -560,4 +573,7 @@ public class ApplyScoreTask implements ITaskRunnable {
 		this.inverseDosage = inverseDosage;
 	}
 
+	public void setImputeMissing(boolean imputeMissing) {
+		this.imputeMissing = imputeMissing;
+	}
 }

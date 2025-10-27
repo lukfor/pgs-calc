@@ -107,6 +107,14 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			"--remove-ambiguous" }, description = "Remove all ambigous variants (A/T and G/C)", required = false, showDefaultValue = Visibility.ALWAYS)
 	boolean removeAmbiguous = false;
 
+	@Option(
+			names = {"--impute-missing"},
+			description = "Impute missing values in the dataset",
+			required = false,
+			showDefaultValue = Visibility.ALWAYS
+	)
+	boolean imputeMissing = false;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -211,6 +219,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setFixStrandFlips(fixStrandFlips);
 			task.setRemoveAmbiguous(removeAmbiguous);
 			task.setInverseDosage(inverseDosage);
+			task.setImputeMissing(imputeMissing);
 			tasks.add(task);
 
 		}
