@@ -117,6 +117,15 @@ public class RiskScoreCollection implements IRiskScoreCollection {
 	}
 
 	@Override
+	public List<Integer> getUniquePositions() {
+		Set<Integer> positions = new TreeSet<>(); // TreeSet keeps them sorted & unique
+		for (RiskScoreFile riskscore : riskscores) {
+			positions.addAll(riskscore.getVariants().keySet());
+		}
+		return new ArrayList<>(positions);
+	}
+
+	@Override
 	public Set<Map.Entry<Integer, ReferenceVariant>> getAllVariants(int index) {
 		return riskscores[index].getVariants().entrySet();
 	}

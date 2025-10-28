@@ -115,6 +115,14 @@ public class ApplyScoreCommand implements Callable<Integer> {
 	)
 	boolean imputeMissing = false;
 
+	@Option(
+			names = {"--fast-mode"},
+			description = "Use vcf index indices",
+			required = false,
+			showDefaultValue = Visibility.ALWAYS
+	)
+	boolean fastMode = false;
+
 	@Option(names = { "--help" }, usageHelp = true)
 	boolean showHelp;
 
@@ -220,6 +228,7 @@ public class ApplyScoreCommand implements Callable<Integer> {
 			task.setRemoveAmbiguous(removeAmbiguous);
 			task.setInverseDosage(inverseDosage);
 			task.setImputeMissing(imputeMissing);
+			task.setFastMode(fastMode);
 			tasks.add(task);
 
 		}

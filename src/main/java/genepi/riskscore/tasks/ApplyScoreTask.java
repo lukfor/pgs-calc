@@ -2,12 +2,10 @@ package genepi.riskscore.tasks;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Vector;
 
+import genepi.io.reader.IReader;
 import genepi.io.table.writer.CsvTableWriter;
 import genepi.riskscore.io.*;
 import genepi.riskscore.io.scores.MergedRiskScoreCollection;
@@ -15,7 +13,9 @@ import genepi.riskscore.io.formats.RiskScoreFormatFactory;
 import genepi.riskscore.io.formats.RiskScoreFormatFactory.RiskScoreFormat;
 import genepi.riskscore.io.scores.IRiskScoreCollection;
 import genepi.riskscore.io.scores.RiskScoreCollection;
+import genepi.riskscore.io.vcf.FastRegionVCFFileReader;
 import genepi.riskscore.io.vcf.FastVCFFileReader;
+import genepi.riskscore.io.vcf.IVCFFileReader;
 import genepi.riskscore.io.vcf.MinimalVariantContext;
 import genepi.riskscore.model.ReferenceVariant;
 import genepi.riskscore.model.RiskScore;
@@ -73,6 +73,8 @@ public class ApplyScoreTask implements ITaskRunnable {
 	private boolean averaging = false;
 
 	private boolean imputeMissing = false;
+
+	private boolean fastMode = false;
 
 	private IRiskScoreCollection collection;
 	
@@ -235,8 +237,30 @@ public class ApplyScoreTask implements ITaskRunnable {
 			samplesFile.buildIndex();
 		}
 
-		CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
-		FastVCFFileReader vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
+		List<Integer> positions = collection.getUniquePositions();
+		List<Integer> filteredPositions = new ArrayList<Integer>();
+		for (int position : positions) {
+			// if chunk is defined, filter positions by start/end boundaries
+			if (chunk != null) {
+				if (position < chunk.getStart()) {
+					continue; // skip positions before the chunk
+				}
+				if (position > chunk.getEnd()) {
+					break; // stop early since positions are sorted
+				}
+			}
+			filteredPositions.add(position);
+		}
+
+		IVCFFileReader vcfReader= null;
+
+		if (fastMode) {
+			vcfReader = new FastRegionVCFFileReader(vcfFilename, chromosome, filteredPositions);
+		} else {
+			CountingInputStream countingStream = new CountingInputStream(new FileInputStream(vcfFilename), monitor);
+			vcfReader = new FastVCFFileReader(countingStream, vcfFilename);
+		}
+
 		countSamples = vcfReader.getGenotypedSamples().size();
 
 		riskScores = new Vector<RiskScore>();
@@ -550,6 +574,10 @@ public class ApplyScoreTask implements ITaskRunnable {
 		if (VERBOSE) {
 			System.out.println(text);
 		}
+	}
+
+	public void setFastMode(boolean fastMode) {
+		this.fastMode = fastMode;
 	}
 
 	public void setFixStrandFlips(boolean fixStrandFlips) {

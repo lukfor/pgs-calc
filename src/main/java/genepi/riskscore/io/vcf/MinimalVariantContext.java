@@ -263,7 +263,7 @@ public class MinimalVariantContext {
 				if (indexDS != -1) {
 					parseDosages(values, indexDS, indexGT);
 				} else {
-					System.out.println("Variant '" + this + "': Field 'DS' not found in FORMAT. Try 'GT'");
+					//System.out.println("Variant '" + this + "': Field 'DS' not found in FORMAT. Try 'GT'");
 					if (indexGT == -1) {
 						throw new IOException(
 								"Variant '" + this + "': Field 'GT' not found in FORMAT. Available: " + format);

@@ -215,6 +215,16 @@ public class MergedRiskScoreCollection implements IRiskScoreCollection {
 	}
 
 	@Override
+	public List<Integer> getUniquePositions() {
+		Set<Integer> positions = new TreeSet<>(); // automatically unique & sorted
+		for (String key : variantsIndex.keySet()) {
+			String position = key.split("_")[0];
+			positions.add(Integer.parseInt(position));
+		}
+		return new ArrayList<>(positions);
+	}
+
+	@Override
 	public Set<Map.Entry<Integer, ReferenceVariant>> getAllVariants(int index) {
 		throw new RuntimeException("Not yet implemented!");
 	}

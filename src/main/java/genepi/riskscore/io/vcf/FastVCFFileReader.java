@@ -14,7 +14,7 @@ import genepi.io.reader.IReader;
 import htsjdk.variant.vcf.VCFFileReader;
 import htsjdk.variant.vcf.VCFHeader;
 
-public class FastVCFFileReader implements IReader<MinimalVariantContext> {
+public class FastVCFFileReader implements IVCFFileReader {
 
 	private List<String> samples;
 

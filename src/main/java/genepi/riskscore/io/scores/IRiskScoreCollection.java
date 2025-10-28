@@ -1,5 +1,6 @@
 package genepi.riskscore.io.scores;
 
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
@@ -25,6 +26,8 @@ public interface IRiskScoreCollection {
 	public boolean contains(int index, int position, String alleleA, String alleleB);
 
 	public Set<Entry<Integer, ReferenceVariant>> getAllVariants(int index);
+
+	public List<Integer> getUniquePositions();
 
 	public ReferenceVariant getVariant(int index, int position, String alleleA, String alleleB);
 
