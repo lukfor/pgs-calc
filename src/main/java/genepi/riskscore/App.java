@@ -17,11 +17,11 @@ public class App {
 
 	public static final String APP = "pgs-calc";
 
-	public static final String VERSION = "1.6.1";
+	public static final String VERSION = "1.6.2";
 
 	public static final String URL = "https://github.com/lukfor/pgs-calc";
 
-	public static final String COPYRIGHT = "(c) 2020 - 2023 Lukas Forer";
+	public static final String COPYRIGHT = "(c) 2020 - 2025 Lukas Forer";
 
 	public static String[] ARGS = new String[0];
 
